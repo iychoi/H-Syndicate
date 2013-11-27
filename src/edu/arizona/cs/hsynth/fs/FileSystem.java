@@ -114,7 +114,7 @@ public abstract class FileSystem implements Closeable {
         return this.closed;
     }
     
-    public synchronized Configuration getConfiguration() {
+    protected synchronized Configuration getConfiguration() {
         return this.conf;
     }
     

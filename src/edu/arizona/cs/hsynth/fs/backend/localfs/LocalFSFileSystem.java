@@ -16,10 +16,6 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-/**
- *
- * @author iychoi
- */
 public class LocalFSFileSystem extends FileSystem {
 
     private static final Log LOG = LogFactory.getLog(LocalFSFileSystem.class);
@@ -318,8 +314,6 @@ public class LocalFSFileSystem extends FileSystem {
     
     @Override
     public synchronized void close() throws IOException {
-        LOG.info("Close FileSystem");
-        
         if(this.closed) {
             LOG.error("filesystem is already closed");
             throw new IllegalStateException("filesystem is already closed");
@@ -329,7 +323,7 @@ public class LocalFSFileSystem extends FileSystem {
         super.raiseOnBeforeDestroyEvent();
         
         // close all open files
-        for(LocalFSInputStream is : openInputStream) {
+        for(LocalFSInputStream is : this.openInputStream) {
             try {
                 is.close();
             } catch (IOException ex) {
@@ -337,7 +331,7 @@ public class LocalFSFileSystem extends FileSystem {
             }
         }
         
-        for(LocalFSOutputStream os : openOutputStream) {
+        for(LocalFSOutputStream os : this.openOutputStream) {
             try {
                 os.close();
             } catch (IOException ex) {
@@ -345,7 +339,7 @@ public class LocalFSFileSystem extends FileSystem {
             }
         }
         
-        for(LocalFSRandomAccess raf : openRandomAccess) {
+        for(LocalFSRandomAccess raf : this.openRandomAccess) {
             try {
                 raf.close();
             } catch (IOException ex) {

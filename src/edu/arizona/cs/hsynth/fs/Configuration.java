@@ -43,6 +43,10 @@ public abstract class Configuration {
         return this.lock;
     }
     
+    public abstract String serialize();
+    
+    public abstract void deserialize(String serializedConf) throws IllegalAccessException;
+    
     @Override
     public abstract boolean equals(Object o);
     

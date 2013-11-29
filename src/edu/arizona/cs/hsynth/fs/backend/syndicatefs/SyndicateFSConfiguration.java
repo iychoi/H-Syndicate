@@ -2,6 +2,9 @@ package edu.arizona.cs.hsynth.fs.backend.syndicatefs;
 
 import edu.arizona.cs.hsynth.fs.Configuration;
 import edu.arizona.cs.hsynth.fs.Context;
+import java.io.File;
+import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
 
 public class SyndicateFSConfiguration extends Configuration {
     
@@ -23,6 +26,13 @@ public class SyndicateFSConfiguration extends Configuration {
     private int cacheTimeoutSecond;
     private int readBufferSize;
     private int writeBufferSize;
+    
+    private final static String JSON_KEY_FS_BACKEND = "fsbackend";
+    private final static String JSON_KEY_READ_BUFFER_SIZE = "rbuffersize";
+    private final static String JSON_KEY_WRITE_BUFFER_SIZE = "wbuffersize";
+    private final static String JSON_KEY_IPC_PORT = "ipcport";
+    private final static String JSON_KEY_MAX_METADATA_CACHE_SIZE = "maxmetacache";
+    private final static String JSON_KEY_CACHE_TIMEOUT = "cachetimeout";
     
     public SyndicateFSConfiguration() {
         this.ipcPort = DEFAULT_IPC_PORT;
@@ -121,5 +131,29 @@ public class SyndicateFSConfiguration extends Configuration {
     @Override
     public Context getContext() {
         return Context.getContext(this);
+    }
+
+    @Override
+    public String serialize() {
+        JSONObject json = new JSONObject();
+        json.put(JSON_KEY_FS_BACKEND, getBackendName());
+        json.put(JSON_KEY_READ_BUFFER_SIZE, (Integer) getReadBufferSize());
+        json.put(JSON_KEY_WRITE_BUFFER_SIZE, (Integer) getWriteBufferSize());
+        json.put(JSON_KEY_IPC_PORT, (Integer) getPort());
+        json.put(JSON_KEY_MAX_METADATA_CACHE_SIZE, (Integer) getMaxMetadataCacheSize());
+        json.put(JSON_KEY_CACHE_TIMEOUT, (Integer) getCacheTimeoutSecond());
+        
+        return json.toString();
+    }
+
+    @Override
+    public void deserialize(String serializedConf) throws IllegalAccessException {
+        JSONObject json = (JSONObject)JSONSerializer.toJSON(serializedConf);
+        //json.get(JSON_KEY_FS_BACKEND);
+        setReadBufferSize((Integer)json.get(JSON_KEY_READ_BUFFER_SIZE));
+        setWriteBufferSize((Integer)json.get(JSON_KEY_WRITE_BUFFER_SIZE));
+        setPort((Integer)json.get(JSON_KEY_IPC_PORT));
+        setMaxMetadataCacheSize((Integer)json.get(JSON_KEY_MAX_METADATA_CACHE_SIZE));
+        setCacheTimeoutSecond((Integer)json.get(JSON_KEY_CACHE_TIMEOUT));
     }
 }

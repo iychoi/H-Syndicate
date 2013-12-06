@@ -1,6 +1,6 @@
 package edu.arizona.cs.hsynth.fs.backend.syndicatefs;
 
-import edu.arizona.cs.hsynth.fs.Path;
+import edu.arizona.cs.hsynth.fs.HSynthFSPath;
 import edu.arizona.cs.hsynth.fs.backend.syndicatefs.client.message.SyndicateFSStat;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -10,13 +10,13 @@ public class SyndicateFSFileStatus {
     private static final Log LOG = LogFactory.getLog(SyndicateFSFileStatus.class);
     
     private SyndicateFSFileSystem filesystem;
-    private Path path;
+    private HSynthFSPath path;
     private SyndicateFSStat stat;
     private boolean dirty;
     private boolean sizeModified;
     private long localFileSize;
 
-    public SyndicateFSFileStatus(SyndicateFSFileSystem fs, Path path, SyndicateFSStat stat) {
+    public SyndicateFSFileStatus(SyndicateFSFileSystem fs, HSynthFSPath path, SyndicateFSStat stat) {
         this.filesystem = fs;
         this.path = path;
         this.stat = stat;
@@ -29,7 +29,7 @@ public class SyndicateFSFileStatus {
         return this.filesystem;
     }
     
-    public Path getPath() {
+    public HSynthFSPath getPath() {
         return this.path;
     }
     

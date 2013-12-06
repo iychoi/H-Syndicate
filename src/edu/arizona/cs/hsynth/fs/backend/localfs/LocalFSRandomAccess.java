@@ -1,12 +1,12 @@
 package edu.arizona.cs.hsynth.fs.backend.localfs;
 
-import edu.arizona.cs.hsynth.fs.RandomAccess;
+import edu.arizona.cs.hsynth.fs.HSynthFSRandomAccess;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-public class LocalFSRandomAccess implements RandomAccess {
+public class LocalFSRandomAccess implements HSynthFSRandomAccess {
     
     private RandomAccessFile raf;
     private LocalFSFileSystem filesystem;

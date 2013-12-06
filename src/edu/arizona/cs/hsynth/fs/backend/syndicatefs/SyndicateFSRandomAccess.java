@@ -1,11 +1,11 @@
 package edu.arizona.cs.hsynth.fs.backend.syndicatefs;
 
-import edu.arizona.cs.hsynth.fs.RandomAccess;
+import edu.arizona.cs.hsynth.fs.HSynthFSRandomAccess;
 import java.io.IOException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-public class SyndicateFSRandomAccess implements RandomAccess {
+public class SyndicateFSRandomAccess implements HSynthFSRandomAccess {
     
     private static final Log LOG = LogFactory.getLog(SyndicateFSRandomAccess.class);
     

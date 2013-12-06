@@ -4,27 +4,30 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 
-public class Path implements Comparable {
+public class HSynthFSPath implements Comparable {
 
     // stores path hierarchy
     private URI uri;
     
+    public static final String SEPARATOR = "/";
+    public static final char SEPARATOR_CHAR = '/';
+    
     /*
      * Construct a path from parent/child pairs
      */
-    public Path(String parent, String child) {
-        this(new Path(parent), new Path(child));
+    public HSynthFSPath(String parent, String child) {
+        this(new HSynthFSPath(parent), new HSynthFSPath(child));
     }
     
-    public Path(Path parent, String child) {
-        this(parent, new Path(child));
+    public HSynthFSPath(HSynthFSPath parent, String child) {
+        this(parent, new HSynthFSPath(child));
     }
     
-    public Path(String parent, Path child) {
-        this(new Path(parent), child);
+    public HSynthFSPath(String parent, HSynthFSPath child) {
+        this(new HSynthFSPath(parent), child);
     }
     
-    public Path(Path parent, Path child) {
+    public HSynthFSPath(HSynthFSPath parent, HSynthFSPath child) {
         if (parent == null)
             throw new IllegalArgumentException("Can not resolve a path from a null parent");
         if (child == null)
@@ -54,7 +57,7 @@ public class Path implements Comparable {
     /*
      * Construct a path from string
      */
-    public Path(String path) {
+    public HSynthFSPath(String path) {
         if (path == null)
             throw new IllegalArgumentException("Can not create a path from a null string");
         if (path.length() == 0)
@@ -99,7 +102,7 @@ public class Path implements Comparable {
     /*
      * Construct a path from URI
      */
-    public Path(URI uri) {
+    public HSynthFSPath(URI uri) {
         this.uri = uri;
     }
     
@@ -151,7 +154,7 @@ public class Path implements Comparable {
     /*
      * Return the parent path, Null if parent is root
      */
-    public Path getParent() {
+    public HSynthFSPath getParent() {
         String path = this.uri.getPath();
         int lastSlash = path.lastIndexOf('/');
         // empty
@@ -162,12 +165,12 @@ public class Path implements Comparable {
             return null;
         
         if (lastSlash == -1) {
-            return new Path(createPathUri(this.uri.getScheme(), this.uri.getAuthority(), "."));
+            return new HSynthFSPath(createPathUri(this.uri.getScheme(), this.uri.getAuthority(), "."));
         } else if (lastSlash == 0) {
-            return new Path(createPathUri(this.uri.getScheme(), this.uri.getAuthority(), "/"));
+            return new HSynthFSPath(createPathUri(this.uri.getScheme(), this.uri.getAuthority(), "/"));
         } else {
             String parent = path.substring(0, lastSlash);
-            return new Path(createPathUri(this.uri.getScheme(), this.uri.getAuthority(), parent));
+            return new HSynthFSPath(createPathUri(this.uri.getScheme(), this.uri.getAuthority(), parent));
         }
     }
     
@@ -226,27 +229,31 @@ public class Path implements Comparable {
         return depth;
     }
     
-    public Path[] getAncestors() {
-        ArrayList<Path> ancestors = new ArrayList<Path>();
+    public HSynthFSPath[] getAncestors() {
+        ArrayList<HSynthFSPath> ancestors = new ArrayList<HSynthFSPath>();
         
-        Path parent = getParent();
+        HSynthFSPath parent = getParent();
         while(parent != null) {
             ancestors.add(0, parent);
             
             parent = parent.getParent();
         }
         
-        Path[] ancestors_array = new Path[ancestors.size()];
+        HSynthFSPath[] ancestors_array = new HSynthFSPath[ancestors.size()];
         ancestors_array = ancestors.toArray(ancestors_array);
         return ancestors_array;
     }
     
+    public HSynthFSPath suffix(String suffix) {
+        return new HSynthFSPath(getPath() + suffix);
+    }
+    
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof Path))
+        if (!(o instanceof HSynthFSPath))
             return false;
         
-        Path other = (Path) o;
+        HSynthFSPath other = (HSynthFSPath) o;
         return this.uri.equals(other.uri);
     }
     
@@ -257,7 +264,7 @@ public class Path implements Comparable {
     
     @Override
     public int compareTo(Object o) {
-        Path other = (Path) o;
+        HSynthFSPath other = (HSynthFSPath) o;
         return this.uri.compareTo(other.uri);
     }
 }

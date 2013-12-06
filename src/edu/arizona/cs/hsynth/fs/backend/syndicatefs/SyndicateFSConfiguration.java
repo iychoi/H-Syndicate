@@ -1,12 +1,12 @@
 package edu.arizona.cs.hsynth.fs.backend.syndicatefs;
 
-import edu.arizona.cs.hsynth.fs.Configuration;
-import edu.arizona.cs.hsynth.fs.Context;
+import edu.arizona.cs.hsynth.fs.HSynthFSConfiguration;
+import edu.arizona.cs.hsynth.fs.HSynthFSContext;
 import java.io.File;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 
-public class SyndicateFSConfiguration extends Configuration {
+public class SyndicateFSConfiguration extends HSynthFSConfiguration {
     
     private final static String FS_BACKEND_NAME = "SyndicateFileSystem";
     
@@ -129,8 +129,8 @@ public class SyndicateFSConfiguration extends Configuration {
     }
     
     @Override
-    public Context getContext() {
-        return Context.getContext(this);
+    public HSynthFSContext getContext() {
+        return HSynthFSContext.getContext(this);
     }
 
     @Override

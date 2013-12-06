@@ -3,7 +3,7 @@ package edu.arizona.cs.hsynth.fs;
 import java.io.Closeable;
 import java.io.IOException;
 
-public interface RandomAccess extends Closeable {
+public interface HSynthFSRandomAccess extends Closeable {
     
     public int read() throws IOException;
     

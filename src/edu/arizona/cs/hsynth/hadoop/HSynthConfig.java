@@ -13,11 +13,11 @@ public class HSynthConfig extends Configuration {
         super(hadoopConfig);
     }
     
-    public edu.arizona.cs.hsynth.fs.Configuration getFSConfiguration() throws InstantiationException {
+    public edu.arizona.cs.hsynth.fs.HSynthFSConfiguration getFSConfiguration() throws InstantiationException {
         return HSynthConfigUtil.getHSynthFSConfigurationInstance(this);
     }
     
-    public void setHSynthFSConfiguration(edu.arizona.cs.hsynth.fs.Configuration fsconf) {
+    public void setHSynthFSConfiguration(edu.arizona.cs.hsynth.fs.HSynthFSConfiguration fsconf) {
         HSynthConfigUtil.setHSynthFSConfiguration(this, fsconf);
     }
 }

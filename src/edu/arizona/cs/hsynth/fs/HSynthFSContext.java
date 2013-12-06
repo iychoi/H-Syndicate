@@ -6,25 +6,25 @@ import java.util.Hashtable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-public class Context implements Closeable {
+public class HSynthFSContext implements Closeable {
 
-    private static final Log LOG = LogFactory.getLog(Context.class);
+    private static final Log LOG = LogFactory.getLog(HSynthFSContext.class);
     
-    private static Hashtable<Configuration, Context> cachedContexts;
+    private static Hashtable<HSynthFSConfiguration, HSynthFSContext> cachedContexts;
     
-    private Configuration configuration;
-    private FileSystem filesystem;
+    private HSynthFSConfiguration configuration;
+    private HSynthFileSystem filesystem;
     private boolean closed = true;
     
     static {
-        cachedContexts = new Hashtable<Configuration, Context>();
+        cachedContexts = new Hashtable<HSynthFSConfiguration, HSynthFSContext>();
     }
     
-    public static Context getContext(Configuration configuration) {
-        Context context = cachedContexts.get(configuration);
+    public static HSynthFSContext getContext(HSynthFSConfiguration configuration) {
+        HSynthFSContext context = cachedContexts.get(configuration);
         if(context == null) {
             try {
-                context = new Context(configuration);
+                context = new HSynthFSContext(configuration);
             } catch (InstantiationException ex) {
                 LOG.info(ex);
                 return null;
@@ -34,19 +34,19 @@ public class Context implements Closeable {
         return context;
     }
     
-    private Context(Configuration configuration) throws InstantiationException {
+    private HSynthFSContext(HSynthFSConfiguration configuration) throws InstantiationException {
         this.configuration = configuration;
-        this.filesystem = FileSystem.createInstance(configuration);
+        this.filesystem = HSynthFileSystem.createInstance(configuration);
         this.closed = false;
         
         cachedContexts.put(configuration, this);
     }
     
-    public Configuration getConfiguration() {
+    public HSynthFSConfiguration getConfiguration() {
         return this.configuration;
     }
     
-    public FileSystem getFileSystem() {
+    public HSynthFileSystem getFileSystem() {
         return this.filesystem;
     }
     

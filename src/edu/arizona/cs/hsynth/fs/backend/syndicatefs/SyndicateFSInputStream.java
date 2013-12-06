@@ -1,11 +1,11 @@
 package edu.arizona.cs.hsynth.fs.backend.syndicatefs;
 
+import edu.arizona.cs.hsynth.fs.HSynthFSInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-public class SyndicateFSInputStream extends InputStream {
+public class SyndicateFSInputStream extends HSynthFSInputStream {
 
     private static final Log LOG = LogFactory.getLog(SyndicateFSInputStream.class);
     

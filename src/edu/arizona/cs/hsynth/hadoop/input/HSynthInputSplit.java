@@ -1,7 +1,7 @@
 package edu.arizona.cs.hsynth.hadoop.input;
 
-import edu.arizona.cs.hsynth.fs.FileSystem;
-import edu.arizona.cs.hsynth.fs.Path;
+import edu.arizona.cs.hsynth.fs.HSynthFileSystem;
+import edu.arizona.cs.hsynth.fs.HSynthFSPath;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -11,8 +11,8 @@ import org.apache.hadoop.mapreduce.InputSplit;
 
 public class HSynthInputSplit extends InputSplit implements Writable {
 
-    private FileSystem filesystem;
-    private Path path;
+    private HSynthFileSystem filesystem;
+    private HSynthFSPath path;
     private long start;
     private long length;
 
@@ -22,7 +22,7 @@ public class HSynthInputSplit extends InputSplit implements Writable {
     /*
      * Constructs a split
      */
-    public HSynthInputSplit(FileSystem fs, Path path, long start, long length) {
+    public HSynthInputSplit(HSynthFileSystem fs, HSynthFSPath path, long start, long length) {
         if(fs == null)
             throw new IllegalArgumentException("Can not create Input Split from null file system");
         if(path == null)
@@ -34,14 +34,14 @@ public class HSynthInputSplit extends InputSplit implements Writable {
         this.length = length;
     }
 
-    public FileSystem getFileSystem() {
+    public HSynthFileSystem getFileSystem() {
         return this.filesystem;
     }
     
     /*
      * The file containing this split's data
      */
-    public Path getPath() {
+    public HSynthFSPath getPath() {
         return this.path;
     }
     
@@ -62,7 +62,7 @@ public class HSynthInputSplit extends InputSplit implements Writable {
 
     @Override
     public String toString() {
-        return this.path.getPath() + ":" + this.start + "+" + this.length;
+        return this.path.toString() + ":" + this.start + "+" + this.length;
     }
 
     @Override
@@ -73,14 +73,14 @@ public class HSynthInputSplit extends InputSplit implements Writable {
 
     @Override
     public void write(DataOutput out) throws IOException {
-        Text.writeString(out, this.path.getPath());
+        Text.writeString(out, this.path.toString());
         out.writeLong(this.start);
         out.writeLong(this.length);
     }
 
     @Override
     public void readFields(DataInput in) throws IOException {
-        this.path = new Path(Text.readString(in));
+        this.path = new HSynthFSPath(Text.readString(in));
         this.start = in.readLong();
         this.length = in.readLong();
     }

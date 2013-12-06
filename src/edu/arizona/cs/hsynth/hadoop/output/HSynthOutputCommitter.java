@@ -1,7 +1,7 @@
 package edu.arizona.cs.hsynth.hadoop.output;
 
-import edu.arizona.cs.hsynth.fs.FileSystem;
-import edu.arizona.cs.hsynth.fs.Path;
+import edu.arizona.cs.hsynth.fs.HSynthFileSystem;
+import edu.arizona.cs.hsynth.fs.HSynthFSPath;
 import java.io.IOException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -13,10 +13,10 @@ public class HSynthOutputCommitter extends OutputCommitter {
 
     private static final Log LOG = LogFactory.getLog(HSynthOutputCommitter.class);
     
-    private FileSystem outputFileSystem = null;
-    private Path outputPath = null;
+    private HSynthFileSystem outputFileSystem = null;
+    private HSynthFSPath outputPath = null;
     
-    public HSynthOutputCommitter(FileSystem fs, Path output, TaskAttemptContext context) {
+    public HSynthOutputCommitter(HSynthFileSystem fs, HSynthFSPath output, TaskAttemptContext context) {
         if(output != null) {
             this.outputPath = output;
             this.outputFileSystem = fs;
@@ -61,11 +61,11 @@ public class HSynthOutputCommitter extends OutputCommitter {
         }
     }
     
-    public Path getOutputPath() {
+    public HSynthFSPath getOutputPath() {
         return this.outputPath;
     }
     
-    public FileSystem getOutFileSystem() {
+    public HSynthFileSystem getOutFileSystem() {
         return this.outputFileSystem;
     }
 }

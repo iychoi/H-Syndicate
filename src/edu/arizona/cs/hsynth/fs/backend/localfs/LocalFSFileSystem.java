@@ -1,22 +1,22 @@
 package edu.arizona.cs.hsynth.fs.backend.localfs;
 
-import edu.arizona.cs.hsynth.fs.Configuration;
-import edu.arizona.cs.hsynth.fs.FileSystem;
-import edu.arizona.cs.hsynth.fs.FilenameFilter;
-import edu.arizona.cs.hsynth.fs.Path;
-import edu.arizona.cs.hsynth.fs.PathFilter;
-import edu.arizona.cs.hsynth.fs.RandomAccess;
+import edu.arizona.cs.hsynth.fs.HSynthFSConfiguration;
+import edu.arizona.cs.hsynth.fs.HSynthFileSystem;
+import edu.arizona.cs.hsynth.fs.HSynthFSFilenameFilter;
+import edu.arizona.cs.hsynth.fs.HSynthFSPath;
+import edu.arizona.cs.hsynth.fs.HSynthFSPathFilter;
+import edu.arizona.cs.hsynth.fs.HSynthFSRandomAccess;
+import edu.arizona.cs.hsynth.fs.HSynthFSInputStream;
+import edu.arizona.cs.hsynth.fs.HSynthFSOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-public class LocalFSFileSystem extends FileSystem {
+public class LocalFSFileSystem extends HSynthFileSystem {
 
     private static final Log LOG = LogFactory.getLog(LocalFSFileSystem.class);
     
@@ -28,7 +28,7 @@ public class LocalFSFileSystem extends FileSystem {
         initialize(configuration);
     }
     
-    public LocalFSFileSystem(Configuration configuration) {
+    public LocalFSFileSystem(HSynthFSConfiguration configuration) {
         if(!(configuration instanceof LocalFSConfiguration)) {
             throw new IllegalArgumentException("Configuration is not an instance of LocalFSConfiguration");
         }
@@ -50,20 +50,20 @@ public class LocalFSFileSystem extends FileSystem {
     }
     
     private LocalFSConfiguration getLocalFSConfiguration() {
-        Configuration conf = getConfiguration();
+        HSynthFSConfiguration conf = getConfiguration();
         if(conf != null) {
             return (LocalFSConfiguration)conf;
         }
         return null;
     }
     
-    private String getLocalPath(Path path) {
+    private String getLocalPath(HSynthFSPath path) {
         if(path == null) {
             LOG.error("Can not get LocalAbsolutePath from null path");
             throw new IllegalArgumentException("Can not get LocalAbsolutePath from null path");
         }
         
-        Path absPath = getAbsolutePath(path);
+        HSynthFSPath absPath = getAbsolutePath(path);
         String absWorkingPath = getLocalFSConfiguration().getWorkingDir().getAbsolutePath();
         
         String filePath = absPath.getPath();
@@ -88,7 +88,7 @@ public class LocalFSFileSystem extends FileSystem {
     
     
     @Override
-    public boolean exists(Path path) {
+    public boolean exists(HSynthFSPath path) {
         if(path == null) {
             LOG.error("path is null");
             throw new IllegalArgumentException("path is null");
@@ -100,7 +100,7 @@ public class LocalFSFileSystem extends FileSystem {
     }
 
     @Override
-    public boolean isDirectory(Path path) {
+    public boolean isDirectory(HSynthFSPath path) {
         if(path == null) {
             LOG.error("path is null");
             throw new IllegalArgumentException("path is null");
@@ -112,7 +112,7 @@ public class LocalFSFileSystem extends FileSystem {
     }
 
     @Override
-    public boolean isFile(Path path) {
+    public boolean isFile(HSynthFSPath path) {
         if(path == null) {
             LOG.error("path is null");
             throw new IllegalArgumentException("path is null");
@@ -124,7 +124,7 @@ public class LocalFSFileSystem extends FileSystem {
     }
     
     @Override
-    public long getSize(Path path) {
+    public long getSize(HSynthFSPath path) {
         if(path == null) {
             LOG.error("path is null");
             throw new IllegalArgumentException("path is null");
@@ -142,7 +142,7 @@ public class LocalFSFileSystem extends FileSystem {
     }
 
     @Override
-    public void delete(Path path) throws FileNotFoundException, IOException {
+    public void delete(HSynthFSPath path) throws FileNotFoundException, IOException {
         if(path == null) {
             LOG.error("path is null");
             throw new IllegalArgumentException("path is null");
@@ -157,7 +157,7 @@ public class LocalFSFileSystem extends FileSystem {
     }
 
     @Override
-    public void rename(Path path, Path newpath) throws FileNotFoundException, IOException {
+    public void rename(HSynthFSPath path, HSynthFSPath newpath) throws FileNotFoundException, IOException {
         if(path == null) {
             LOG.error("path is null");
             throw new IllegalArgumentException("path is null");
@@ -177,7 +177,7 @@ public class LocalFSFileSystem extends FileSystem {
     }
 
     @Override
-    public void mkdir(Path path) throws IOException {
+    public void mkdir(HSynthFSPath path) throws IOException {
         if(path == null) {
             LOG.error("path is null");
             throw new IllegalArgumentException("path is null");
@@ -191,7 +191,7 @@ public class LocalFSFileSystem extends FileSystem {
     }
 
     @Override
-    public InputStream getFileInputStream(Path path) throws IOException {
+    public HSynthFSInputStream getFileInputStream(HSynthFSPath path) throws IOException {
         if(path == null) {
             LOG.error("path is null");
             throw new IllegalArgumentException("path is null");
@@ -205,7 +205,7 @@ public class LocalFSFileSystem extends FileSystem {
     }
 
     @Override
-    public OutputStream getFileOutputStream(Path path) throws IOException {
+    public HSynthFSOutputStream getFileOutputStream(HSynthFSPath path) throws IOException {
         if(path == null) {
             LOG.error("path is null");
             throw new IllegalArgumentException("path is null");
@@ -219,7 +219,7 @@ public class LocalFSFileSystem extends FileSystem {
     }
     
     @Override
-    public RandomAccess getRandomAccess(Path path) throws IOException {
+    public HSynthFSRandomAccess getRandomAccess(HSynthFSPath path) throws IOException {
         if(path == null) {
             LOG.error("path is null");
             throw new IllegalArgumentException("path is null");
@@ -227,13 +227,13 @@ public class LocalFSFileSystem extends FileSystem {
         
         String realPath = getLocalPath(path);
         File file = new File(realPath);
-        LocalFSRandomAccess ra = new LocalFSRandomAccess(this, file, "rb");
+        LocalFSRandomAccess ra = new LocalFSRandomAccess(this, file, "rw");
         this.openRandomAccess.add(ra);
         return ra;
     }
 
     @Override
-    public String[] readDirectoryEntries(final Path path, final FilenameFilter filter) throws FileNotFoundException, IOException {
+    public String[] readDirectoryEntries(final HSynthFSPath path, final HSynthFSFilenameFilter filter) throws FileNotFoundException, IOException {
         if(path == null) {
             LOG.error("path is null");
             throw new IllegalArgumentException("path is null");
@@ -259,7 +259,7 @@ public class LocalFSFileSystem extends FileSystem {
     }
 
     @Override
-    public String[] readDirectoryEntries(final Path path, final PathFilter filter) throws FileNotFoundException, IOException {
+    public String[] readDirectoryEntries(final HSynthFSPath path, final HSynthFSPathFilter filter) throws FileNotFoundException, IOException {
         if(path == null) {
             LOG.error("path is null");
             throw new IllegalArgumentException("path is null");
@@ -276,7 +276,7 @@ public class LocalFSFileSystem extends FileSystem {
             @Override
             public boolean accept(File file, String string) {
                 if(filter != null) {
-                    Path newPath = new Path(path, string);
+                    HSynthFSPath newPath = new HSynthFSPath(path, string);
                     return filter.accept(newPath);
                 } else {
                     return true;

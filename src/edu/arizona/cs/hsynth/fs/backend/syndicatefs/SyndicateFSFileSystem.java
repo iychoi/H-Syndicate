@@ -1,25 +1,25 @@
 package edu.arizona.cs.hsynth.fs.backend.syndicatefs;
 
-import edu.arizona.cs.hsynth.fs.Configuration;
-import edu.arizona.cs.hsynth.fs.FileSystem;
-import edu.arizona.cs.hsynth.fs.FilenameFilter;
-import edu.arizona.cs.hsynth.fs.Path;
-import edu.arizona.cs.hsynth.fs.PathFilter;
-import edu.arizona.cs.hsynth.fs.RandomAccess;
+import edu.arizona.cs.hsynth.fs.HSynthFSConfiguration;
+import edu.arizona.cs.hsynth.fs.HSynthFileSystem;
+import edu.arizona.cs.hsynth.fs.HSynthFSFilenameFilter;
+import edu.arizona.cs.hsynth.fs.HSynthFSPath;
+import edu.arizona.cs.hsynth.fs.HSynthFSPathFilter;
+import edu.arizona.cs.hsynth.fs.HSynthFSRandomAccess;
+import edu.arizona.cs.hsynth.fs.HSynthFSInputStream;
+import edu.arizona.cs.hsynth.fs.HSynthFSOutputStream;
 import edu.arizona.cs.hsynth.fs.backend.syndicatefs.client.message.SyndicateFSFileInfo;
 import edu.arizona.cs.hsynth.fs.backend.syndicatefs.client.message.SyndicateFSStat;
 import edu.arizona.cs.hsynth.fs.cache.ICache;
 import edu.arizona.cs.hsynth.fs.cache.TimeoutCache;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-public class SyndicateFSFileSystem extends FileSystem {
+public class SyndicateFSFileSystem extends HSynthFileSystem {
 
     private static final Log LOG = LogFactory.getLog(SyndicateFSFileSystem.class);
 
@@ -29,13 +29,13 @@ public class SyndicateFSFileSystem extends FileSystem {
     private List<SyndicateFSOutputStream> openOutputStream = new ArrayList<SyndicateFSOutputStream>();
     private List<SyndicateFSRandomAccess> openRandomAccess = new ArrayList<SyndicateFSRandomAccess>();
     
-    private ICache<Path, SyndicateFSFileStatus> filestatus_cache;
+    private ICache<HSynthFSPath, SyndicateFSFileStatus> filestatus_cache;
     
     public SyndicateFSFileSystem(SyndicateFSConfiguration configuration) throws InstantiationException {
         initialize(configuration);
     }
     
-    public SyndicateFSFileSystem(Configuration configuration) throws InstantiationException {
+    public SyndicateFSFileSystem(HSynthFSConfiguration configuration) throws InstantiationException {
         if(!(configuration instanceof SyndicateFSConfiguration)) {
             throw new IllegalArgumentException("Configuration is not an instance of SyndicateFSConfiguration");
         }
@@ -54,20 +54,20 @@ public class SyndicateFSFileSystem extends FileSystem {
         super.initialize(conf);
         
         this.client = new SyndicateFSClientInterface("localhost", conf.getPort());
-        this.filestatus_cache = new TimeoutCache<Path, SyndicateFSFileStatus>(conf.getMaxMetadataCacheSize(), conf.getCacheTimeoutSecond());
+        this.filestatus_cache = new TimeoutCache<HSynthFSPath, SyndicateFSFileStatus>(conf.getMaxMetadataCacheSize(), conf.getCacheTimeoutSecond());
         
         super.raiseOnAfterCreateEvent();
     }
     
     private SyndicateFSConfiguration getSyndicateFSConfiguration() {
-        Configuration conf = getConfiguration();
+        HSynthFSConfiguration conf = getConfiguration();
         if(conf != null) {
             return (SyndicateFSConfiguration)conf;
         }
         return null;
     }
     
-    private SyndicateFSFileStatus getFileStatus(Path abspath) {
+    private SyndicateFSFileStatus getFileStatus(HSynthFSPath abspath) {
         if(abspath == null) {
             LOG.error("Can not get FileStatus from null abspath");
             throw new IllegalArgumentException("Can not get FileStatus from null abspath");
@@ -130,7 +130,7 @@ public class SyndicateFSFileSystem extends FileSystem {
         return new SyndicateFSFileHandle(this, this.client, status, fi, readonly);
     }
     
-    private SyndicateFSFileHandle createNewFile(Path abspath) throws IOException {
+    private SyndicateFSFileHandle createNewFile(HSynthFSPath abspath) throws IOException {
         if(abspath == null) {
             LOG.error("abspath is null");
             throw new IllegalArgumentException("abspath is null");
@@ -162,13 +162,13 @@ public class SyndicateFSFileSystem extends FileSystem {
     }
     
     @Override
-    public boolean exists(Path path) {
+    public boolean exists(HSynthFSPath path) {
         if(path == null) {
             LOG.error("path is null");
             throw new IllegalArgumentException("path is null");
         }
         
-        Path absPath = getAbsolutePath(path);
+        HSynthFSPath absPath = getAbsolutePath(path);
         SyndicateFSFileStatus status = getFileStatus(absPath);
         if(status != null) {
             return true;
@@ -177,13 +177,13 @@ public class SyndicateFSFileSystem extends FileSystem {
     }
 
     @Override
-    public boolean isDirectory(Path path) {
+    public boolean isDirectory(HSynthFSPath path) {
         if(path == null) {
             LOG.error("path is null");
             throw new IllegalArgumentException("path is null");
         }
         
-        Path absPath = getAbsolutePath(path);
+        HSynthFSPath absPath = getAbsolutePath(path);
         SyndicateFSFileStatus status = getFileStatus(absPath);
         if(status != null) {
             return status.isDirectory();
@@ -192,13 +192,13 @@ public class SyndicateFSFileSystem extends FileSystem {
     }
 
     @Override
-    public boolean isFile(Path path) {
+    public boolean isFile(HSynthFSPath path) {
         if(path == null) {
             LOG.error("path is null");
             throw new IllegalArgumentException("path is null");
         }
         
-        Path absPath = getAbsolutePath(path);
+        HSynthFSPath absPath = getAbsolutePath(path);
         SyndicateFSFileStatus status = getFileStatus(absPath);
         if(status != null) {
             return status.isFile();
@@ -207,13 +207,13 @@ public class SyndicateFSFileSystem extends FileSystem {
     }
 
     @Override
-    public long getSize(Path path) {
+    public long getSize(HSynthFSPath path) {
         if(path == null) {
             LOG.error("path is null");
             throw new IllegalArgumentException("path is null");
         }
         
-        Path absPath = getAbsolutePath(path);
+        HSynthFSPath absPath = getAbsolutePath(path);
         SyndicateFSFileStatus status = getFileStatus(absPath);
         if(status != null) {
             return status.getSize();
@@ -223,7 +223,7 @@ public class SyndicateFSFileSystem extends FileSystem {
     
     @Override
     public long getBlockSize() {
-        SyndicateFSFileStatus status = getFileStatus(new Path("/"));
+        SyndicateFSFileStatus status = getFileStatus(new HSynthFSPath("/"));
         if(status != null) {
             return status.getBlockSize();
         }
@@ -231,13 +231,13 @@ public class SyndicateFSFileSystem extends FileSystem {
     }
 
     @Override
-    public void delete(Path path) throws IOException {
+    public void delete(HSynthFSPath path) throws IOException {
         if(path == null) {
             LOG.error("path is null");
             throw new IllegalArgumentException("path is null");
         }
         
-        Path absPath = getAbsolutePath(path);
+        HSynthFSPath absPath = getAbsolutePath(path);
         SyndicateFSFileStatus status = getFileStatus(absPath);
         if(status == null) {
             LOG.error("file not exist");
@@ -257,7 +257,7 @@ public class SyndicateFSFileSystem extends FileSystem {
     }
 
     @Override
-    public void rename(Path path, Path newpath) throws IOException {
+    public void rename(HSynthFSPath path, HSynthFSPath newpath) throws IOException {
         if(path == null) {
             LOG.error("path is null");
             throw new IllegalArgumentException("path is null");
@@ -267,8 +267,8 @@ public class SyndicateFSFileSystem extends FileSystem {
             throw new IllegalArgumentException("newpath is null");
         }
         
-        Path absPath = getAbsolutePath(path);
-        Path absNewPath = getAbsolutePath(newpath);
+        HSynthFSPath absPath = getAbsolutePath(path);
+        HSynthFSPath absNewPath = getAbsolutePath(newpath);
         
         SyndicateFSFileStatus status = getFileStatus(absPath);
         SyndicateFSFileStatus newStatus = getFileStatus(absNewPath);
@@ -295,13 +295,13 @@ public class SyndicateFSFileSystem extends FileSystem {
     }
 
     @Override
-    public void mkdir(Path path) throws IOException {
+    public void mkdir(HSynthFSPath path) throws IOException {
         if(path == null) {
             LOG.error("path is null");
             throw new IllegalArgumentException("path is null");
         }
         
-        Path absPath = getAbsolutePath(path);
+        HSynthFSPath absPath = getAbsolutePath(path);
         SyndicateFSFileStatus status = getFileStatus(absPath.getParent());
         if(status == null) {
             LOG.error("parent directory does not exist : " + absPath.getPath());
@@ -311,13 +311,13 @@ public class SyndicateFSFileSystem extends FileSystem {
     }
 
     @Override
-    public InputStream getFileInputStream(Path path) throws IOException {
+    public HSynthFSInputStream getFileInputStream(HSynthFSPath path) throws IOException {
         if(path == null) {
             LOG.error("path is null");
             throw new IllegalArgumentException("path is null");
         }
         
-        Path absPath = getAbsolutePath(path);
+        HSynthFSPath absPath = getAbsolutePath(path);
         SyndicateFSFileStatus status = getFileStatus(absPath);
         if(status == null) {
             LOG.error("Can not open the file to read : " + absPath.getPath());
@@ -334,13 +334,13 @@ public class SyndicateFSFileSystem extends FileSystem {
     }
 
     @Override
-    public OutputStream getFileOutputStream(Path path) throws IOException {
+    public HSynthFSOutputStream getFileOutputStream(HSynthFSPath path) throws IOException {
         if(path == null) {
             LOG.error("path is null");
             throw new IllegalArgumentException("path is null");
         }
         
-        Path absPath = getAbsolutePath(path);
+        HSynthFSPath absPath = getAbsolutePath(path);
         SyndicateFSFileStatus status = getFileStatus(absPath);
         if(status != null) {
             if(!status.isFile()) {
@@ -370,13 +370,13 @@ public class SyndicateFSFileSystem extends FileSystem {
     }
 
     @Override
-    public RandomAccess getRandomAccess(Path path) throws IOException {
+    public HSynthFSRandomAccess getRandomAccess(HSynthFSPath path) throws IOException {
         if(path == null) {
             LOG.error("path is null");
             throw new IllegalArgumentException("path is null");
         }
         
-        Path absPath = getAbsolutePath(path);
+        HSynthFSPath absPath = getAbsolutePath(path);
         SyndicateFSFileStatus status = getFileStatus(absPath);
         if(status == null) {
             LOG.error("Can not open the file to read : " + absPath.getPath());
@@ -393,13 +393,13 @@ public class SyndicateFSFileSystem extends FileSystem {
     }
 
     @Override
-    public String[] readDirectoryEntries(Path path, FilenameFilter filter) throws FileNotFoundException, IOException {
+    public String[] readDirectoryEntries(HSynthFSPath path, HSynthFSFilenameFilter filter) throws FileNotFoundException, IOException {
         if(path == null) {
             LOG.error("path is null");
             throw new IllegalArgumentException("path is null");
         }
         
-        Path absPath = getAbsolutePath(path);
+        HSynthFSPath absPath = getAbsolutePath(path);
         SyndicateFSFileStatus status = getFileStatus(absPath);
         if(status == null) {
             LOG.error("directory does not exist : " + absPath.getPath());
@@ -425,13 +425,13 @@ public class SyndicateFSFileSystem extends FileSystem {
     }
 
     @Override
-    public String[] readDirectoryEntries(Path path, PathFilter filter) throws FileNotFoundException, IOException {
+    public String[] readDirectoryEntries(HSynthFSPath path, HSynthFSPathFilter filter) throws FileNotFoundException, IOException {
         if(path == null) {
             LOG.error("path is null");
             throw new IllegalArgumentException("path is null");
         }
         
-        Path absPath = getAbsolutePath(path);
+        HSynthFSPath absPath = getAbsolutePath(path);
         SyndicateFSFileStatus status = getFileStatus(absPath);
         if(status == null) {
             LOG.error("directory does not exist : " + absPath.getPath());
@@ -445,7 +445,7 @@ public class SyndicateFSFileSystem extends FileSystem {
         } else {
             List<String> arr = new ArrayList<String>();
             for(String entry : entries) {
-                if(filter.accept(new Path(absPath, entry))) {
+                if(filter.accept(new HSynthFSPath(absPath, entry))) {
                     arr.add(entry);
                 }
             }

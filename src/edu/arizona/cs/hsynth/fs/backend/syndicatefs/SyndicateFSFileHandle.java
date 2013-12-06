@@ -1,6 +1,6 @@
 package edu.arizona.cs.hsynth.fs.backend.syndicatefs;
 
-import edu.arizona.cs.hsynth.fs.Path;
+import edu.arizona.cs.hsynth.fs.HSynthFSPath;
 import edu.arizona.cs.hsynth.fs.backend.syndicatefs.client.message.SyndicateFSFileInfo;
 import java.io.Closeable;
 import java.io.IOException;
@@ -36,7 +36,7 @@ public class SyndicateFSFileHandle implements Closeable {
         return this.client;
     }
     
-    public Path getPath() {
+    public HSynthFSPath getPath() {
         return this.status.getPath();
     }
     

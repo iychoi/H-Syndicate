@@ -1,12 +1,12 @@
 package edu.arizona.cs.hsynth.fs;
 
-public abstract class Configuration {
+public abstract class HSynthFSConfiguration {
     /*
      * if locked, values in this class become unmodifiable
      */
     protected boolean lock = false;
     
-    public Configuration() {
+    public HSynthFSConfiguration() {
     }
     
     /*
@@ -21,9 +21,9 @@ public abstract class Configuration {
     public abstract void setWriteBufferSize(int bufferSize) throws IllegalAccessException;
     
     /*
-     * Context related
+     * HSynthFSContext related
      */
-    public abstract Context getContext();
+    public abstract HSynthFSContext getContext();
     
     /*
      * Utilities
@@ -33,7 +33,7 @@ public abstract class Configuration {
     public abstract Class getFileSystemClass();
     
     /*
-     * Configuration Lock
+     * HSynthFSConfiguration Lock
      */
     public void lock() {
         this.lock = true;

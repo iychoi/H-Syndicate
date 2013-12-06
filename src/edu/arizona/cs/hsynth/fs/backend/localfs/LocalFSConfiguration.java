@@ -1,12 +1,12 @@
 package edu.arizona.cs.hsynth.fs.backend.localfs;
 
-import edu.arizona.cs.hsynth.fs.Configuration;
-import edu.arizona.cs.hsynth.fs.Context;
+import edu.arizona.cs.hsynth.fs.HSynthFSConfiguration;
+import edu.arizona.cs.hsynth.fs.HSynthFSContext;
 import java.io.File;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 
-public class LocalFSConfiguration extends Configuration {
+public class LocalFSConfiguration extends HSynthFSConfiguration {
 
     public final static String FS_BACKEND_NAME = "LocalFileSystem";
     // read buffer size
@@ -99,8 +99,8 @@ public class LocalFSConfiguration extends Configuration {
     }
 
     @Override
-    public Context getContext() {
-        return Context.getContext(this);
+    public HSynthFSContext getContext() {
+        return HSynthFSContext.getContext(this);
     }
 
     @Override

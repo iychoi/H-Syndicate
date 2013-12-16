@@ -1,4 +1,4 @@
-package edu.arizona.cs.hsynth.hadoop.connector.example;
+package edu.arizona.cs.hsynth.hadoop.example.connector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

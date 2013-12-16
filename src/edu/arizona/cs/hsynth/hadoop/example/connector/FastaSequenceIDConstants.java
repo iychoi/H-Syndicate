@@ -1,4 +1,4 @@
-package edu.arizona.cs.hsynth.hadoop.connector.example;
+package edu.arizona.cs.hsynth.hadoop.example.connector;
 
 public class FastaSequenceIDConstants {
     public final static String CONF_INPUT_FILES = "edu.arizona.cs.hadoop.fasta.sequenceid.input_files";

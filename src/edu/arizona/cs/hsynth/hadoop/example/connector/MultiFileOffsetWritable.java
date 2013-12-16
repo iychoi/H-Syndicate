@@ -1,4 +1,4 @@
-package edu.arizona.cs.hsynth.hadoop.connector.example;
+package edu.arizona.cs.hsynth.hadoop.example.connector;
 
 import java.io.DataInput;
 import java.io.DataOutput;

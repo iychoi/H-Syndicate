@@ -1,4 +1,4 @@
-package edu.arizona.cs.hsynth.hadoop.connector.example;
+package edu.arizona.cs.hsynth.hadoop.example.connector;
 
 public class FastaRawRecord {
     private String filename;

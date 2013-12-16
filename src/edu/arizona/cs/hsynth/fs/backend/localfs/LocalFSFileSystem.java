@@ -11,6 +11,8 @@ import edu.arizona.cs.hsynth.fs.HSynthFSOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.logging.Log;
@@ -172,7 +174,7 @@ public class LocalFSFileSystem extends HSynthFileSystem {
         String realToPath = getLocalPath(newpath);
         File destfile = new File(realToPath);
         if(!file.renameTo(destfile)) {
-            throw new IOException("Can not rename file : " + path.getPath());
+            throw new IOException("Can not rename file : " + path.getPath() + " to " + newpath.getPath());
         }
     }
 

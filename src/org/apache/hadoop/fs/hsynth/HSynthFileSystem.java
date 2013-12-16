@@ -151,7 +151,7 @@ public class HSynthFileSystem extends FileSystem {
         if (this.hsynth.isDirectory(hpath)) {
             throw new IOException("Path " + path + " is a directory.");
         }
-        return new FSDataInputStream(this.hsynth.getFileInputStream(hpath));
+        return new FSDataInputStream(new HSynthInputStream(getConf(), hpath, this.hsynth, statistics));
     }
 
     @Override
@@ -159,7 +159,6 @@ public class HSynthFileSystem extends FileSystem {
         HSynthFSPath hsrc = makeHSynthFSPath(src);
         HSynthFSPath hdst = makeHSynthFSPath(dst);
         
-        this.hsynth.rename(hsrc, hdst);
         if (!this.hsynth.exists(hsrc)) {
             // src path doesn't exist
             return false;

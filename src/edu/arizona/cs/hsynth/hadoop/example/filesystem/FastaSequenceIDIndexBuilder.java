@@ -1,11 +1,16 @@
 package edu.arizona.cs.hsynth.hadoop.example.filesystem;
 
+import edu.arizona.cs.hsynth.fs.backend.localfs.LocalFSConfiguration;
+import edu.arizona.cs.hsynth.hadoop.util.HSynthConfigUtil;
+import java.io.File;
+import java.net.URI;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.hsynth.HSynthFileSystem;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
@@ -35,6 +40,13 @@ public class FastaSequenceIDIndexBuilder extends Configured implements Tool {
         String outputPath = args[1];
         
         Configuration conf = this.getConf();
+        FileSystem.setDefaultUri(conf, new URI("hsyn:///"));
+        conf.setClass("fs.hsyn.impl", HSynthFileSystem.class, FileSystem.class);
+        
+        LocalFSConfiguration localfsConf = new LocalFSConfiguration();
+        localfsConf.setWorkingDir(new File("./hsynthfs"));
+
+        HSynthConfigUtil.setHSynthFSConfiguration(conf, localfsConf);
         
         // configuration
         conf.set("mapred.child.java.opts", "-Xms256M -Xmx512M");

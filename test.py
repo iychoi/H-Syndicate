@@ -37,18 +37,26 @@ def run(args):
 
     subprocess.call("time java -cp dist/lib/*:dist/HSynth.jar " + programargs, shell=True)
 
-def runSequenceIDIndexBuilder():
+def runSequenceIDIndexBuilder_connector():
     #remove outdir
     if os.path.exists('sample/output'):
         shutil.rmtree('sample/output')
 
-    subprocess.call("time java -cp dist/lib/*:dist/HSynth.jar edu.arizona.cs.hsynth.hadoop.example.FastaSequenceIDIndexBuilder sample/input sample/output", shell=True)
+    subprocess.call("time java -cp dist/lib/*:dist/HSynth.jar edu.arizona.cs.hsynth.hadoop.example.connector.FastaSequenceIDIndexBuilder sample/input sample/output", shell=True)
+
+def runSequenceIDIndexBuilder_filesystem():
+    #remove outdir
+    if os.path.exists('sample/output'):
+        shutil.rmtree('sample/output')
+
+    subprocess.call("time java -cp dist/lib/*:dist/HSynth.jar edu.arizona.cs.hsynth.hadoop.example.filesystem.FastaSequenceIDIndexBuilder hsyn:///sample/input hsyn:///sample/output", shell=True)
 
 def main():
     if len(sys.argv) < 2:
         print "command : ./test.py run <program arguments> ..."
         print "command : ./test.py dep"
-        print "command : ./test.py seqidx"
+        print "command : ./test.py seqidxc"
+        print "command : ./test.py seqidxf"
     else:
         command = sys.argv[1]
 
@@ -56,8 +64,10 @@ def main():
             run(sys.argv[2:])
         elif command == "dep":
             dep()
-        elif command == "seqidx":
-            runSequenceIDIndexBuilder()
+        elif command == "seqidxc":
+            runSequenceIDIndexBuilder_connector()
+        elif command == "seqidxf":
+            runSequenceIDIndexBuilder_filesystem()
         else:
             print "invalid command"
 

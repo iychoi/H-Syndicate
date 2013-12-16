@@ -1,10 +1,14 @@
 package edu.arizona.cs.hsynth.fs;
 
+import java.util.Hashtable;
+
 public abstract class HSynthFSConfiguration {
     /*
      * if locked, values in this class become unmodifiable
      */
     protected boolean lock = false;
+    
+    public static final String HSYNTH_CONF_PREFIX = "hsynth.";
     
     public HSynthFSConfiguration() {
     }
@@ -43,9 +47,9 @@ public abstract class HSynthFSConfiguration {
         return this.lock;
     }
     
-    public abstract String serialize();
+    public abstract Hashtable<String, String> getParams();
     
-    public abstract void deserialize(String serializedConf) throws IllegalAccessException;
+    public abstract void load(Hashtable<String, String> params) throws IllegalAccessException;
     
     @Override
     public abstract boolean equals(Object o);

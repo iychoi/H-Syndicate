@@ -1,11 +1,15 @@
 package edu.arizona.cs.hsynth.fs.backend.syndicatefs;
 
+import edu.arizona.cs.hsynth.fs.HSynthFSBackend;
 import edu.arizona.cs.hsynth.fs.HSynthFSConfiguration;
 import edu.arizona.cs.hsynth.fs.HSynthFSContext;
-import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
+import java.util.Hashtable;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class SyndicateFSConfiguration extends HSynthFSConfiguration {
+    
+    private static final Log LOG = LogFactory.getLog(SyndicateFSConfiguration.class);
     
     private final static String FS_BACKEND_NAME = "SyndicateFileSystem";
     
@@ -26,12 +30,21 @@ public class SyndicateFSConfiguration extends HSynthFSConfiguration {
     private int readBufferSize;
     private int writeBufferSize;
     
-    private final static String JSON_KEY_FS_BACKEND = "fsbackend";
-    private final static String JSON_KEY_READ_BUFFER_SIZE = "rbuffersize";
-    private final static String JSON_KEY_WRITE_BUFFER_SIZE = "wbuffersize";
-    private final static String JSON_KEY_IPC_PORT = "ipcport";
-    private final static String JSON_KEY_MAX_METADATA_CACHE_SIZE = "maxmetacache";
-    private final static String JSON_KEY_CACHE_TIMEOUT = "cachetimeout";
+    private final static String KEY_READ_BUFFER_SIZE = HSYNTH_CONF_PREFIX + "rbuffersize";
+    private final static String KEY_WRITE_BUFFER_SIZE = HSYNTH_CONF_PREFIX + "wbuffersize";
+    private final static String KEY_IPC_PORT = HSYNTH_CONF_PREFIX + "syndicate.ipcport";
+    private final static String KEY_MAX_METADATA_CACHE_SIZE = HSYNTH_CONF_PREFIX + "syndicate.maxmetacache";
+    private final static String KEY_CACHE_TIMEOUT = HSYNTH_CONF_PREFIX + "syndicate.cachetimeout";
+    
+    static {
+        try {
+            HSynthFSBackend.registerBackend(FS_BACKEND_NAME, SyndicateFSConfiguration.class);
+        } catch (InstantiationException ex) {
+            LOG.error(ex);
+        } catch (IllegalAccessException ex) {
+            LOG.error(ex);
+        }
+    }
     
     public SyndicateFSConfiguration() {
         this.ipcPort = DEFAULT_IPC_PORT;
@@ -133,26 +146,23 @@ public class SyndicateFSConfiguration extends HSynthFSConfiguration {
     }
 
     @Override
-    public String serialize() {
-        JSONObject json = new JSONObject();
-        json.put(JSON_KEY_FS_BACKEND, getBackendName());
-        json.put(JSON_KEY_READ_BUFFER_SIZE, (Integer) getReadBufferSize());
-        json.put(JSON_KEY_WRITE_BUFFER_SIZE, (Integer) getWriteBufferSize());
-        json.put(JSON_KEY_IPC_PORT, (Integer) getPort());
-        json.put(JSON_KEY_MAX_METADATA_CACHE_SIZE, (Integer) getMaxMetadataCacheSize());
-        json.put(JSON_KEY_CACHE_TIMEOUT, (Integer) getCacheTimeoutSecond());
+    public Hashtable<String, String> getParams() {
+        Hashtable<String, String> table = new Hashtable<String, String>();
+        table.put(KEY_READ_BUFFER_SIZE, Integer.toString(getReadBufferSize()));
+        table.put(KEY_WRITE_BUFFER_SIZE, Integer.toString(getWriteBufferSize()));
+        table.put(KEY_IPC_PORT, Integer.toString(getPort()));
+        table.put(KEY_MAX_METADATA_CACHE_SIZE, Integer.toString(getMaxMetadataCacheSize()));
+        table.put(KEY_CACHE_TIMEOUT, Integer.toString(getCacheTimeoutSecond()));
         
-        return json.toString();
+        return table;
     }
 
     @Override
-    public void deserialize(String serializedConf) throws IllegalAccessException {
-        JSONObject json = (JSONObject)JSONSerializer.toJSON(serializedConf);
-        //json.get(JSON_KEY_FS_BACKEND);
-        setReadBufferSize((Integer)json.get(JSON_KEY_READ_BUFFER_SIZE));
-        setWriteBufferSize((Integer)json.get(JSON_KEY_WRITE_BUFFER_SIZE));
-        setPort((Integer)json.get(JSON_KEY_IPC_PORT));
-        setMaxMetadataCacheSize((Integer)json.get(JSON_KEY_MAX_METADATA_CACHE_SIZE));
-        setCacheTimeoutSecond((Integer)json.get(JSON_KEY_CACHE_TIMEOUT));
+    public void load(Hashtable<String, String> params) throws IllegalAccessException {
+        setReadBufferSize(Integer.parseInt(params.get(KEY_READ_BUFFER_SIZE)));
+        setWriteBufferSize(Integer.parseInt(params.get(KEY_WRITE_BUFFER_SIZE)));
+        setPort(Integer.parseInt(params.get(KEY_IPC_PORT)));
+        setMaxMetadataCacheSize(Integer.parseInt(params.get(KEY_MAX_METADATA_CACHE_SIZE)));
+        setCacheTimeoutSecond(Integer.parseInt(params.get(KEY_CACHE_TIMEOUT)));
     }
 }

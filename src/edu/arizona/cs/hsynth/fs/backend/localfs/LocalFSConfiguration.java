@@ -1,13 +1,17 @@
 package edu.arizona.cs.hsynth.fs.backend.localfs;
 
+import edu.arizona.cs.hsynth.fs.HSynthFSBackend;
 import edu.arizona.cs.hsynth.fs.HSynthFSConfiguration;
 import edu.arizona.cs.hsynth.fs.HSynthFSContext;
 import java.io.File;
-import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
+import java.util.Hashtable;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class LocalFSConfiguration extends HSynthFSConfiguration {
 
+    private static final Log LOG = LogFactory.getLog(LocalFSConfiguration.class);
+    
     public final static String FS_BACKEND_NAME = "LocalFileSystem";
     // read buffer size
     public static final int READ_BUFFER_SIZE = 64 * 1024;
@@ -18,11 +22,20 @@ public class LocalFSConfiguration extends HSynthFSConfiguration {
     private int readBufferSize;
     private int writeBufferSize;
     
-    private final static String JSON_KEY_FS_BACKEND = "fsbackend";
-    private final static String JSON_KEY_READ_BUFFER_SIZE = "rbuffersize";
-    private final static String JSON_KEY_WRITE_BUFFER_SIZE = "wbuffersize";
-    private final static String JSON_KEY_WORKING_DIR = "workingdir";
+    private final static String KEY_READ_BUFFER_SIZE = HSYNTH_CONF_PREFIX + "rbuffersize";
+    private final static String KEY_WRITE_BUFFER_SIZE = HSYNTH_CONF_PREFIX + "wbuffersize";
+    private final static String KEY_WORKING_DIR = HSYNTH_CONF_PREFIX + "localfs.workingdir";
 
+    static {
+        try {
+            HSynthFSBackend.registerBackend(FS_BACKEND_NAME, LocalFSConfiguration.class);
+        } catch (InstantiationException ex) {
+            LOG.error(ex);
+        } catch (IllegalAccessException ex) {
+            LOG.error(ex);
+        }
+    }
+    
     public LocalFSConfiguration() {
         this.workingDir = null;
         this.readBufferSize = READ_BUFFER_SIZE;
@@ -104,22 +117,19 @@ public class LocalFSConfiguration extends HSynthFSConfiguration {
     }
 
     @Override
-    public String serialize() {
-        JSONObject json = new JSONObject();
-        json.put(JSON_KEY_FS_BACKEND, getBackendName());
-        json.put(JSON_KEY_READ_BUFFER_SIZE, (Integer) getReadBufferSize());
-        json.put(JSON_KEY_WRITE_BUFFER_SIZE, (Integer) getWriteBufferSize());
-        json.put(JSON_KEY_WORKING_DIR, getWorkingDir().getAbsolutePath());
+    public Hashtable<String, String> getParams() {
+        Hashtable<String, String> table = new Hashtable<String, String>();
+        table.put(KEY_READ_BUFFER_SIZE, Integer.toString(getReadBufferSize()));
+        table.put(KEY_WRITE_BUFFER_SIZE, Integer.toString(getWriteBufferSize()));
+        table.put(KEY_WORKING_DIR, getWorkingDir().getAbsolutePath());
 
-        return json.toString();
+        return table;
     }
 
     @Override
-    public void deserialize(String serializedConf) throws IllegalAccessException {
-        JSONObject json = (JSONObject)JSONSerializer.toJSON(serializedConf);
-        //json.get(JSON_KEY_FS_BACKEND);
-        setReadBufferSize((Integer)json.get(JSON_KEY_READ_BUFFER_SIZE));
-        setWriteBufferSize((Integer)json.get(JSON_KEY_WRITE_BUFFER_SIZE));
-        setWorkingDir(new File((String)json.get(JSON_KEY_WORKING_DIR)));
+    public void load(Hashtable<String, String> params) throws IllegalAccessException {
+        setReadBufferSize(Integer.parseInt(params.get(KEY_READ_BUFFER_SIZE)));
+        setWriteBufferSize(Integer.parseInt(params.get(KEY_WRITE_BUFFER_SIZE)));
+        setWorkingDir(new File(params.get(KEY_WORKING_DIR)));
     }
 }

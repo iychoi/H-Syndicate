@@ -2,7 +2,6 @@ package edu.arizona.cs.hsynth.fs.backend.syndicatefs;
 
 import edu.arizona.cs.hsynth.fs.HSynthFSConfiguration;
 import edu.arizona.cs.hsynth.fs.HSynthFSContext;
-import java.io.File;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 

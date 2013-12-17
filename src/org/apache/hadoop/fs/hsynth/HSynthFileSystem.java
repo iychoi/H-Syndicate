@@ -163,7 +163,7 @@ public class HSynthFileSystem extends FileSystem {
             // src path doesn't exist
             return false;
         }
-        if (!this.hsynth.exists(hdst) && this.hsynth.isDirectory(hdst)) {
+        if (this.hsynth.isDirectory(hdst)) {
             hdst = new HSynthFSPath(hdst, hsrc.getName());
         }
         if (this.hsynth.exists(hdst)) {

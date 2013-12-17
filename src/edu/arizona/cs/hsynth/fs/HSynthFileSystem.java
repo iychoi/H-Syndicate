@@ -3,6 +3,8 @@ package edu.arizona.cs.hsynth.fs;
 import java.io.Closeable;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -205,9 +207,9 @@ public abstract class HSynthFileSystem implements Closeable {
         }
     }
     
-    public abstract HSynthFSInputStream getFileInputStream(HSynthFSPath path) throws FileNotFoundException, IOException;
+    public abstract InputStream getFileInputStream(HSynthFSPath path) throws FileNotFoundException, IOException;
     
-    public abstract HSynthFSOutputStream getFileOutputStream(HSynthFSPath path) throws IOException;
+    public abstract OutputStream getFileOutputStream(HSynthFSPath path) throws IOException;
     
     public abstract HSynthFSRandomAccess getRandomAccess(HSynthFSPath path) throws IOException;
     

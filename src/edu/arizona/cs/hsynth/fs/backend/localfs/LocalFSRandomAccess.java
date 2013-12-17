@@ -11,15 +11,14 @@ public class LocalFSRandomAccess implements HSynthFSRandomAccess {
     private RandomAccessFile raf;
     private LocalFSFileSystem filesystem;
     
-    LocalFSRandomAccess(LocalFSFileSystem fs, String name, String mode) throws FileNotFoundException {
+    LocalFSRandomAccess(LocalFSFileSystem fs, LocalFSConfiguration conf, String name, String mode) throws FileNotFoundException {
         this.filesystem = fs;
         this.raf = new RandomAccessFile(name, mode);
     }
     
-    LocalFSRandomAccess(LocalFSFileSystem fs, File file, String mode) throws FileNotFoundException {
-        this.raf = new RandomAccessFile(file, mode);
-        
+    LocalFSRandomAccess(LocalFSFileSystem fs, LocalFSConfiguration conf, File file, String mode) throws FileNotFoundException {
         this.filesystem = fs;
+        this.raf = new RandomAccessFile(file, mode);
     }
     
     @Override

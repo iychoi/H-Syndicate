@@ -17,21 +17,21 @@
  */
 package edu.arizona.cs.hsynth.hadoop.output;
 
-import edu.arizona.cs.hsynth.fs.HSynthFSOutputStream;
 import java.io.DataOutputStream;
 import java.io.FilterOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import org.apache.hadoop.fs.Syncable;
 
 public class HSynthFSDataOutputStream extends DataOutputStream implements Syncable {
 
-    private HSynthFSOutputStream wrappedStream;
+    private OutputStream wrappedStream;
 
     private static class PositionCache extends FilterOutputStream {
 
         long position;
 
-        public PositionCache(HSynthFSOutputStream out, long pos) throws IOException {
+        public PositionCache(OutputStream out, long pos) throws IOException {
             super(out);
             position = pos;
         }
@@ -58,11 +58,11 @@ public class HSynthFSDataOutputStream extends DataOutputStream implements Syncab
         }
     }
 
-    public HSynthFSDataOutputStream(HSynthFSOutputStream out) throws IOException {
+    public HSynthFSDataOutputStream(OutputStream out) throws IOException {
         this(out, 0);
     }
 
-    public HSynthFSDataOutputStream(HSynthFSOutputStream out, long startPosition) throws IOException {
+    public HSynthFSDataOutputStream(OutputStream out, long startPosition) throws IOException {
         super(new PositionCache(out, startPosition));
         this.wrappedStream = out;
     }

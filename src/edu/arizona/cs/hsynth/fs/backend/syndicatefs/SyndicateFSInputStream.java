@@ -1,11 +1,11 @@
 package edu.arizona.cs.hsynth.fs.backend.syndicatefs;
 
-import edu.arizona.cs.hsynth.fs.HSynthFSInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-public class SyndicateFSInputStream extends HSynthFSInputStream {
+public class SyndicateFSInputStream extends InputStream {
 
     private static final Log LOG = LogFactory.getLog(SyndicateFSInputStream.class);
     
@@ -14,7 +14,7 @@ public class SyndicateFSInputStream extends HSynthFSInputStream {
     private long offset;
     private boolean closed;
     
-    SyndicateFSInputStream(SyndicateFSFileSystem fs, SyndicateFSFileHandle handle) {
+    SyndicateFSInputStream(SyndicateFSFileSystem fs, SyndicateFSConfiguration conf, SyndicateFSFileHandle handle) {
         this.filesystem = fs;
         this.handle = handle;
         

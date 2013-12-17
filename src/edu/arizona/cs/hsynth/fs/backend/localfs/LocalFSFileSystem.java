@@ -1,18 +1,19 @@
 package edu.arizona.cs.hsynth.fs.backend.localfs;
 
+import edu.arizona.cs.hsynth.fs.HSynthFSBufferedRandomAccess;
 import edu.arizona.cs.hsynth.fs.HSynthFSConfiguration;
 import edu.arizona.cs.hsynth.fs.HSynthFileSystem;
 import edu.arizona.cs.hsynth.fs.HSynthFSFilenameFilter;
 import edu.arizona.cs.hsynth.fs.HSynthFSPath;
 import edu.arizona.cs.hsynth.fs.HSynthFSPathFilter;
 import edu.arizona.cs.hsynth.fs.HSynthFSRandomAccess;
-import edu.arizona.cs.hsynth.fs.HSynthFSInputStream;
-import edu.arizona.cs.hsynth.fs.HSynthFSOutputStream;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.logging.Log;
@@ -22,9 +23,9 @@ public class LocalFSFileSystem extends HSynthFileSystem {
 
     private static final Log LOG = LogFactory.getLog(LocalFSFileSystem.class);
     
-    private List<LocalFSInputStream> openInputStream = new ArrayList<LocalFSInputStream>();
-    private List<LocalFSOutputStream> openOutputStream = new ArrayList<LocalFSOutputStream>();
-    private List<LocalFSRandomAccess> openRandomAccess = new ArrayList<LocalFSRandomAccess>();
+    private List<InputStream> openInputStream = new ArrayList<InputStream>();
+    private List<OutputStream> openOutputStream = new ArrayList<OutputStream>();
+    private List<HSynthFSRandomAccess> openRandomAccess = new ArrayList<HSynthFSRandomAccess>();
     
     public LocalFSFileSystem(LocalFSConfiguration configuration) {
         initialize(configuration);
@@ -193,7 +194,7 @@ public class LocalFSFileSystem extends HSynthFileSystem {
     }
 
     @Override
-    public HSynthFSInputStream getFileInputStream(HSynthFSPath path) throws IOException {
+    public InputStream getFileInputStream(HSynthFSPath path) throws IOException {
         if(path == null) {
             LOG.error("path is null");
             throw new IllegalArgumentException("path is null");
@@ -201,13 +202,18 @@ public class LocalFSFileSystem extends HSynthFileSystem {
         
         String realPath = getLocalPath(path);
         File file = new File(realPath);
-        LocalFSInputStream is = new LocalFSInputStream(this, file);
-        this.openInputStream.add(is);
-        return is;
+        LocalFSConfiguration localconf = getLocalFSConfiguration();
+        if(localconf == null) {
+            throw new IOException("LocalFSConfiguration is null");
+        }
+        LocalFSInputStream is = new LocalFSInputStream(this, localconf, file);
+        BufferedInputStream bis = new BufferedInputStream(is, localconf.getReadBufferSize());
+        this.openInputStream.add(bis);
+        return bis;
     }
 
     @Override
-    public HSynthFSOutputStream getFileOutputStream(HSynthFSPath path) throws IOException {
+    public OutputStream getFileOutputStream(HSynthFSPath path) throws IOException {
         if(path == null) {
             LOG.error("path is null");
             throw new IllegalArgumentException("path is null");
@@ -215,9 +221,14 @@ public class LocalFSFileSystem extends HSynthFileSystem {
         
         String realPath = getLocalPath(path);
         File file = new File(realPath);
-        LocalFSOutputStream os = new LocalFSOutputStream(this, file);
-        this.openOutputStream.add(os);
-        return os;
+        LocalFSConfiguration localconf = getLocalFSConfiguration();
+        if(localconf == null) {
+            throw new IOException("LocalFSConfiguration is null");
+        }
+        LocalFSOutputStream os = new LocalFSOutputStream(this, localconf, file);
+        BufferedOutputStream bos = new BufferedOutputStream(os, localconf.getWriteBufferSize());
+        this.openOutputStream.add(bos);
+        return bos;
     }
     
     @Override
@@ -229,9 +240,14 @@ public class LocalFSFileSystem extends HSynthFileSystem {
         
         String realPath = getLocalPath(path);
         File file = new File(realPath);
-        LocalFSRandomAccess ra = new LocalFSRandomAccess(this, file, "rw");
-        this.openRandomAccess.add(ra);
-        return ra;
+        LocalFSConfiguration localconf = getLocalFSConfiguration();
+        if(localconf == null) {
+            throw new IOException("LocalFSConfiguration is null");
+        }
+        LocalFSRandomAccess ra = new LocalFSRandomAccess(this, localconf, file, "rw");
+        HSynthFSBufferedRandomAccess bra = new HSynthFSBufferedRandomAccess(this, ra, localconf.getReadBufferSize());
+        this.openRandomAccess.add(bra);
+        return bra;
     }
 
     @Override
@@ -325,7 +341,7 @@ public class LocalFSFileSystem extends HSynthFileSystem {
         super.raiseOnBeforeDestroyEvent();
         
         // close all open files
-        for(LocalFSInputStream is : this.openInputStream) {
+        for(InputStream is : this.openInputStream) {
             try {
                 is.close();
             } catch (IOException ex) {
@@ -333,7 +349,7 @@ public class LocalFSFileSystem extends HSynthFileSystem {
             }
         }
         
-        for(LocalFSOutputStream os : this.openOutputStream) {
+        for(OutputStream os : this.openOutputStream) {
             try {
                 os.close();
             } catch (IOException ex) {
@@ -341,7 +357,7 @@ public class LocalFSFileSystem extends HSynthFileSystem {
             }
         }
         
-        for(LocalFSRandomAccess raf : this.openRandomAccess) {
+        for(HSynthFSRandomAccess raf : this.openRandomAccess) {
             try {
                 raf.close();
             } catch (IOException ex) {

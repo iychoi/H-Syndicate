@@ -20,10 +20,10 @@ package edu.arizona.cs.hsynth.hadoop.input;
 import edu.arizona.cs.hsynth.fs.HSynthFSConfiguration;
 import edu.arizona.cs.hsynth.fs.HSynthFSPath;
 import edu.arizona.cs.hsynth.fs.HSynthFileSystem;
-import edu.arizona.cs.hsynth.fs.HSynthFSInputStream;
 import edu.arizona.cs.hsynth.hadoop.util.HSynthCompressionCodecUtil;
 import edu.arizona.cs.hsynth.hadoop.util.HSynthConfigUtil;
 import java.io.IOException;
+import java.io.InputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
@@ -87,7 +87,7 @@ public class HSynthLineRecordReader extends RecordReader<LongWritable, Text> {
         //    throw new IOException("File has been modified while Hadoop is running");
         //}
 
-        HSynthFSInputStream is = fs.getFileInputStream(path);
+        InputStream is = fs.getFileInputStream(path);
         
         boolean skipFirstLine = false;
         

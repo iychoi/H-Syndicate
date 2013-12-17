@@ -1,37 +1,33 @@
 package edu.arizona.cs.hsynth.fs.backend.localfs;
 
-import edu.arizona.cs.hsynth.fs.HSynthFSOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 
-public class LocalFSOutputStream extends HSynthFSOutputStream{
+public class LocalFSOutputStream extends OutputStream {
     
     private LocalFSFileSystem filesystem;
     private FileOutputStream os;
     
-    LocalFSOutputStream(LocalFSFileSystem fs, String name) throws FileNotFoundException {
+    LocalFSOutputStream(LocalFSFileSystem fs, LocalFSConfiguration conf, String name) throws FileNotFoundException {
         this.os = new FileOutputStream(name);
-        
         this.filesystem = fs;
     }
     
-    LocalFSOutputStream(LocalFSFileSystem fs, String name, boolean append) throws FileNotFoundException {
+    LocalFSOutputStream(LocalFSFileSystem fs, LocalFSConfiguration conf, String name, boolean append) throws FileNotFoundException {
         this.os = new FileOutputStream(name, append);
-        
         this.filesystem = fs;
     }
     
-    LocalFSOutputStream(LocalFSFileSystem fs, File file) throws FileNotFoundException {
+    LocalFSOutputStream(LocalFSFileSystem fs, LocalFSConfiguration conf, File file) throws FileNotFoundException {
         this.os = new FileOutputStream(file);
-        
         this.filesystem = fs;
     }
     
-    LocalFSOutputStream(LocalFSFileSystem fs, File file, boolean append) throws FileNotFoundException {
+    LocalFSOutputStream(LocalFSFileSystem fs, LocalFSConfiguration conf, File file, boolean append) throws FileNotFoundException {
         this.os = new FileOutputStream(file, append);
-        
         this.filesystem = fs;
     }
     

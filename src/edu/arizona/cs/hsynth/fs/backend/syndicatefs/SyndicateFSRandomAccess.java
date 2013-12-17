@@ -14,7 +14,7 @@ public class SyndicateFSRandomAccess implements HSynthFSRandomAccess {
     private long offset;
     private boolean closed;
     
-    SyndicateFSRandomAccess(SyndicateFSFileSystem fs, SyndicateFSFileHandle handle) {
+    SyndicateFSRandomAccess(SyndicateFSFileSystem fs, SyndicateFSConfiguration conf, SyndicateFSFileHandle handle) {
         this.filesystem = fs;
         this.handle = handle;
         

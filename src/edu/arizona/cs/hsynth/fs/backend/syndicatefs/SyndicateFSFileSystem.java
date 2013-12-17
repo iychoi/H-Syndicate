@@ -1,19 +1,22 @@
 package edu.arizona.cs.hsynth.fs.backend.syndicatefs;
 
+import edu.arizona.cs.hsynth.fs.HSynthFSBufferedRandomAccess;
 import edu.arizona.cs.hsynth.fs.HSynthFSConfiguration;
 import edu.arizona.cs.hsynth.fs.HSynthFileSystem;
 import edu.arizona.cs.hsynth.fs.HSynthFSFilenameFilter;
 import edu.arizona.cs.hsynth.fs.HSynthFSPath;
 import edu.arizona.cs.hsynth.fs.HSynthFSPathFilter;
 import edu.arizona.cs.hsynth.fs.HSynthFSRandomAccess;
-import edu.arizona.cs.hsynth.fs.HSynthFSInputStream;
-import edu.arizona.cs.hsynth.fs.HSynthFSOutputStream;
 import edu.arizona.cs.hsynth.fs.backend.syndicatefs.client.message.SyndicateFSFileInfo;
 import edu.arizona.cs.hsynth.fs.backend.syndicatefs.client.message.SyndicateFSStat;
 import edu.arizona.cs.hsynth.fs.cache.ICache;
 import edu.arizona.cs.hsynth.fs.cache.TimeoutCache;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.logging.Log;
@@ -25,9 +28,9 @@ public class SyndicateFSFileSystem extends HSynthFileSystem {
 
     private SyndicateFSClientInterface client;
     
-    private List<SyndicateFSInputStream> openInputStream = new ArrayList<SyndicateFSInputStream>();
-    private List<SyndicateFSOutputStream> openOutputStream = new ArrayList<SyndicateFSOutputStream>();
-    private List<SyndicateFSRandomAccess> openRandomAccess = new ArrayList<SyndicateFSRandomAccess>();
+    private List<InputStream> openInputStream = new ArrayList<InputStream>();
+    private List<OutputStream> openOutputStream = new ArrayList<OutputStream>();
+    private List<HSynthFSRandomAccess> openRandomAccess = new ArrayList<HSynthFSRandomAccess>();
     
     private ICache<HSynthFSPath, SyndicateFSFileStatus> filestatus_cache;
     
@@ -311,7 +314,7 @@ public class SyndicateFSFileSystem extends HSynthFileSystem {
     }
 
     @Override
-    public HSynthFSInputStream getFileInputStream(HSynthFSPath path) throws IOException {
+    public InputStream getFileInputStream(HSynthFSPath path) throws IOException {
         if(path == null) {
             LOG.error("path is null");
             throw new IllegalArgumentException("path is null");
@@ -330,11 +333,18 @@ public class SyndicateFSFileSystem extends HSynthFileSystem {
             throw new IOException("Can not open the file to read : " + absPath.getPath());
         }
         
-        return new SyndicateFSInputStream(this, handle);
+        SyndicateFSConfiguration syndicateconf = getSyndicateFSConfiguration();
+        if(syndicateconf == null) {
+            throw new IOException("SyndicateFSConfiguration is null");
+        }
+        SyndicateFSInputStream is = new SyndicateFSInputStream(this, syndicateconf, handle);
+        BufferedInputStream bis = new BufferedInputStream(is, syndicateconf.getReadBufferSize());
+        this.openInputStream.add(bis);
+        return bis;
     }
 
     @Override
-    public HSynthFSOutputStream getFileOutputStream(HSynthFSPath path) throws IOException {
+    public OutputStream getFileOutputStream(HSynthFSPath path) throws IOException {
         if(path == null) {
             LOG.error("path is null");
             throw new IllegalArgumentException("path is null");
@@ -342,6 +352,11 @@ public class SyndicateFSFileSystem extends HSynthFileSystem {
         
         HSynthFSPath absPath = getAbsolutePath(path);
         SyndicateFSFileStatus status = getFileStatus(absPath);
+        
+        SyndicateFSConfiguration syndicateconf = getSyndicateFSConfiguration();
+        if(syndicateconf == null) {
+            throw new IOException("SyndicateFSConfiguration is null");
+        }
         if(status != null) {
             if(!status.isFile()) {
                 LOG.error("Can not open the file to write (is directory) : " + absPath.getPath());
@@ -356,7 +371,10 @@ public class SyndicateFSFileSystem extends HSynthFileSystem {
             
             handle.truncate(0);
             
-            return new SyndicateFSOutputStream(this, handle);
+            SyndicateFSOutputStream os = new SyndicateFSOutputStream(this, syndicateconf, handle);
+            BufferedOutputStream bos = new BufferedOutputStream(os, syndicateconf.getWriteBufferSize());
+            this.openOutputStream.add(bos);
+            return bos;
         } else {
             // create new file
             SyndicateFSFileHandle handle = createNewFile(absPath);
@@ -365,7 +383,10 @@ public class SyndicateFSFileSystem extends HSynthFileSystem {
                 throw new IOException("Can not create a file to write : " + absPath.getPath());
             }
 
-            return new SyndicateFSOutputStream(this, handle);
+            SyndicateFSOutputStream os = new SyndicateFSOutputStream(this, syndicateconf, handle);
+            BufferedOutputStream bos = new BufferedOutputStream(os, syndicateconf.getWriteBufferSize());
+            this.openOutputStream.add(bos);
+            return bos;
         }
     }
 
@@ -389,7 +410,14 @@ public class SyndicateFSFileSystem extends HSynthFileSystem {
             throw new IOException("Can not open the file to read : " + absPath.getPath());
         }
         
-        return new SyndicateFSRandomAccess(this, handle);
+        SyndicateFSConfiguration syndicateconf = getSyndicateFSConfiguration();
+        if(syndicateconf == null) {
+            throw new IOException("SyndicateFSConfiguration is null");
+        }
+        SyndicateFSRandomAccess ra = new SyndicateFSRandomAccess(this, syndicateconf, handle);
+        HSynthFSBufferedRandomAccess bra = new HSynthFSBufferedRandomAccess(this, ra, syndicateconf.getReadBufferSize());
+        this.openRandomAccess.add(bra);
+        return bra;
     }
 
     @Override
@@ -496,7 +524,7 @@ public class SyndicateFSFileSystem extends HSynthFileSystem {
         super.raiseOnBeforeDestroyEvent();
         
         // close all open files
-        for(SyndicateFSInputStream is : this.openInputStream) {
+        for(InputStream is : this.openInputStream) {
             try {
                 is.close();
             } catch (IOException ex) {
@@ -504,7 +532,7 @@ public class SyndicateFSFileSystem extends HSynthFileSystem {
             }
         }
         
-        for(SyndicateFSOutputStream os : this.openOutputStream) {
+        for(OutputStream os : this.openOutputStream) {
             try {
                 os.close();
             } catch (IOException ex) {
@@ -512,7 +540,7 @@ public class SyndicateFSFileSystem extends HSynthFileSystem {
             }
         }
         
-        for(SyndicateFSRandomAccess raf : this.openRandomAccess) {
+        for(HSynthFSRandomAccess raf : this.openRandomAccess) {
             try {
                 raf.close();
             } catch (IOException ex) {

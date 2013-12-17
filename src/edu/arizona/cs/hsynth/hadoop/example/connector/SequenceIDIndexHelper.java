@@ -43,8 +43,9 @@ public class SequenceIDIndexHelper {
             }
         }
         
-        String[] paths = new String[indices.size()];
-        paths = indices.toArray(paths);
+        //String[] paths = new String[indices.size()];
+        //paths = indices.toArray(paths);
+        String[] paths = indices.toArray(new String[0]);
 
         return paths;
     }
@@ -80,8 +81,9 @@ public class SequenceIDIndexHelper {
             }
         }
         
-        String[] paths = new String[indices.size()];
-        paths = indices.toArray(paths);
+        //String[] paths = new String[indices.size()];
+        //paths = indices.toArray(paths);
+        String[] paths = indices.toArray(new String[0]);
 
         return paths;
     }
@@ -151,8 +153,9 @@ public class SequenceIDIndexHelper {
             inputFiles.add(new HSynthFSPath(path));
         }
         
-        HSynthFSPath[] files = new HSynthFSPath[inputFiles.size()];
-        files = inputFiles.toArray(files);
+        //HSynthFSPath[] files = new HSynthFSPath[inputFiles.size()];
+        //files = inputFiles.toArray(files);
+        HSynthFSPath[] files = inputFiles.toArray(new HSynthFSPath[0]);
         return getAllInputPaths(fs, files, filter);
     }
     
@@ -174,8 +177,9 @@ public class SequenceIDIndexHelper {
             }
         }
         
-        HSynthFSPath[] files = new HSynthFSPath[inputFiles.size()];
-        files = inputFiles.toArray(files);
+        //HSynthFSPath[] files = new HSynthFSPath[inputFiles.size()];
+        //files = inputFiles.toArray(files);
+        HSynthFSPath[] files = inputFiles.toArray(new HSynthFSPath[0]);
         return files;
     }
     

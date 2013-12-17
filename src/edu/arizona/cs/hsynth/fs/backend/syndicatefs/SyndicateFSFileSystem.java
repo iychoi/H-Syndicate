@@ -418,8 +418,9 @@ public class SyndicateFSFileSystem extends HSynthFileSystem {
                 }
             }
             
-            String[] entries_filtered = new String[arr.size()];
-            entries_filtered = arr.toArray(entries_filtered);
+            //String[] entries_filtered = new String[arr.size()];
+            //entries_filtered = arr.toArray(entries_filtered);
+            String[] entries_filtered = arr.toArray(new String[0]);
             return entries_filtered;
         }
     }
@@ -450,8 +451,9 @@ public class SyndicateFSFileSystem extends HSynthFileSystem {
                 }
             }
             
-            String[] entries_filtered = new String[arr.size()];
-            entries_filtered = arr.toArray(entries_filtered);
+            //String[] entries_filtered = new String[arr.size()];
+            //entries_filtered = arr.toArray(entries_filtered);
+            String[] entries_filtered = arr.toArray(new String[0]);
             return entries_filtered;
         }
     }

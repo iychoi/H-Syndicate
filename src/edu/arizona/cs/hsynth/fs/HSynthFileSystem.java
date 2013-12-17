@@ -239,8 +239,9 @@ public abstract class HSynthFileSystem implements Closeable {
         
         List<HSynthFSPath> result = listAllFilesRecursive(absPath, filter);
         
-        HSynthFSPath[] paths = new HSynthFSPath[result.size()];
-        paths = result.toArray(paths);
+        //HSynthFSPath[] paths = new HSynthFSPath[result.size()];
+        //paths = result.toArray(paths);
+        HSynthFSPath[] paths = result.toArray(new HSynthFSPath[0]);
         return paths;
     }
     
@@ -260,8 +261,9 @@ public abstract class HSynthFileSystem implements Closeable {
         
         List<HSynthFSPath> result = listAllFilesRecursive(absPath, filter);
         
-        HSynthFSPath[] paths = new HSynthFSPath[result.size()];
-        paths = result.toArray(paths);
+        //HSynthFSPath[] paths = new HSynthFSPath[result.size()];
+        //paths = result.toArray(paths);
+        HSynthFSPath[] paths = result.toArray(new HSynthFSPath[0]);
         return paths;
     }
     

@@ -90,8 +90,9 @@ public class SyndicateFSClientInterface implements Closeable {
             }
         }
         
-        String[] new_entries = new String[entry_arr.size()];
-        new_entries = entry_arr.toArray(new_entries);
+        //String[] new_entries = new String[entry_arr.size()];
+        //new_entries = entry_arr.toArray(new_entries);
+        String[] new_entries = entry_arr.toArray(new String[0]);
         return new_entries;
     }
 

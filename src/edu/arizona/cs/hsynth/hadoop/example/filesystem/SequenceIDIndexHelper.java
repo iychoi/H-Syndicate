@@ -36,8 +36,9 @@ public class SequenceIDIndexHelper {
             }
         }
         
-        String[] paths = new String[indices.size()];
-        paths = indices.toArray(paths);
+        //String[] paths = new String[indices.size()];
+        //paths = indices.toArray(paths);
+        String[] paths = indices.toArray(new String[0]);
 
         return paths;
     }
@@ -67,8 +68,9 @@ public class SequenceIDIndexHelper {
             }
         }
         
-        String[] paths = new String[indices.size()];
-        paths = indices.toArray(paths);
+        //String[] paths = new String[indices.size()];
+        //paths = indices.toArray(paths);
+        String[] paths = indices.toArray(new String[0]);
 
         return paths;
     }
@@ -138,8 +140,9 @@ public class SequenceIDIndexHelper {
             inputFiles.add(new Path(path));
         }
         
-        Path[] files = new Path[inputFiles.size()];
-        files = inputFiles.toArray(files);
+        //Path[] files = new Path[inputFiles.size()];
+        //files = inputFiles.toArray(files);
+        Path[] files = inputFiles.toArray(new Path[0]);
         return getAllInputPaths(fs, files, filter);
     }
     
@@ -162,8 +165,9 @@ public class SequenceIDIndexHelper {
             }
         }
         
-        Path[] files = new Path[inputFiles.size()];
-        files = inputFiles.toArray(files);
+        //Path[] files = new Path[inputFiles.size()];
+        //files = inputFiles.toArray(files);
+        Path[] files = inputFiles.toArray(new Path[0]);
         return files;
     }
     

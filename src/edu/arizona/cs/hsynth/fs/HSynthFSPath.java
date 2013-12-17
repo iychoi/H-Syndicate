@@ -239,8 +239,9 @@ public class HSynthFSPath implements Comparable {
             parent = parent.getParent();
         }
         
-        HSynthFSPath[] ancestors_array = new HSynthFSPath[ancestors.size()];
-        ancestors_array = ancestors.toArray(ancestors_array);
+        //HSynthFSPath[] ancestors_array = new HSynthFSPath[ancestors.size()];
+        //ancestors_array = ancestors.toArray(ancestors_array);
+        HSynthFSPath[] ancestors_array = ancestors.toArray(new HSynthFSPath[0]);
         return ancestors_array;
     }
     

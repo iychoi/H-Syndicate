@@ -16,7 +16,7 @@ public abstract class HSynthFileSystem implements Closeable {
     
     private static final Log LOG = LogFactory.getLog(HSynthFileSystem.class);
     
-    protected static final String FS_ROOT_PATH_STRING = "hsyn:///";
+    protected static final String FS_ROOT_PATH_STRING = "/";
     protected static final HSynthFSPath FS_ROOT_PATH = new HSynthFSPath(FS_ROOT_PATH_STRING);
     
     protected static List<HSynthFSEventHandler> eventHandlers = new ArrayList<HSynthFSEventHandler>();

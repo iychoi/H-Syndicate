@@ -23,7 +23,7 @@ Reading HDF5 file data on Hadoop MapReduce is working on the separated project [
 
 HSynth supports fasta processing tools.
 * K-mer index builder
-* ID index builder
+* Fasta ID index builder
 * K-mer searcher
 
 Build

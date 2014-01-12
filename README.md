@@ -26,8 +26,8 @@ HSynth supports fasta processing tools.
 * Fasta ID index builder
 * K-mer searcher
 
-Build
------
+Building
+--------
 
 Building from the source code is very simple. All source code is in Java and written with "NetBeans". If you are using NetBeans IDE, load the project and build through the IDE. Or, simple type "ant".
 

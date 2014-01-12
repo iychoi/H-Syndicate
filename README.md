@@ -31,6 +31,10 @@ Build
 
 Building from the source code is very simple. All source code is in Java and written with "NetBeans". If you are using NetBeans IDE, load the project and build through the IDE. Or, simple type "ant".
 
-'''
+```
 $ ant
-'''
+```
+
+All dependencies for this project are already in /libs/ directory.
+
+

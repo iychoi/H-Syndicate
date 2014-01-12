@@ -29,7 +29,7 @@ HSynth supports fasta processing tools.
 Building
 --------
 
-Building from the source code is very simple. All source code is in Java and written with "NetBeans". If you are using NetBeans IDE, load the project and build through the IDE. Or, simple type "ant".
+Building from the source code is very simple. Source code is written in Java and provides "NetBeans" project file and "Ant" scripts for building. If you are using NetBeans IDE, load the project and build through the IDE. Or, simple type "ant".
 
 ```
 $ ant

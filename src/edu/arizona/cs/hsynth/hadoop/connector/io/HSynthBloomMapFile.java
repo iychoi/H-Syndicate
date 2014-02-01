@@ -14,14 +14,14 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package edu.arizona.cs.hsynth.hadoop.io;
+package edu.arizona.cs.hsynth.hadoop.connector.io;
 
 import edu.arizona.cs.hsynth.fs.HSynthFSPath;
 import edu.arizona.cs.hsynth.fs.HSynthFileSystem;
-import edu.arizona.cs.hsynth.hadoop.input.HSynthFSDataInputStream;
-import edu.arizona.cs.hsynth.hadoop.input.HSynthFSSeekableInputStream;
-import edu.arizona.cs.hsynth.hadoop.io.HSynthSequenceFile.CompressionType;
-import edu.arizona.cs.hsynth.hadoop.output.HSynthFSDataOutputStream;
+import edu.arizona.cs.hsynth.hadoop.connector.input.HSynthFSDataInputStream;
+import edu.arizona.cs.hsynth.hadoop.connector.input.HSynthFSSeekableInputStream;
+import edu.arizona.cs.hsynth.hadoop.connector.io.HSynthSequenceFile.CompressionType;
+import edu.arizona.cs.hsynth.hadoop.connector.output.HSynthFSDataOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;

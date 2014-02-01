@@ -1,7 +1,7 @@
 package edu.arizona.cs.hsynth.hadoop.example.connector;
 
 import edu.arizona.cs.hsynth.fs.HSynthFSPath;
-import edu.arizona.cs.hsynth.hadoop.input.HSynthFileInputFormat;
+import edu.arizona.cs.hsynth.hadoop.connector.input.HSynthFileInputFormat;
 import edu.arizona.cs.hsynth.hadoop.util.HSynthCompressionCodecUtil;
 import java.io.IOException;
 import org.apache.hadoop.io.LongWritable;

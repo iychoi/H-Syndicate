@@ -1,4 +1,4 @@
-package org.apache.hadoop.fs.hsynth;
+package edu.arizona.cs.hsynth.hadoop.hdfs;
 
 import edu.arizona.cs.hsynth.fs.HSynthFSPath;
 import edu.arizona.cs.hsynth.fs.HSynthFSRandomAccess;
@@ -89,7 +89,7 @@ public class HSynthInputStream extends FSInputStream {
     
     @Override
     public void close() throws IOException {
-        if (closed) {
+        if (this.closed) {
             return;
         }
         if (this.raf != null) {
@@ -97,7 +97,7 @@ public class HSynthInputStream extends FSInputStream {
             this.raf = null;
         }
         super.close();
-        closed = true;
+        this.closed = true;
     }
     
     @Override

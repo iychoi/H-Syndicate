@@ -1,4 +1,4 @@
-package org.apache.hadoop.fs.hsynth;
+package edu.arizona.cs.hsynth.hadoop.hdfs;
 
 import edu.arizona.cs.hsynth.fs.HSynthFSConfiguration;
 import edu.arizona.cs.hsynth.fs.HSynthFSPath;

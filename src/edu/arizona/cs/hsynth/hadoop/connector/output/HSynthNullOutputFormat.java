@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package edu.arizona.cs.hsynth.hadoop.output;
+package edu.arizona.cs.hsynth.hadoop.connector.output;
 
 import org.apache.hadoop.mapreduce.JobContext;
 import org.apache.hadoop.mapreduce.OutputCommitter;

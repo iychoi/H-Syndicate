@@ -14,12 +14,12 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package edu.arizona.cs.hsynth.hadoop.io;
+package edu.arizona.cs.hsynth.hadoop.connector.io;
 
 import edu.arizona.cs.hsynth.fs.HSynthFSPath;
 import edu.arizona.cs.hsynth.fs.HSynthFileSystem;
-import edu.arizona.cs.hsynth.hadoop.io.HSynthSequenceFile;
-import edu.arizona.cs.hsynth.hadoop.io.HSynthSequenceFile.CompressionType;
+import edu.arizona.cs.hsynth.hadoop.connector.io.HSynthSequenceFile;
+import edu.arizona.cs.hsynth.hadoop.connector.io.HSynthSequenceFile.CompressionType;
 import java.io.*;
 
 import org.apache.commons.logging.Log;

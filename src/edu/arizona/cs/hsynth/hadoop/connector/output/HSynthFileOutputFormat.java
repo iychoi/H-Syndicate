@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package edu.arizona.cs.hsynth.hadoop.output;
+package edu.arizona.cs.hsynth.hadoop.connector.output;
 
 import edu.arizona.cs.hsynth.fs.HSynthFSConfiguration;
 import edu.arizona.cs.hsynth.fs.HSynthFSPath;

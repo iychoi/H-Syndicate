@@ -1,6 +1,6 @@
 package edu.arizona.cs.hsynth.hadoop.example.connector;
 
-import edu.arizona.cs.hsynth.hadoop.output.HSynthMultipleOutputs;
+import edu.arizona.cs.hsynth.hadoop.connector.output.HSynthMultipleOutputs;
 import java.io.IOException;
 import java.util.Hashtable;
 import org.apache.commons.logging.Log;

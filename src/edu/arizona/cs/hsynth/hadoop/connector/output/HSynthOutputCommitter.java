@@ -1,4 +1,4 @@
-package edu.arizona.cs.hsynth.hadoop.output;
+package edu.arizona.cs.hsynth.hadoop.connector.output;
 
 import edu.arizona.cs.hsynth.fs.HSynthFileSystem;
 import edu.arizona.cs.hsynth.fs.HSynthFSPath;

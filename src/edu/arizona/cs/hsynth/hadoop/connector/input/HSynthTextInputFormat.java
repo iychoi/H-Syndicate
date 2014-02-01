@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package edu.arizona.cs.hsynth.hadoop.input;
+package edu.arizona.cs.hsynth.hadoop.connector.input;
 
 import edu.arizona.cs.hsynth.fs.HSynthFSPath;
 import edu.arizona.cs.hsynth.hadoop.util.HSynthCompressionCodecUtil;

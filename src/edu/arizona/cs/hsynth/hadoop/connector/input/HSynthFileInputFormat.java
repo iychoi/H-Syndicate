@@ -17,12 +17,11 @@
  */
 package edu.arizona.cs.hsynth.hadoop.connector.input;
 
-import edu.arizona.cs.hsynth.fs.HSynthFSConfiguration;
-import edu.arizona.cs.hsynth.fs.HSynthFSPath;
-import edu.arizona.cs.hsynth.fs.HSynthFSPathFilter;
-import edu.arizona.cs.hsynth.fs.HSynthFileSystem;
-import edu.arizona.cs.hsynth.hadoop.util.HSynthConfigUtil;
-import edu.arizona.cs.hsynth.util.StringUtil;
+import edu.arizona.cs.syndicate.fs.SyndicateFSPath;
+import edu.arizona.cs.syndicate.fs.ISyndicateFSPathFilter;
+import edu.arizona.cs.syndicate.fs.ASyndicateFileSystem;
+import edu.arizona.cs.syndicate.fs.SyndicateFSConfiguration;
+import edu.arizona.cs.syndicate.util.StringUtils;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -30,13 +29,14 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.hsynth.FileSystemFactory;
+import org.apache.hadoop.fs.hsynth.util.HSynthConfigUtil;
 import org.apache.hadoop.mapreduce.InputFormat;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.JobContext;
 import org.apache.hadoop.mapreduce.lib.input.InvalidInputException;
 import org.apache.hadoop.util.ReflectionUtils;
-import org.apache.hadoop.util.StringUtils;
 
 public abstract class HSynthFileInputFormat<K extends Object, V extends Object> extends InputFormat<K, V> {
 
@@ -50,17 +50,17 @@ public abstract class HSynthFileInputFormat<K extends Object, V extends Object> 
     private static final String CONF_NUM_INPUT_FILES = "mapreduce.input.num.files";
     private static final String CONF_INPUT_DIR = "mapred.input.dir";
     
-    protected static class MultiPathFilter implements HSynthFSPathFilter {
+    protected static class MultiPathFilter implements ISyndicateFSPathFilter {
 
-        private List<HSynthFSPathFilter> filters;
+        private List<ISyndicateFSPathFilter> filters;
 
-        public MultiPathFilter(List<HSynthFSPathFilter> filters) {
+        public MultiPathFilter(List<ISyndicateFSPathFilter> filters) {
             this.filters = filters;
         }
 
         @Override
-        public boolean accept(HSynthFSPath path) {
-            for (HSynthFSPathFilter filter : this.filters) {
+        public boolean accept(SyndicateFSPath path) {
+            for (ISyndicateFSPathFilter filter : this.filters) {
                 if (!filter.accept(path)) {
                     return false;
                 }
@@ -73,12 +73,12 @@ public abstract class HSynthFileInputFormat<K extends Object, V extends Object> 
         return 1;
     }
     
-    protected boolean isSplitable(JobContext context, HSynthFSPath filename) {
+    protected boolean isSplitable(JobContext context, SyndicateFSPath filename) {
         return true;
     }
 
-    public static void setInputPathFilter(Job job, Class<? extends HSynthFSPathFilter> filter) {
-        job.getConfiguration().setClass(CONF_PATH_FILTER, filter, HSynthFSPathFilter.class);
+    public static void setInputPathFilter(Job job, Class<? extends ISyndicateFSPathFilter> filter) {
+        job.getConfiguration().setClass(CONF_PATH_FILTER, filter, ISyndicateFSPathFilter.class);
     }
     
     public static void setMinInputSplitSize(Job job, long size) {
@@ -97,15 +97,15 @@ public abstract class HSynthFileInputFormat<K extends Object, V extends Object> 
         return context.getConfiguration().getLong(CONF_MAX_SPLIT_SIZE, Long.MAX_VALUE);
     }
     
-    public static HSynthFSPathFilter getInputPathFilter(JobContext context) {
+    public static ISyndicateFSPathFilter getInputPathFilter(JobContext context) {
         Configuration conf = context.getConfiguration();
-        Class<?> filterClass = conf.getClass(CONF_PATH_FILTER, null, HSynthFSPathFilter.class);
-        return (filterClass != null) ? (HSynthFSPathFilter) ReflectionUtils.newInstance(filterClass, conf) : null;
+        Class<?> filterClass = conf.getClass(CONF_PATH_FILTER, null, ISyndicateFSPathFilter.class);
+        return (filterClass != null) ? (ISyndicateFSPathFilter) ReflectionUtils.newInstance(filterClass, conf) : null;
     }
     
-    protected List<HSynthFSPath> listFiles(JobContext context) throws IOException {
-        List<HSynthFSPath> result = new ArrayList<HSynthFSPath>();
-        HSynthFSPath[] dirs = getInputPaths(context);
+    protected List<SyndicateFSPath> listFiles(JobContext context) throws IOException {
+        List<SyndicateFSPath> result = new ArrayList<SyndicateFSPath>();
+        SyndicateFSPath[] dirs = getInputPaths(context);
         if(dirs == null || dirs.length == 0) {
             throw new IOException("No input paths specified in job");
         }
@@ -119,28 +119,28 @@ public abstract class HSynthFileInputFormat<K extends Object, V extends Object> 
         
         List<IOException> errors = new ArrayList<IOException>();
         
-        List<HSynthFSPathFilter> filters = new ArrayList<HSynthFSPathFilter>();
-        HSynthFSPathFilter jobFilter = getInputPathFilter(context);
+        List<ISyndicateFSPathFilter> filters = new ArrayList<ISyndicateFSPathFilter>();
+        ISyndicateFSPathFilter jobFilter = getInputPathFilter(context);
         if (jobFilter != null) {
             filters.add(jobFilter);
         }
-        HSynthFSPathFilter inputFilter = new MultiPathFilter(filters);
+        ISyndicateFSPathFilter inputFilter = new MultiPathFilter(filters);
         
-        HSynthFileSystem fs = null;
+        ASyndicateFileSystem fs = null;
         try {
-            HSynthFSConfiguration conf = HSynthConfigUtil.getHSynthFSConfigurationInstance(context.getConfiguration());
-            fs = conf.getContext().getFileSystem();
+            SyndicateFSConfiguration sconf = HSynthConfigUtil.createSyndicateConf(context.getConfiguration(), "localhost");
+            fs = FileSystemFactory.getInstance(sconf);
         } catch (InstantiationException ex) {
             throw new IOException(ex);
         }
         
         for(int i=0;i<dirs.length;++i) {
-            HSynthFSPath p = dirs[i];
+            SyndicateFSPath p = dirs[i];
             
             try {
-                HSynthFSPath[] paths = fs.listAllFiles(p, inputFilter);
+                SyndicateFSPath[] paths = fs.listAllFiles(p, inputFilter);
                 if (paths != null) {
-                    for(HSynthFSPath p2 : paths) {
+                    for(SyndicateFSPath p2 : paths) {
                         result.add(p2);
                     }
                 }
@@ -163,17 +163,17 @@ public abstract class HSynthFileInputFormat<K extends Object, V extends Object> 
         long minSize = Math.max(getFormatMinSplitSize(), getMinSplitSize(context));
         long maxSize = getMaxSplitSize(context);
         
-        HSynthFileSystem fs = null;
+        ASyndicateFileSystem fs = null;
         try {
-            HSynthFSConfiguration conf = HSynthConfigUtil.getHSynthFSConfigurationInstance(context.getConfiguration());
-            fs = conf.getContext().getFileSystem();
+            SyndicateFSConfiguration sconf = HSynthConfigUtil.createSyndicateConf(context.getConfiguration(), "localhost");
+            fs = FileSystemFactory.getInstance(sconf);
         } catch (InstantiationException ex) {
             throw new IOException(ex);
         }
         
         List<InputSplit> splits = new ArrayList<InputSplit>();
-        List<HSynthFSPath> files = listFiles(context);
-        for(HSynthFSPath path : files) {
+        List<SyndicateFSPath> files = listFiles(context);
+        for(SyndicateFSPath path : files) {
             long length = fs.getSize(path);
             //String fileVersion = syndicateFS.getFileVersion(path);
             
@@ -213,32 +213,32 @@ public abstract class HSynthFileInputFormat<K extends Object, V extends Object> 
     }
     
     public static void setInputPaths(Job job, String commaSeparatedPaths) throws IOException {
-        setInputPaths(job, StringUtil.stringToPath(getPathStrings(commaSeparatedPaths)));
+        setInputPaths(job, StringUtils.stringToPath(getPathStrings(commaSeparatedPaths)));
     }
     
     public static void addInputPaths(Job job, String commaSeparatedPaths) throws IOException {
         for (String str : getPathStrings(commaSeparatedPaths)) {
-            addInputPath(job, new HSynthFSPath(str));
+            addInputPath(job, new SyndicateFSPath(str));
         }
     }
     
-    public static void setInputPaths(Job job, HSynthFSPath... inputPaths) throws IOException {
+    public static void setInputPaths(Job job, SyndicateFSPath... inputPaths) throws IOException {
         Configuration conf = job.getConfiguration();
-        StringBuffer str = new StringBuffer(StringUtils.escapeString(inputPaths[0].getPath()));
+        StringBuffer str = new StringBuffer(inputPaths[0].getPath());
         for (int i = 1; i < inputPaths.length; i++) {
-            str.append(StringUtils.COMMA_STR);
-            HSynthFSPath path = inputPaths[i];
-            str.append(StringUtils.escapeString(path.toString()));
+            str.append(",");
+            SyndicateFSPath path = inputPaths[i];
+            str.append(path.toString());
         }
 
         conf.set(CONF_INPUT_DIR, str.toString());
     }
     
-    public static void addInputPath(Job job, HSynthFSPath path) throws IOException {
+    public static void addInputPath(Job job, SyndicateFSPath path) throws IOException {
         Configuration conf = job.getConfiguration();
-        String dirStr = StringUtils.escapeString(path.toString());
+        String dirStr = path.toString();
         String dirs = conf.get(CONF_INPUT_DIR);
-        conf.set(CONF_INPUT_DIR, dirs == null ? dirStr : dirs + StringUtils.COMMA_STR + dirStr);
+        conf.set(CONF_INPUT_DIR, dirs == null ? dirStr : dirs + "," + dirStr);
     }
     
     private static String[] getPathStrings(String commaSeparatedPaths) {
@@ -279,12 +279,12 @@ public abstract class HSynthFileInputFormat<K extends Object, V extends Object> 
         return pathStrings.toArray(new String[0]);
     }
     
-    public static HSynthFSPath[] getInputPaths(JobContext context) {
+    public static SyndicateFSPath[] getInputPaths(JobContext context) {
         String dirs = context.getConfiguration().get(CONF_INPUT_DIR, "");
-        String[] list = StringUtils.split(dirs);
-        HSynthFSPath[] result = new HSynthFSPath[list.length];
+        String[] list = getPathStrings(dirs);
+        SyndicateFSPath[] result = new SyndicateFSPath[list.length];
         for (int i = 0; i < list.length; i++) {
-            result[i] = new HSynthFSPath(StringUtils.unEscapeString(list[i]));
+            result[i] = new SyndicateFSPath(list[i]);
         }
         return result;
     }

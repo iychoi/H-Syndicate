@@ -16,8 +16,8 @@
  */
 package edu.arizona.cs.hsynth.hadoop.connector.io;
 
-import edu.arizona.cs.hsynth.fs.HSynthFSPath;
-import edu.arizona.cs.hsynth.fs.HSynthFileSystem;
+import edu.arizona.cs.syndicate.fs.SyndicateFSPath;
+import edu.arizona.cs.syndicate.fs.ASyndicateFileSystem;
 import edu.arizona.cs.hsynth.hadoop.connector.io.HSynthSequenceFile;
 import edu.arizona.cs.hsynth.hadoop.connector.io.HSynthSequenceFile.CompressionType;
 import java.io.*;
@@ -89,7 +89,7 @@ public class HSynthMapFile {
         /**
          * Create the named map for keys of the named class.
          */
-        public Writer(Configuration conf, HSynthFileSystem fs, String dirName,
+        public Writer(Configuration conf, ASyndicateFileSystem fs, String dirName,
                 Class<? extends WritableComparable> keyClass, Class valClass)
                 throws IOException {
             this(conf, fs, dirName,
@@ -100,7 +100,7 @@ public class HSynthMapFile {
         /**
          * Create the named map for keys of the named class.
          */
-        public Writer(Configuration conf, HSynthFileSystem fs, String dirName,
+        public Writer(Configuration conf, ASyndicateFileSystem fs, String dirName,
                 Class<? extends WritableComparable> keyClass, Class valClass,
                 CompressionType compress, Progressable progress)
                 throws IOException {
@@ -111,7 +111,7 @@ public class HSynthMapFile {
         /**
          * Create the named map for keys of the named class.
          */
-        public Writer(Configuration conf, HSynthFileSystem fs, String dirName,
+        public Writer(Configuration conf, ASyndicateFileSystem fs, String dirName,
                 Class<? extends WritableComparable> keyClass, Class valClass,
                 CompressionType compress, CompressionCodec codec,
                 Progressable progress)
@@ -123,7 +123,7 @@ public class HSynthMapFile {
         /**
          * Create the named map for keys of the named class.
          */
-        public Writer(Configuration conf, HSynthFileSystem fs, String dirName,
+        public Writer(Configuration conf, ASyndicateFileSystem fs, String dirName,
                 Class<? extends WritableComparable> keyClass, Class valClass,
                 CompressionType compress)
                 throws IOException {
@@ -133,7 +133,7 @@ public class HSynthMapFile {
         /**
          * Create the named map using the named key comparator.
          */
-        public Writer(Configuration conf, HSynthFileSystem fs, String dirName,
+        public Writer(Configuration conf, ASyndicateFileSystem fs, String dirName,
                 WritableComparator comparator, Class valClass)
                 throws IOException {
             this(conf, fs, dirName, comparator, valClass,
@@ -143,7 +143,7 @@ public class HSynthMapFile {
         /**
          * Create the named map using the named key comparator.
          */
-        public Writer(Configuration conf, HSynthFileSystem fs, String dirName,
+        public Writer(Configuration conf, ASyndicateFileSystem fs, String dirName,
                 WritableComparator comparator, Class valClass,
                 HSynthSequenceFile.CompressionType compress)
                 throws IOException {
@@ -153,7 +153,7 @@ public class HSynthMapFile {
         /**
          * Create the named map using the named key comparator.
          */
-        public Writer(Configuration conf, HSynthFileSystem fs, String dirName,
+        public Writer(Configuration conf, ASyndicateFileSystem fs, String dirName,
                 WritableComparator comparator, Class valClass,
                 HSynthSequenceFile.CompressionType compress,
                 Progressable progress)
@@ -165,7 +165,7 @@ public class HSynthMapFile {
         /**
          * Create the named map using the named key comparator.
          */
-        public Writer(Configuration conf, HSynthFileSystem fs, String dirName,
+        public Writer(Configuration conf, ASyndicateFileSystem fs, String dirName,
                 WritableComparator comparator, Class valClass,
                 HSynthSequenceFile.CompressionType compress, CompressionCodec codec,
                 Progressable progress)
@@ -176,10 +176,10 @@ public class HSynthMapFile {
             this.comparator = comparator;
             this.lastKey = comparator.newKey();
 
-            HSynthFSPath dir = new HSynthFSPath(dirName);
+            SyndicateFSPath dir = new SyndicateFSPath(dirName);
             fs.mkdirs(dir);
-            HSynthFSPath dataFile = new HSynthFSPath(dir, DATA_FILE_NAME);
-            HSynthFSPath indexFile = new HSynthFSPath(dir, INDEX_FILE_NAME);
+            SyndicateFSPath dataFile = new SyndicateFSPath(dir, DATA_FILE_NAME);
+            SyndicateFSPath indexFile = new SyndicateFSPath(dir, INDEX_FILE_NAME);
 
             Class keyClass = comparator.getKeyClass();
             this.data =
@@ -298,7 +298,7 @@ public class HSynthMapFile {
         /**
          * Construct a map reader for the named map.
          */
-        public Reader(HSynthFileSystem fs, String dirName, Configuration conf) throws IOException {
+        public Reader(ASyndicateFileSystem fs, String dirName, Configuration conf) throws IOException {
             this(fs, dirName, null, conf);
             INDEX_SKIP = conf.getInt("io.map.index.skip", 0);
         }
@@ -306,7 +306,7 @@ public class HSynthMapFile {
         /**
          * Construct a map reader for the named map using the named comparator.
          */
-        public Reader(HSynthFileSystem fs, String dirName, WritableComparator comparator, Configuration conf)
+        public Reader(ASyndicateFileSystem fs, String dirName, WritableComparator comparator, Configuration conf)
                 throws IOException {
             this(fs, dirName, comparator, conf, true);
         }
@@ -317,7 +317,7 @@ public class HSynthMapFile {
          *
          * @see #createDataFileReader(FileSystem, Path, Configuration)
          */
-        protected Reader(HSynthFileSystem fs, String dirName,
+        protected Reader(ASyndicateFileSystem fs, String dirName,
                 WritableComparator comparator, Configuration conf, boolean open)
                 throws IOException {
 
@@ -326,11 +326,11 @@ public class HSynthMapFile {
             }
         }
 
-        protected synchronized void open(HSynthFileSystem fs, String dirName,
+        protected synchronized void open(ASyndicateFileSystem fs, String dirName,
                 WritableComparator comparator, Configuration conf) throws IOException {
-            HSynthFSPath dir = new HSynthFSPath(dirName);
-            HSynthFSPath dataFile = new HSynthFSPath(dir, DATA_FILE_NAME);
-            HSynthFSPath indexFile = new HSynthFSPath(dir, INDEX_FILE_NAME);
+            SyndicateFSPath dir = new SyndicateFSPath(dirName);
+            SyndicateFSPath dataFile = new SyndicateFSPath(dir, DATA_FILE_NAME);
+            SyndicateFSPath indexFile = new SyndicateFSPath(dir, INDEX_FILE_NAME);
 
             // open the data
             this.data = createDataFileReader(fs, dataFile, conf);
@@ -350,8 +350,8 @@ public class HSynthMapFile {
          * Override this method to specialize the type of
          * {@link SequenceFile.Reader} returned.
          */
-        protected HSynthSequenceFile.Reader createDataFileReader(HSynthFileSystem fs,
-                HSynthFSPath dataFile, Configuration conf) throws IOException {
+        protected HSynthSequenceFile.Reader createDataFileReader(ASyndicateFileSystem fs,
+                SyndicateFSPath dataFile, Configuration conf) throws IOException {
             return new HSynthSequenceFile.Reader(fs, dataFile, conf);
         }
 
@@ -659,20 +659,20 @@ public class HSynthMapFile {
     /**
      * Renames an existing map directory.
      */
-    public static void rename(HSynthFileSystem fs, String oldName, String newName)
+    public static void rename(ASyndicateFileSystem fs, String oldName, String newName)
             throws IOException {
-        HSynthFSPath oldDir = new HSynthFSPath(oldName);
-        HSynthFSPath newDir = new HSynthFSPath(newName);
+        SyndicateFSPath oldDir = new SyndicateFSPath(oldName);
+        SyndicateFSPath newDir = new SyndicateFSPath(newName);
         fs.rename(oldDir, newDir);
     }
 
     /**
      * Deletes the named map file.
      */
-    public static void delete(HSynthFileSystem fs, String name) throws IOException {
-        HSynthFSPath dir = new HSynthFSPath(name);
-        HSynthFSPath data = new HSynthFSPath(dir, DATA_FILE_NAME);
-        HSynthFSPath index = new HSynthFSPath(dir, INDEX_FILE_NAME);
+    public static void delete(ASyndicateFileSystem fs, String name) throws IOException {
+        SyndicateFSPath dir = new SyndicateFSPath(name);
+        SyndicateFSPath data = new SyndicateFSPath(dir, DATA_FILE_NAME);
+        SyndicateFSPath index = new SyndicateFSPath(dir, INDEX_FILE_NAME);
 
         fs.deleteAll(data);
         fs.deleteAll(index);
@@ -692,13 +692,13 @@ public class HSynthMapFile {
      * needed
      * @throws Exception
      */
-    public static long fix(HSynthFileSystem fs, HSynthFSPath dir,
+    public static long fix(ASyndicateFileSystem fs, SyndicateFSPath dir,
             Class<? extends Writable> keyClass,
             Class<? extends Writable> valueClass, boolean dryrun,
             Configuration conf) throws Exception {
         String dr = (dryrun ? "[DRY RUN ] " : "");
-        HSynthFSPath data = new HSynthFSPath(dir, DATA_FILE_NAME);
-        HSynthFSPath index = new HSynthFSPath(dir, INDEX_FILE_NAME);
+        SyndicateFSPath data = new SyndicateFSPath(dir, DATA_FILE_NAME);
+        SyndicateFSPath index = new SyndicateFSPath(dir, INDEX_FILE_NAME);
         int indexInterval = 128;
         if (!fs.exists(data)) {
             // there's nothing we can do to fix this!

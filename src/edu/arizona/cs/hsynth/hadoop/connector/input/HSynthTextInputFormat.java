@@ -17,8 +17,8 @@
  */
 package edu.arizona.cs.hsynth.hadoop.connector.input;
 
-import edu.arizona.cs.hsynth.fs.HSynthFSPath;
-import edu.arizona.cs.hsynth.hadoop.util.HSynthCompressionCodecUtil;
+import edu.arizona.cs.syndicate.fs.SyndicateFSPath;
+import edu.arizona.cs.hsynth.hadoop.connector.util.HSynthCompressionCodecUtil;
 import java.io.IOException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.LongWritable;
@@ -46,7 +46,7 @@ public class HSynthTextInputFormat extends HSynthFileInputFormat<LongWritable, T
     }
     
     @Override
-    protected boolean isSplitable(JobContext context, HSynthFSPath path) {
+    protected boolean isSplitable(JobContext context, SyndicateFSPath path) {
         Configuration conf = context.getConfiguration();
         CompressionCodec codec = HSynthCompressionCodecUtil.getCompressionCodec(conf, path);
         return codec == null;

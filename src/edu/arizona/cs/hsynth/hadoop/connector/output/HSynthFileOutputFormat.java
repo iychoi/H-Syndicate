@@ -17,15 +17,16 @@
  */
 package edu.arizona.cs.hsynth.hadoop.connector.output;
 
-import edu.arizona.cs.hsynth.fs.HSynthFSConfiguration;
-import edu.arizona.cs.hsynth.fs.HSynthFSPath;
-import edu.arizona.cs.hsynth.fs.HSynthFileSystem;
-import edu.arizona.cs.hsynth.hadoop.util.HSynthConfigUtil;
+import edu.arizona.cs.syndicate.fs.SyndicateFSPath;
+import edu.arizona.cs.syndicate.fs.ASyndicateFileSystem;
+import edu.arizona.cs.syndicate.fs.SyndicateFSConfiguration;
 import java.io.IOException;
 import java.text.NumberFormat;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.hsynth.FileSystemFactory;
+import org.apache.hadoop.fs.hsynth.util.HSynthConfigUtil;
 import org.apache.hadoop.io.compress.CompressionCodec;
 import org.apache.hadoop.mapred.FileAlreadyExistsException;
 import org.apache.hadoop.mapred.InvalidJobConfException;
@@ -87,15 +88,15 @@ public abstract class HSynthFileOutputFormat<K, V> extends OutputFormat<K, V> {
     
     @Override
     public void checkOutputSpecs(JobContext context) throws FileAlreadyExistsException, IOException, InterruptedException {
-        HSynthFSPath outDir = getOutputPath(context);
+        SyndicateFSPath outDir = getOutputPath(context);
         if (outDir == null) {
             throw new InvalidJobConfException("Output directory not set.");
         }
         
-        HSynthFileSystem fs = null;
+        ASyndicateFileSystem fs = null;
         try {
-            HSynthFSConfiguration conf = HSynthConfigUtil.getHSynthFSConfigurationInstance(context.getConfiguration());
-            fs = conf.getContext().getFileSystem();
+            SyndicateFSConfiguration sconf = HSynthConfigUtil.createSyndicateConf(context.getConfiguration(), "localhost");
+            fs = FileSystemFactory.getInstance(sconf);
         } catch (InstantiationException ex) {
             throw new IOException(ex);
         }
@@ -105,13 +106,13 @@ public abstract class HSynthFileOutputFormat<K, V> extends OutputFormat<K, V> {
         }
     }
     
-    public static void setOutputPath(Job job, HSynthFSPath outputDir) {
+    public static void setOutputPath(Job job, SyndicateFSPath outputDir) {
         job.getConfiguration().set(CONF_OUTPUT_DIR, outputDir.toString());
     }
     
-    public static HSynthFSPath getOutputPath(JobContext context) {
+    public static SyndicateFSPath getOutputPath(JobContext context) {
         String name = context.getConfiguration().get(CONF_OUTPUT_DIR);
-        return name == null ? null : new HSynthFSPath(name);
+        return name == null ? null : new SyndicateFSPath(name);
     }
     
     public synchronized static String getUniqueFile(TaskAttemptContext context, String name, String extension) {
@@ -127,11 +128,11 @@ public abstract class HSynthFileOutputFormat<K, V> extends OutputFormat<K, V> {
         return result.toString();
     }
 
-    public HSynthFSPath getDefaultWorkFile(TaskAttemptContext context, String extension) throws IOException {
+    public SyndicateFSPath getDefaultWorkFile(TaskAttemptContext context, String extension) throws IOException {
         HSynthOutputCommitter committer = (HSynthOutputCommitter) getOutputCommitter(context);
         Configuration conf = context.getConfiguration();
         String uniquename = getUniqueFile(context, getOutputName(context), extension);
-        return new HSynthFSPath(committer.getOutputPath(), uniquename);
+        return new SyndicateFSPath(committer.getOutputPath(), uniquename);
     }
     
     protected static String getOutputName(JobContext job) {
@@ -145,12 +146,12 @@ public abstract class HSynthFileOutputFormat<K, V> extends OutputFormat<K, V> {
     @Override
     public OutputCommitter getOutputCommitter(TaskAttemptContext context) throws IOException {
         if (this.committer == null) {
-            HSynthFSPath output = getOutputPath(context);
+            SyndicateFSPath output = getOutputPath(context);
             
-            HSynthFileSystem fs = null;
+            ASyndicateFileSystem fs = null;
             try {
-                HSynthFSConfiguration conf = HSynthConfigUtil.getHSynthFSConfigurationInstance(context.getConfiguration());
-                fs = conf.getContext().getFileSystem();
+                SyndicateFSConfiguration sconf = org.apache.hadoop.fs.hsynth.util.HSynthConfigUtil.createSyndicateConf(context.getConfiguration(), "localhost");
+                fs = FileSystemFactory.getInstance(sconf);
             } catch (InstantiationException ex) {
                 throw new IOException(ex);
             }

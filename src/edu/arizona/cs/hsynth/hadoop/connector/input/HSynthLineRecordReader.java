@@ -17,16 +17,17 @@
  */
 package edu.arizona.cs.hsynth.hadoop.connector.input;
 
-import edu.arizona.cs.hsynth.fs.HSynthFSConfiguration;
-import edu.arizona.cs.hsynth.fs.HSynthFSPath;
-import edu.arizona.cs.hsynth.fs.HSynthFileSystem;
-import edu.arizona.cs.hsynth.hadoop.util.HSynthCompressionCodecUtil;
-import edu.arizona.cs.hsynth.hadoop.util.HSynthConfigUtil;
+import edu.arizona.cs.syndicate.fs.SyndicateFSPath;
+import edu.arizona.cs.syndicate.fs.ASyndicateFileSystem;
+import edu.arizona.cs.hsynth.hadoop.connector.util.HSynthCompressionCodecUtil;
+import edu.arizona.cs.syndicate.fs.SyndicateFSConfiguration;
 import java.io.IOException;
 import java.io.InputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.hsynth.FileSystemFactory;
+import org.apache.hadoop.fs.hsynth.util.HSynthConfigUtil;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.compress.CompressionCodec;
@@ -70,14 +71,14 @@ public class HSynthLineRecordReader extends RecordReader<LongWritable, Text> {
         this.start = split.getStart();
         this.end = this.start + split.getLength();
 
-        final HSynthFSPath path = split.getPath();
+        final SyndicateFSPath path = split.getPath();
         compressionCodecs = new CompressionCodecFactory(conf);
         final CompressionCodec codec = HSynthCompressionCodecUtil.getCompressionCodec(this.compressionCodecs, path);
         
-        HSynthFileSystem fs = null;
+        ASyndicateFileSystem fs = null;
         try {
-            HSynthFSConfiguration hconf = HSynthConfigUtil.getHSynthFSConfigurationInstance(context.getConfiguration());
-            fs = hconf.getContext().getFileSystem();
+            SyndicateFSConfiguration sconf = HSynthConfigUtil.createSyndicateConf(context.getConfiguration(), "localhost");
+            fs = FileSystemFactory.getInstance(sconf);
         } catch (InstantiationException ex) {
             throw new IOException(ex);
         }

@@ -16,12 +16,11 @@
  */
 package edu.arizona.cs.hsynth.hadoop.connector.output;
 
-import edu.arizona.cs.hsynth.fs.HSynthFSConfiguration;
-import edu.arizona.cs.hsynth.fs.HSynthFSPath;
-import edu.arizona.cs.hsynth.fs.HSynthFileSystem;
+import edu.arizona.cs.syndicate.fs.SyndicateFSPath;
+import edu.arizona.cs.syndicate.fs.ASyndicateFileSystem;
 import edu.arizona.cs.hsynth.hadoop.connector.io.HSynthSequenceFile;
 import edu.arizona.cs.hsynth.hadoop.connector.io.HSynthSequenceFile.CompressionType;
-import edu.arizona.cs.hsynth.hadoop.util.HSynthConfigUtil;
+import edu.arizona.cs.syndicate.fs.SyndicateFSConfiguration;
 import java.io.IOException;
 
 import org.apache.hadoop.io.compress.CompressionCodec;
@@ -33,6 +32,7 @@ import org.apache.hadoop.mapreduce.RecordWriter;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.hadoop.util.ReflectionUtils;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.hsynth.FileSystemFactory;
 
 /**
  * An {@link OutputFormat} that writes {@link SequenceFile}s.
@@ -54,11 +54,11 @@ public class HSynthSequenceFileOutputFormat<K, V> extends HSynthFileOutputFormat
         }
         
         // get the path of the temporary output file 
-        HSynthFSPath file = getDefaultWorkFile(context, "");
-        HSynthFileSystem fs = null;
+        SyndicateFSPath file = getDefaultWorkFile(context, "");
+        ASyndicateFileSystem fs = null;
         try {
-            HSynthFSConfiguration hconf = HSynthConfigUtil.getHSynthFSConfigurationInstance(context.getConfiguration());
-            fs = hconf.getContext().getFileSystem();
+            SyndicateFSConfiguration sconf = org.apache.hadoop.fs.hsynth.util.HSynthConfigUtil.createSyndicateConf(conf, "localhost");
+            fs = FileSystemFactory.getInstance(sconf);
         } catch (InstantiationException ex) {
             throw new IOException(ex);
         }

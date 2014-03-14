@@ -1,30 +1,30 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with this
+ * work for additional information regarding copyright ownership. The ASF
+ * licenses this file to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package edu.arizona.cs.hsynth.hadoop.connector.output;
 
-import edu.arizona.cs.hsynth.fs.HSynthFSConfiguration;
-import edu.arizona.cs.hsynth.fs.HSynthFSPath;
-import edu.arizona.cs.hsynth.fs.HSynthFileSystem;
-import edu.arizona.cs.hsynth.hadoop.util.HSynthConfigUtil;
+import edu.arizona.cs.syndicate.fs.SyndicateFSPath;
+import edu.arizona.cs.syndicate.fs.ASyndicateFileSystem;
+import edu.arizona.cs.syndicate.fs.SyndicateFSConfiguration;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.hsynth.FileSystemFactory;
+import org.apache.hadoop.fs.hsynth.util.HSynthConfigUtil;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.compress.CompressionCodec;
@@ -102,7 +102,7 @@ public class HSynthTextOutputFormat<K, V> extends HSynthFileOutputFormat<K, V> {
             out.close();
         }
     }
-    
+
     @Override
     public RecordWriter<K, V> getRecordWriter(TaskAttemptContext context) throws IOException, InterruptedException {
         Configuration conf = context.getConfiguration();
@@ -115,16 +115,16 @@ public class HSynthTextOutputFormat<K, V> extends HSynthFileOutputFormat<K, V> {
             codec = (CompressionCodec) ReflectionUtils.newInstance(codecClass, conf);
             extension = codec.getDefaultExtension();
         }
-        
-        HSynthFSPath path = getDefaultWorkFile(context, extension);
-        HSynthFileSystem fs = null;
+
+        SyndicateFSPath path = getDefaultWorkFile(context, extension);
+        ASyndicateFileSystem fs = null;
         try {
-            HSynthFSConfiguration hconf = HSynthConfigUtil.getHSynthFSConfigurationInstance(context.getConfiguration());
-            fs = hconf.getContext().getFileSystem();
+            SyndicateFSConfiguration sconf = HSynthConfigUtil.createSyndicateConf(conf, "localhost");
+            fs = FileSystemFactory.getInstance(sconf);
         } catch (InstantiationException ex) {
             throw new IOException(ex);
         }
-        
+
         if (!isCompressed) {
             DataOutputStream fileOut = new DataOutputStream(fs.getFileOutputStream(path));
             return new LineRecordWriter<K, V>(fileOut, keyValueSeparator);

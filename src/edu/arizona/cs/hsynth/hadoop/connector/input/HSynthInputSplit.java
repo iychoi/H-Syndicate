@@ -1,7 +1,7 @@
 package edu.arizona.cs.hsynth.hadoop.connector.input;
 
-import edu.arizona.cs.hsynth.fs.HSynthFileSystem;
-import edu.arizona.cs.hsynth.fs.HSynthFSPath;
+import edu.arizona.cs.syndicate.fs.ASyndicateFileSystem;
+import edu.arizona.cs.syndicate.fs.SyndicateFSPath;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -11,8 +11,8 @@ import org.apache.hadoop.mapreduce.InputSplit;
 
 public class HSynthInputSplit extends InputSplit implements Writable {
 
-    private HSynthFileSystem filesystem;
-    private HSynthFSPath path;
+    private ASyndicateFileSystem filesystem;
+    private SyndicateFSPath path;
     private long start;
     private long length;
 
@@ -22,7 +22,7 @@ public class HSynthInputSplit extends InputSplit implements Writable {
     /*
      * Constructs a split
      */
-    public HSynthInputSplit(HSynthFileSystem fs, HSynthFSPath path, long start, long length) {
+    public HSynthInputSplit(ASyndicateFileSystem fs, SyndicateFSPath path, long start, long length) {
         if(fs == null)
             throw new IllegalArgumentException("Can not create Input Split from null file system");
         if(path == null)
@@ -34,14 +34,14 @@ public class HSynthInputSplit extends InputSplit implements Writable {
         this.length = length;
     }
 
-    public HSynthFileSystem getFileSystem() {
+    public ASyndicateFileSystem getFileSystem() {
         return this.filesystem;
     }
     
     /*
      * The file containing this split's data
      */
-    public HSynthFSPath getPath() {
+    public SyndicateFSPath getPath() {
         return this.path;
     }
     
@@ -80,7 +80,7 @@ public class HSynthInputSplit extends InputSplit implements Writable {
 
     @Override
     public void readFields(DataInput in) throws IOException {
-        this.path = new HSynthFSPath(Text.readString(in));
+        this.path = new SyndicateFSPath(Text.readString(in));
         this.start = in.readLong();
         this.length = in.readLong();
     }

@@ -1,7 +1,7 @@
 package edu.arizona.cs.hsynth.hadoop.connector.output;
 
-import edu.arizona.cs.hsynth.fs.HSynthFileSystem;
-import edu.arizona.cs.hsynth.fs.HSynthFSPath;
+import edu.arizona.cs.syndicate.fs.ASyndicateFileSystem;
+import edu.arizona.cs.syndicate.fs.SyndicateFSPath;
 import java.io.IOException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -12,12 +12,12 @@ import org.apache.hadoop.mapreduce.TaskAttemptContext;
 public class HSynthOutputCommitter extends OutputCommitter {
 
     private static final Log LOG = LogFactory.getLog(HSynthOutputCommitter.class);
-    
-    private HSynthFileSystem outputFileSystem = null;
-    private HSynthFSPath outputPath = null;
-    
-    public HSynthOutputCommitter(HSynthFileSystem fs, HSynthFSPath output, TaskAttemptContext context) {
-        if(output != null) {
+
+    private ASyndicateFileSystem outputFileSystem = null;
+    private SyndicateFSPath outputPath = null;
+
+    public HSynthOutputCommitter(ASyndicateFileSystem fs, SyndicateFSPath output, TaskAttemptContext context) {
+        if (output != null) {
             this.outputPath = output;
             this.outputFileSystem = fs;
         }
@@ -26,8 +26,8 @@ public class HSynthOutputCommitter extends OutputCommitter {
     @Override
     public void setupJob(JobContext context) throws IOException {
         LOG.info("Setting up job.");
-        
-        if(this.outputPath != null) {
+
+        if (this.outputPath != null) {
             this.outputFileSystem.mkdirs(this.outputPath);
         }
     }
@@ -50,9 +50,9 @@ public class HSynthOutputCommitter extends OutputCommitter {
     @Override
     public void abortTask(TaskAttemptContext context) throws IOException {
         LOG.info("Aborting task.");
-        
+
         try {
-            if(this.outputPath != null) {
+            if (this.outputPath != null) {
                 context.progress();
                 this.outputFileSystem.deleteAll(this.outputPath);
             }
@@ -60,12 +60,12 @@ public class HSynthOutputCommitter extends OutputCommitter {
             LOG.error("Error discarding output");
         }
     }
-    
-    public HSynthFSPath getOutputPath() {
+
+    public SyndicateFSPath getOutputPath() {
         return this.outputPath;
     }
-    
-    public HSynthFileSystem getOutFileSystem() {
+
+    public ASyndicateFileSystem getOutFileSystem() {
         return this.outputFileSystem;
     }
 }

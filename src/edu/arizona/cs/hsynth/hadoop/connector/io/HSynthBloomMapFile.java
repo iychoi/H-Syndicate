@@ -16,8 +16,8 @@
  */
 package edu.arizona.cs.hsynth.hadoop.connector.io;
 
-import edu.arizona.cs.hsynth.fs.HSynthFSPath;
-import edu.arizona.cs.hsynth.fs.HSynthFileSystem;
+import edu.arizona.cs.syndicate.fs.SyndicateFSPath;
+import edu.arizona.cs.syndicate.fs.ASyndicateFileSystem;
 import edu.arizona.cs.hsynth.hadoop.connector.input.HSynthFSDataInputStream;
 import edu.arizona.cs.hsynth.hadoop.connector.input.HSynthFSSeekableInputStream;
 import edu.arizona.cs.hsynth.hadoop.connector.io.HSynthSequenceFile.CompressionType;
@@ -53,11 +53,11 @@ public class HSynthBloomMapFile {
     public static final String BLOOM_FILE_NAME = "bloom";
     public static final int HASH_COUNT = 5;
 
-    public static void delete(HSynthFileSystem fs, String name) throws IOException {
-        HSynthFSPath dir = new HSynthFSPath(name);
-        HSynthFSPath data = new HSynthFSPath(dir, HSynthMapFile.DATA_FILE_NAME);
-        HSynthFSPath index = new HSynthFSPath(dir, HSynthMapFile.INDEX_FILE_NAME);
-        HSynthFSPath bloom = new HSynthFSPath(dir, BLOOM_FILE_NAME);
+    public static void delete(ASyndicateFileSystem fs, String name) throws IOException {
+        SyndicateFSPath dir = new SyndicateFSPath(name);
+        SyndicateFSPath data = new SyndicateFSPath(dir, HSynthMapFile.DATA_FILE_NAME);
+        SyndicateFSPath index = new SyndicateFSPath(dir, HSynthMapFile.INDEX_FILE_NAME);
+        SyndicateFSPath bloom = new SyndicateFSPath(dir, BLOOM_FILE_NAME);
 
         fs.deleteAll(data);
         fs.deleteAll(index);
@@ -82,81 +82,81 @@ public class HSynthBloomMapFile {
         private int vectorSize;
         private Key bloomKey = new Key();
         private DataOutputBuffer buf = new DataOutputBuffer();
-        private HSynthFileSystem fs;
-        private HSynthFSPath dir;
+        private ASyndicateFileSystem fs;
+        private SyndicateFSPath dir;
 
-        public Writer(Configuration conf, HSynthFileSystem fs, String dirName,
+        public Writer(Configuration conf, ASyndicateFileSystem fs, String dirName,
                 Class<? extends WritableComparable> keyClass,
                 Class<? extends Writable> valClass, CompressionType compress,
                 CompressionCodec codec, Progressable progress) throws IOException {
             super(conf, fs, dirName, keyClass, valClass, compress, codec, progress);
             this.fs = fs;
-            this.dir = new HSynthFSPath(dirName);
+            this.dir = new SyndicateFSPath(dirName);
             initBloomFilter(conf);
         }
 
-        public Writer(Configuration conf, HSynthFileSystem fs, String dirName,
+        public Writer(Configuration conf, ASyndicateFileSystem fs, String dirName,
                 Class<? extends WritableComparable> keyClass,
                 Class valClass, CompressionType compress,
                 Progressable progress) throws IOException {
             super(conf, fs, dirName, keyClass, valClass, compress, progress);
             this.fs = fs;
-            this.dir = new HSynthFSPath(dirName);
+            this.dir = new SyndicateFSPath(dirName);
             initBloomFilter(conf);
         }
 
-        public Writer(Configuration conf, HSynthFileSystem fs, String dirName,
+        public Writer(Configuration conf, ASyndicateFileSystem fs, String dirName,
                 Class<? extends WritableComparable> keyClass,
                 Class valClass, CompressionType compress)
                 throws IOException {
             super(conf, fs, dirName, keyClass, valClass, compress);
             this.fs = fs;
-            this.dir = new HSynthFSPath(dirName);
+            this.dir = new SyndicateFSPath(dirName);
             initBloomFilter(conf);
         }
 
-        public Writer(Configuration conf, HSynthFileSystem fs, String dirName,
+        public Writer(Configuration conf, ASyndicateFileSystem fs, String dirName,
                 WritableComparator comparator, Class valClass,
                 CompressionType compress, CompressionCodec codec, Progressable progress)
                 throws IOException {
             super(conf, fs, dirName, comparator, valClass, compress, codec, progress);
             this.fs = fs;
-            this.dir = new HSynthFSPath(dirName);
+            this.dir = new SyndicateFSPath(dirName);
             initBloomFilter(conf);
         }
 
-        public Writer(Configuration conf, HSynthFileSystem fs, String dirName,
+        public Writer(Configuration conf, ASyndicateFileSystem fs, String dirName,
                 WritableComparator comparator, Class valClass,
                 CompressionType compress, Progressable progress) throws IOException {
             super(conf, fs, dirName, comparator, valClass, compress, progress);
             this.fs = fs;
-            this.dir = new HSynthFSPath(dirName);
+            this.dir = new SyndicateFSPath(dirName);
             initBloomFilter(conf);
         }
 
-        public Writer(Configuration conf, HSynthFileSystem fs, String dirName,
+        public Writer(Configuration conf, ASyndicateFileSystem fs, String dirName,
                 WritableComparator comparator, Class valClass, CompressionType compress)
                 throws IOException {
             super(conf, fs, dirName, comparator, valClass, compress);
             this.fs = fs;
-            this.dir = new HSynthFSPath(dirName);
+            this.dir = new SyndicateFSPath(dirName);
             initBloomFilter(conf);
         }
 
-        public Writer(Configuration conf, HSynthFileSystem fs, String dirName,
+        public Writer(Configuration conf, ASyndicateFileSystem fs, String dirName,
                 WritableComparator comparator, Class valClass) throws IOException {
             super(conf, fs, dirName, comparator, valClass);
             this.fs = fs;
-            this.dir = new HSynthFSPath(dirName);
+            this.dir = new SyndicateFSPath(dirName);
             initBloomFilter(conf);
         }
 
-        public Writer(Configuration conf, HSynthFileSystem fs, String dirName,
+        public Writer(Configuration conf, ASyndicateFileSystem fs, String dirName,
                 Class<? extends WritableComparable> keyClass,
                 Class valClass) throws IOException {
             super(conf, fs, dirName, keyClass, valClass);
             this.fs = fs;
-            this.dir = new HSynthFSPath(dirName);
+            this.dir = new SyndicateFSPath(dirName);
             initBloomFilter(conf);
         }
 
@@ -187,7 +187,7 @@ public class HSynthBloomMapFile {
         @Override
         public synchronized void close() throws IOException {
             super.close();
-            DataOutputStream out = new HSynthFSDataOutputStream(fs.getFileOutputStream(new HSynthFSPath(dir, BLOOM_FILE_NAME)));
+            DataOutputStream out = new HSynthFSDataOutputStream(fs.getFileOutputStream(new SyndicateFSPath(dir, BLOOM_FILE_NAME)));
             bloomFilter.write(out);
             out.flush();
             out.close();
@@ -200,28 +200,28 @@ public class HSynthBloomMapFile {
         private DataOutputBuffer buf = new DataOutputBuffer();
         private Key bloomKey = new Key();
 
-        public Reader(HSynthFileSystem fs, String dirName, Configuration conf)
+        public Reader(ASyndicateFileSystem fs, String dirName, Configuration conf)
                 throws IOException {
             super(fs, dirName, conf);
             initBloomFilter(fs, dirName, conf);
         }
 
-        public Reader(HSynthFileSystem fs, String dirName, WritableComparator comparator,
+        public Reader(ASyndicateFileSystem fs, String dirName, WritableComparator comparator,
                 Configuration conf, boolean open) throws IOException {
             super(fs, dirName, comparator, conf, open);
             initBloomFilter(fs, dirName, conf);
         }
 
-        public Reader(HSynthFileSystem fs, String dirName, WritableComparator comparator,
+        public Reader(ASyndicateFileSystem fs, String dirName, WritableComparator comparator,
                 Configuration conf) throws IOException {
             super(fs, dirName, comparator, conf);
             initBloomFilter(fs, dirName, conf);
         }
 
-        private void initBloomFilter(HSynthFileSystem fs, String dirName,
+        private void initBloomFilter(ASyndicateFileSystem fs, String dirName,
                 Configuration conf) {
             try {
-                DataInputStream in = new HSynthFSDataInputStream(new HSynthFSSeekableInputStream(fs.getRandomAccess(new HSynthFSPath(dirName, BLOOM_FILE_NAME))));
+                DataInputStream in = new HSynthFSDataInputStream(new HSynthFSSeekableInputStream(fs.getRandomAccess(new SyndicateFSPath(dirName, BLOOM_FILE_NAME))));
                 bloomFilter = new DynamicBloomFilter();
                 bloomFilter.readFields(in);
                 in.close();

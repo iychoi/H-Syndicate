@@ -16,8 +16,8 @@
  */
 package edu.arizona.cs.hsynth.hadoop.connector.io;
 
-import edu.arizona.cs.hsynth.fs.HSynthFSPath;
-import edu.arizona.cs.hsynth.fs.HSynthFileSystem;
+import edu.arizona.cs.syndicate.fs.SyndicateFSPath;
+import edu.arizona.cs.syndicate.fs.ASyndicateFileSystem;
 import edu.arizona.cs.hsynth.hadoop.connector.input.HSynthFSDataInputStream;
 import edu.arizona.cs.hsynth.hadoop.connector.input.HSynthFSSeekableInputStream;
 import edu.arizona.cs.hsynth.hadoop.connector.output.HSynthFSDataOutputStream;
@@ -293,7 +293,7 @@ public class HSynthSequenceFile {
      * @return Returns the handle to the constructed HSynthSequenceFile Writer.
      * @throws IOException
      */
-    public static Writer createWriter(HSynthFileSystem fs, Configuration conf, HSynthFSPath name,
+    public static Writer createWriter(ASyndicateFileSystem fs, Configuration conf, SyndicateFSPath name,
             Class keyClass, Class valClass)
             throws IOException {
         return createWriter(fs, conf, name, keyClass, valClass,
@@ -312,7 +312,7 @@ public class HSynthSequenceFile {
      * @return Returns the handle to the constructed HSynthSequenceFile Writer.
      * @throws IOException
      */
-    public static Writer createWriter(HSynthFileSystem fs, Configuration conf, HSynthFSPath name,
+    public static Writer createWriter(ASyndicateFileSystem fs, Configuration conf, SyndicateFSPath name,
             Class keyClass, Class valClass, CompressionType compressionType)
             throws IOException {
         return createWriter(fs, conf, name, keyClass, valClass,
@@ -332,7 +332,7 @@ public class HSynthSequenceFile {
      * @return Returns the handle to the constructed HSynthSequenceFile Writer.
      * @throws IOException
      */
-    public static Writer createWriter(HSynthFileSystem fs, Configuration conf, HSynthFSPath name,
+    public static Writer createWriter(ASyndicateFileSystem fs, Configuration conf, SyndicateFSPath name,
             Class keyClass, Class valClass, CompressionType compressionType,
             Progressable progress) throws IOException {
         return createWriter(fs, conf, name, keyClass, valClass,
@@ -352,7 +352,7 @@ public class HSynthSequenceFile {
      * @return Returns the handle to the constructed HSynthSequenceFile Writer.
      * @throws IOException
      */
-    public static Writer createWriter(HSynthFileSystem fs, Configuration conf, HSynthFSPath name,
+    public static Writer createWriter(ASyndicateFileSystem fs, Configuration conf, SyndicateFSPath name,
             Class keyClass, Class valClass,
             CompressionType compressionType, CompressionCodec codec)
             throws IOException {
@@ -375,7 +375,7 @@ public class HSynthSequenceFile {
      * @return Returns the handle to the constructed HSynthSequenceFile Writer.
      * @throws IOException
      */
-    public static Writer createWriter(HSynthFileSystem fs, Configuration conf, HSynthFSPath name,
+    public static Writer createWriter(ASyndicateFileSystem fs, Configuration conf, SyndicateFSPath name,
             Class keyClass, Class valClass,
             CompressionType compressionType, CompressionCodec codec,
             Progressable progress, Metadata metadata) throws IOException {
@@ -414,7 +414,7 @@ public class HSynthSequenceFile {
      * @return Returns the handle to the constructed HSynthSequenceFile Writer.
      * @throws IOException
      */
-    public static Writer createWriter(HSynthFileSystem fs, Configuration conf, HSynthFSPath name,
+    public static Writer createWriter(ASyndicateFileSystem fs, Configuration conf, SyndicateFSPath name,
             Class keyClass, Class valClass, boolean createParent,
             CompressionType compressionType, CompressionCodec codec,
             Metadata metadata) throws IOException {
@@ -461,7 +461,7 @@ public class HSynthSequenceFile {
      * @return Returns the handle to the constructed HSynthSequenceFile Writer.
      * @throws IOException
      */
-    public static Writer createWriter(HSynthFileSystem fs, Configuration conf, HSynthFSPath name,
+    public static Writer createWriter(ASyndicateFileSystem fs, Configuration conf, SyndicateFSPath name,
             Class keyClass, Class valClass,
             CompressionType compressionType, CompressionCodec codec,
             Progressable progress) throws IOException {
@@ -522,7 +522,7 @@ public class HSynthSequenceFile {
      * @return Returns the handle to the constructed HSynthSequenceFile Writer.
      * @throws IOException
      */
-    private static Writer createWriter(HSynthFileSystem fs, Configuration conf, HSynthFSPath file,
+    private static Writer createWriter(ASyndicateFileSystem fs, Configuration conf, SyndicateFSPath file,
             Class keyClass, Class valClass,
             boolean compress, boolean blockCompress,
             CompressionCodec codec, Progressable progress, Metadata metadata)
@@ -869,7 +869,7 @@ public class HSynthSequenceFile {
         /**
          * Create the named file.
          */
-        public Writer(HSynthFileSystem fs, Configuration conf, HSynthFSPath name,
+        public Writer(ASyndicateFileSystem fs, Configuration conf, SyndicateFSPath name,
                 Class keyClass, Class valClass)
                 throws IOException {
             this(fs, conf, name, keyClass, valClass, null, new Metadata());
@@ -878,7 +878,7 @@ public class HSynthSequenceFile {
         /**
          * Create the named file with write-progress reporter.
          */
-        public Writer(HSynthFileSystem fs, Configuration conf, HSynthFSPath name,
+        public Writer(ASyndicateFileSystem fs, Configuration conf, SyndicateFSPath name,
                 Class keyClass, Class valClass,
                 Progressable progress, Metadata metadata)
                 throws IOException {
@@ -955,7 +955,7 @@ public class HSynthSequenceFile {
          * Initialize.
          */
         @SuppressWarnings("unchecked")
-        void init(HSynthFSPath name, Configuration conf, HSynthFSDataOutputStream out,
+        void init(SyndicateFSPath name, Configuration conf, HSynthFSDataOutputStream out,
                 Class keyClass, Class valClass,
                 boolean compress, CompressionCodec codec, Metadata metadata)
                 throws IOException {
@@ -1152,7 +1152,7 @@ public class HSynthSequenceFile {
         /**
          * Create the named file.
          */
-        public RecordCompressWriter(HSynthFileSystem fs, Configuration conf, HSynthFSPath name,
+        public RecordCompressWriter(ASyndicateFileSystem fs, Configuration conf, SyndicateFSPath name,
                 Class keyClass, Class valClass, CompressionCodec codec)
                 throws IOException {
             this(conf, new HSynthFSDataOutputStream(fs.getFileOutputStream(name)), keyClass, valClass, codec, new Metadata());
@@ -1161,7 +1161,7 @@ public class HSynthSequenceFile {
         /**
          * Create the named file with write-progress reporter.
          */
-        public RecordCompressWriter(HSynthFileSystem fs, Configuration conf, HSynthFSPath name,
+        public RecordCompressWriter(ASyndicateFileSystem fs, Configuration conf, SyndicateFSPath name,
                 Class keyClass, Class valClass,
                 CompressionCodec codec, Progressable progress, Metadata metadata)
                 throws IOException {
@@ -1177,7 +1177,7 @@ public class HSynthSequenceFile {
         /**
          * Create the named file with write-progress reporter.
          */
-        public RecordCompressWriter(HSynthFileSystem fs, Configuration conf, HSynthFSPath name,
+        public RecordCompressWriter(ASyndicateFileSystem fs, Configuration conf, SyndicateFSPath name,
                 Class keyClass, Class valClass, CompressionCodec codec,
                 Progressable progress)
                 throws IOException {
@@ -1279,7 +1279,7 @@ public class HSynthSequenceFile {
         /**
          * Create the named file.
          */
-        public BlockCompressWriter(HSynthFileSystem fs, Configuration conf, HSynthFSPath name,
+        public BlockCompressWriter(ASyndicateFileSystem fs, Configuration conf, SyndicateFSPath name,
                 Class keyClass, Class valClass, CompressionCodec codec)
                 throws IOException {
             this(fs, conf, name, keyClass, valClass,
@@ -1289,7 +1289,7 @@ public class HSynthSequenceFile {
         /**
          * Create the named file with write-progress reporter.
          */
-        public BlockCompressWriter(HSynthFileSystem fs, Configuration conf, HSynthFSPath name,
+        public BlockCompressWriter(ASyndicateFileSystem fs, Configuration conf, SyndicateFSPath name,
                 Class keyClass, Class valClass,
                 CompressionCodec codec,
                 Progressable progress, Metadata metadata)
@@ -1307,7 +1307,7 @@ public class HSynthSequenceFile {
         /**
          * Create the named file with write-progress reporter.
          */
-        public BlockCompressWriter(HSynthFileSystem fs, Configuration conf, HSynthFSPath name,
+        public BlockCompressWriter(ASyndicateFileSystem fs, Configuration conf, SyndicateFSPath name,
                 Class keyClass, Class valClass, CompressionCodec codec,
                 Progressable progress)
                 throws IOException {
@@ -1476,7 +1476,7 @@ public class HSynthSequenceFile {
      */
     public static class Reader implements java.io.Closeable {
 
-        private HSynthFSPath file;
+        private SyndicateFSPath file;
         private HSynthFSDataInputStream in;
         private DataOutputBuffer outBuf = new DataOutputBuffer();
         private byte version;
@@ -1522,17 +1522,17 @@ public class HSynthSequenceFile {
         /**
          * Open the named file.
          */
-        public Reader(HSynthFileSystem fs, HSynthFSPath file, Configuration conf)
+        public Reader(ASyndicateFileSystem fs, SyndicateFSPath file, Configuration conf)
                 throws IOException {
             this(fs, file, conf, false);
         }
 
-        private Reader(HSynthFileSystem fs, HSynthFSPath file,
+        private Reader(ASyndicateFileSystem fs, SyndicateFSPath file,
                 Configuration conf, boolean tempReader) throws IOException {
             this(fs, file, 0, fs.getSize(file), conf, tempReader);
         }
 
-        private Reader(HSynthFileSystem fs, HSynthFSPath file, long start,
+        private Reader(ASyndicateFileSystem fs, SyndicateFSPath file, long start,
                 long length, Configuration conf, boolean tempReader)
                 throws IOException {
             this.file = file;
@@ -1555,7 +1555,7 @@ public class HSynthSequenceFile {
          * Override this method to specialize the type of
          * {@link FSDataInputStream} returned.
          */
-        protected HSynthFSDataInputStream openFile(HSynthFileSystem fs, HSynthFSPath file,
+        protected HSynthFSDataInputStream openFile(ASyndicateFileSystem fs, SyndicateFSPath file,
                 long length) throws IOException {
             return new HSynthFSDataInputStream(new HSynthFSSeekableInputStream(fs.getRandomAccess(file)));
         }

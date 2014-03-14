@@ -17,7 +17,7 @@
  */
 package edu.arizona.cs.hsynth.hadoop.connector.input;
 
-import edu.arizona.cs.hsynth.fs.HSynthFSRandomAccess;
+import edu.arizona.cs.syndicate.fs.ISyndicateFSRandomAccess;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,10 +26,10 @@ import org.apache.hadoop.fs.Seekable;
 
 public class HSynthFSSeekableInputStream extends InputStream implements Seekable, PositionedReadable {
 
-    private HSynthFSRandomAccess raf;
+    private ISyndicateFSRandomAccess raf;
     private long length = 0;
     
-    public HSynthFSSeekableInputStream(HSynthFSRandomAccess raf) {
+    public HSynthFSSeekableInputStream(ISyndicateFSRandomAccess raf) {
         this.raf = raf;
         try {
             // for better performance

@@ -22,7 +22,7 @@ public class HSynthConfigUtil {
     public static final int DEFAULT_MAX_METADATA_CACHE_SIZE = 0;
     // no timeout
     public static final int DEFAULT_METADATA_CACHE_TIMEOUT = 0;
-    public static final int DEFAULT_BUFFER_SIZE = 1024 * 512;
+    public static final int DEFAULT_BUFFER_SIZE = 1024 * 800;
     
     public static String getHSynthHosts(Configuration conf) {
         return conf.get(CONFIG_HSYNTH_HOSTS);

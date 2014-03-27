@@ -69,6 +69,7 @@ public abstract class ASyndicateFileSystem implements Closeable {
         this.workingDir = getRootPath();
         this.closed = false;
         
+        /*
         // add shutdown hook
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
@@ -83,6 +84,7 @@ public abstract class ASyndicateFileSystem implements Closeable {
                 }
             }
         });
+        */
     }
     
     public synchronized boolean isClosed() {
@@ -150,6 +152,10 @@ public abstract class ASyndicateFileSystem implements Closeable {
     public abstract long getSize(SyndicateFSPath path);
     
     public abstract long getBlockSize();
+    
+    public abstract String[] listExtendedAttrs(SyndicateFSPath path) throws IOException;
+    
+    public abstract String getExtendedAttr(SyndicateFSPath path, String name) throws IOException;
     
     public abstract boolean delete(SyndicateFSPath path) throws FileNotFoundException, IOException;
     

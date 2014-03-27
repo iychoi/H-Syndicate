@@ -5,8 +5,6 @@ import edu.arizona.cs.syndicate.fs.client.FileInfo;
 import edu.arizona.cs.syndicate.fs.client.Stat;
 import edu.arizona.cs.syndicate.fs.cache.ICache;
 import edu.arizona.cs.syndicate.fs.cache.TimeoutCache;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -214,6 +212,40 @@ public class SyndicateFileSystem extends ASyndicateFileSystem {
             return status.getBlockSize();
         }
         return 0;
+    }
+    
+    @Override
+    public String[] listExtendedAttrs(SyndicateFSPath path) throws IOException {
+        if(path == null) {
+            LOG.error("path is null");
+            throw new IllegalArgumentException("path is null");
+        }
+        
+        SyndicateFSPath absPath = getAbsolutePath(path);
+        SyndicateFSFileStatus status = getFileStatus(absPath);
+        if(status == null) {
+            LOG.error("file not exist");
+            throw new IOException("file not exist : " + path.getPath());
+        }
+        
+        return this.client.listExtendedAttr(absPath.getPath());
+    }
+
+    @Override
+    public String getExtendedAttr(SyndicateFSPath path, String name) throws IOException {
+        if(path == null) {
+            LOG.error("path is null");
+            throw new IllegalArgumentException("path is null");
+        }
+        
+        SyndicateFSPath absPath = getAbsolutePath(path);
+        SyndicateFSFileStatus status = getFileStatus(absPath);
+        if(status == null) {
+            LOG.error("file not exist");
+            throw new IOException("file not exist : " + path.getPath());
+        }
+        
+        return this.client.getExtendedAttr(absPath.getPath(), name);
     }
 
     @Override

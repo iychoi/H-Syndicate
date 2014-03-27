@@ -143,10 +143,17 @@ public class SyndicateIPCClient implements Closeable {
         MessageBuilder.readResultMessage(this.socketDataInputStream, MessageBuilder.MessageOperation.OP_TRUNCATE_FILE);
     }
 
-    public synchronized byte[] getExtendedAttr(String path) throws IOException {
+    public synchronized String[] listExtendedAttr(String path) throws IOException {
         // send
-        MessageBuilder.sendStringsMessage(this.socketDataOutputStream, MessageBuilder.MessageOperation.OP_GET_EXTENDED_ATTR, path);
+        MessageBuilder.sendStringsMessage(this.socketDataOutputStream, MessageBuilder.MessageOperation.OP_LIST_EXTENDED_ATTR, path);
         // recv
-        return MessageBuilder.readBytesMessage(this.socketDataInputStream, MessageBuilder.MessageOperation.OP_GET_EXTENDED_ATTR);
+        return MessageBuilder.readStringsMessage(this.socketDataInputStream, MessageBuilder.MessageOperation.OP_LIST_EXTENDED_ATTR);
+    }
+    
+    public synchronized String getExtendedAttr(String path, String name) throws IOException {
+        // send
+        MessageBuilder.sendStringsMessage(this.socketDataOutputStream, MessageBuilder.MessageOperation.OP_GET_EXTENDED_ATTR, path, name);
+        // recv
+        return MessageBuilder.readStringMessage(this.socketDataInputStream, MessageBuilder.MessageOperation.OP_GET_EXTENDED_ATTR);
     }
 }

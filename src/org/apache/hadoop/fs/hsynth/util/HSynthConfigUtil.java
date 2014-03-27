@@ -17,12 +17,12 @@ public class HSynthConfigUtil {
     public static final String CONFIG_HSYNTH_DEFAULT_INPUT_BUFFER_SIZE = "fs.hsynth.input.buffer.size";
     public static final String CONFIG_HSYNTH_DEFAULT_OUTPUT_BUFFER_SIZE = "fs.hsynth.output.buffer.size";
 
-    public static final int DEFAULT_PORT = 9910;
+    public static final int DEFAULT_PORT = 7910;
     // unlimited size
     public static final int DEFAULT_MAX_METADATA_CACHE_SIZE = 0;
     // no timeout
     public static final int DEFAULT_METADATA_CACHE_TIMEOUT = 0;
-    public static final int DEFAULT_BUFFER_SIZE = 1024 * 100;
+    public static final int DEFAULT_BUFFER_SIZE = 1024 * 512;
     
     public static String getHSynthHosts(Configuration conf) {
         return conf.get(CONFIG_HSYNTH_HOSTS);

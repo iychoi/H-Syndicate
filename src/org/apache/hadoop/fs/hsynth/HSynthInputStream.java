@@ -20,7 +20,6 @@ public class HSynthInputStream extends FSInputStream {
     private long fileLength;
     private long pos = 0;
     private ISyndicateFSRandomAccess raf;
-
     
     public HSynthInputStream(Configuration conf, SyndicateFSPath path, edu.arizona.cs.syndicate.fs.ASyndicateFileSystem hsynth, FileSystem.Statistics stats) throws IOException {
         this.path = path;
@@ -70,6 +69,7 @@ public class HSynthInputStream extends FSInputStream {
         int result = -1;
         if (this.pos < this.fileLength) {
             result = this.raf.read();
+            
             if (result >= 0) {
                 this.pos++;
             }
@@ -85,20 +85,21 @@ public class HSynthInputStream extends FSInputStream {
         if (this.closed) {
             throw new IOException("Stream closed");
         }
+        int result = -1;
         if (this.pos < this.fileLength) {
             int readLen = (int)Math.min(this.fileLength - this.pos, len);
             
-            int result = this.raf.read(bytes, off, readLen);
+            result = this.raf.read(bytes, off, readLen);
+                
             if (result >= 0) {
                 this.pos += result;
             }
-            if (this.stats != null && result > 0) {
-                this.stats.incrementBytesRead(result);
-            }
-            return result;
         }
         
-        return -1;
+        if (this.stats != null && result > 0) {
+            this.stats.incrementBytesRead(result);
+        }
+        return result;
     }
     
     @Override

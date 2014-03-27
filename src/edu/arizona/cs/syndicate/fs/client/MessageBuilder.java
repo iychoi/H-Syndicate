@@ -252,4 +252,19 @@ public class MessageBuilder {
         
         return arr.get(0);
     }
+    
+    public static String readStringMessage(DataInputStream dis, MessageOperation op) throws IOException {
+        byte[] msg = readBytesMessage(dis, op);
+        return new String(msg);
+    }
+    
+    public static String[] readStringsMessage(DataInputStream dis, MessageOperation op) throws IOException {
+        List<byte[]> arr = recvBytesMessage(dis, op);
+        
+        String[] msgs = new String[arr.size()];
+        for(int i=0;i<arr.size();i++) {
+            msgs[i] = new String(arr.get(i));
+        }
+        return msgs;
+    }
 }

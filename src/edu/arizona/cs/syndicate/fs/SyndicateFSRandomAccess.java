@@ -89,14 +89,19 @@ public class SyndicateFSRandomAccess implements ISyndicateFSRandomAccess {
             throw new IOException("RandomAccess is already closed");
         }
         
-        long size = this.handle.getStatus().getSize();
-        if(size > this.offset + n) {
-            this.offset += n;
-        } else {
-            n = (int) (size - this.offset);
-            this.offset += n;
+        if(n <= 0) {
+            return 0;
         }
-        return n;
+        
+        long size = this.handle.getStatus().getSize();
+        if(size >= this.offset + n) {
+            this.offset += n;
+            return n;
+        } else {
+            int newn = (int) (size - this.offset);
+            this.offset += newn;
+            return newn;
+        }
     }
 
     @Override
@@ -131,7 +136,7 @@ public class SyndicateFSRandomAccess implements ISyndicateFSRandomAccess {
             throw new IOException("seek RandomAccess can not be negative");
         }
         
-        if(this.handle.getStatus().getSize() > l) {
+        if(this.handle.getStatus().getSize() >= l) {
             this.offset = l;
         } else {
             LOG.error("seek point can not be larger than the file size");

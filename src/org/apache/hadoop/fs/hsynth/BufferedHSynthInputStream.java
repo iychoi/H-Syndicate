@@ -50,7 +50,18 @@ public class BufferedHSynthInputStream extends FSInputStream {
     
     @Override
     public long skip(long l) throws IOException {
-        seek(this.buffer_start_pos + this.buffer_pos + l);
+        if(l <= 0) {
+            return 0;
+        }
+        
+        if(this.buffer_pos + l <= this.buffer_end) {
+            this.buffer_pos += l;
+            return l;
+        }
+        
+        long newlen = Math.min(l, this.is.getSize() - this.buffer_start_pos - this.buffer_pos);
+        
+        seek(this.buffer_start_pos + this.buffer_pos + newlen);
         return l;
     }
     

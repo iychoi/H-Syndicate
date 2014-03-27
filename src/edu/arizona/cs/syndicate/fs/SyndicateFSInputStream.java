@@ -90,6 +90,10 @@ public class SyndicateFSInputStream extends InputStream {
             throw new IOException("InputStream is already closed");
         }
         
+        if(n <= 0) {
+            return 0;
+        }
+        
         long size = this.handle.getStatus().getSize();
         if(size > this.offset + n) {
             this.offset += n;

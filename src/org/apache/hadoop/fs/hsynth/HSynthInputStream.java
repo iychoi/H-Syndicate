@@ -30,6 +30,10 @@ public class HSynthInputStream extends FSInputStream {
         this.raf = hsynth.getRandomAccess(path);
     }
     
+    public synchronized long getSize() throws IOException {
+        return this.fileLength;
+    }
+    
     @Override
     public synchronized long getPos() throws IOException {
         return this.pos;
@@ -51,6 +55,10 @@ public class HSynthInputStream extends FSInputStream {
 
     @Override
     public long skip(long l) throws IOException {
+        if(l <= 0) {
+            return 0;
+        }
+        
         long newOff = Math.min(l, this.fileLength - this.pos);
         seek(this.pos + newOff);
         return newOff;

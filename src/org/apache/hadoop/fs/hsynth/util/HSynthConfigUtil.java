@@ -28,6 +28,20 @@ public class HSynthConfigUtil {
         return conf.get(CONFIG_HSYNTH_HOSTS);
     }
     
+    public static String[] listHSynthHost(Configuration conf) {
+        return getHSynthHosts(conf).split(",");
+    }
+    
+    public static String getHSynthHost(Configuration conf, int index) {
+        String[] hosts = listHSynthHost(conf);
+        
+        if(index >= hosts.length) {
+            return null;
+        } else {
+            return hosts[index];
+        }
+    }
+    
     public static void setHSynthHosts(Configuration conf, String hosts) {
         conf.set(CONFIG_HSYNTH_HOSTS, hosts);
     }

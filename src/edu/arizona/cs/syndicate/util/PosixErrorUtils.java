@@ -180,7 +180,7 @@ public class PosixErrorUtils {
     public static String generateErrorMessage(int errno) {
         ErrorDetail detail = error_map.get(Math.abs(errno));
         if(detail != null) {
-            return detail.getMessage() + " (id : " + detail.getID() + ", errno : " + detail.getNo() + ")";
+            return detail.getMessage() + " (id : " + detail.getID() + ", errno : " + detail.getNo() + ", return_val : " + errno + ")";
         } else {
             return null;
         }

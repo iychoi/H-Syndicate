@@ -91,16 +91,25 @@ public class MessageBuilder {
         int totalMessageSize = dis.readInt();
         int totalNumberOfMessages = dis.readInt();
         
-        if(opcode == MessageOperation.OP_READ_FILEDATA.getCode() ||
-                opcode == MessageOperation.OP_WRITE_FILEDATA.getCode()) {
+        if(opcode == MessageOperation.OP_GET_EXTENDED_ATTR.getCode()) {
             // returncode can be positive
+            //if(returncode == -34 || returncode == -2) {
+            // not ERANGE and not ENOENT
+            if(returncode == -2 || returncode == -34) {
+                // ENOENT
+                // return empty string
+                List<byte[]> arr = new ArrayList<byte[]>();
+                arr.add(new byte[0]);
+                return arr;
+            }
+            
             if(returncode < 0) {
                 throw new IOException(PosixErrorUtils.generateErrorMessage(returncode));
             }
         } else {
-            if(returncode != 0) {
+            if (returncode < 0) {
                 throw new IOException(PosixErrorUtils.generateErrorMessage(returncode));
-            }    
+            }
         }
         
         int readSum = 0;

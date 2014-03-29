@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.hsynth.FileSystemFactory;
-import org.apache.hadoop.fs.hsynth.util.HSynthConfigUtil;
+import org.apache.hadoop.fs.hsynth.util.HSynthConfigUtils;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.compress.CompressionCodec;
@@ -119,7 +119,7 @@ public class HSynthTextOutputFormat<K, V> extends HSynthFileOutputFormat<K, V> {
         SyndicateFSPath path = getDefaultWorkFile(context, extension);
         ASyndicateFileSystem fs = null;
         try {
-            SyndicateFSConfiguration sconf = HSynthConfigUtil.createSyndicateConf(conf, "localhost");
+            SyndicateFSConfiguration sconf = HSynthConfigUtils.createSyndicateConf(conf, "localhost");
             fs = FileSystemFactory.getInstance(sconf);
         } catch (InstantiationException ex) {
             throw new IOException(ex);

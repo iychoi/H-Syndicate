@@ -34,7 +34,7 @@ import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.hadoop.util.ReflectionUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.hsynth.FileSystemFactory;
-import org.apache.hadoop.fs.hsynth.util.HSynthConfigUtil;
+import org.apache.hadoop.fs.hsynth.util.HSynthConfigUtils;
 
 /**
  * An {@link org.apache.hadoop.mapreduce.OutputFormat} that writes
@@ -61,7 +61,7 @@ public class HSynthMapFileOutputFormat
         SyndicateFSPath file = getDefaultWorkFile(context, "");
         ASyndicateFileSystem fs = null;
         try {
-            SyndicateFSConfiguration sconf = HSynthConfigUtil.createSyndicateConf(conf, "localhost");
+            SyndicateFSConfiguration sconf = HSynthConfigUtils.createSyndicateConf(conf, "localhost");
             fs = FileSystemFactory.getInstance(sconf);
         } catch (InstantiationException ex) {
             throw new IOException(ex);
@@ -92,7 +92,7 @@ public class HSynthMapFileOutputFormat
             Configuration conf) throws IOException {
         ASyndicateFileSystem fs = null;
         try {
-            SyndicateFSConfiguration sconf = org.apache.hadoop.fs.hsynth.util.HSynthConfigUtil.createSyndicateConf(conf, "localhost");
+            SyndicateFSConfiguration sconf = org.apache.hadoop.fs.hsynth.util.HSynthConfigUtils.createSyndicateConf(conf, "localhost");
             fs = FileSystemFactory.getInstance(sconf);
         } catch (InstantiationException ex) {
             throw new IOException(ex);

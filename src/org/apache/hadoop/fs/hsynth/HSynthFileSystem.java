@@ -12,12 +12,14 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.BlockLocation;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.fs.hsynth.util.HSynthConfigUtil;
+import org.apache.hadoop.fs.hsynth.util.HSynthBlockUtils;
+import org.apache.hadoop.fs.hsynth.util.HSynthConfigUtils;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.util.Progressable;
 
@@ -49,7 +51,7 @@ public class HSynthFileSystem extends FileSystem {
     }
     
     private static ASyndicateFileSystem createHSynthFS(Configuration conf) throws IOException {
-        SyndicateFSConfiguration sconf = HSynthConfigUtil.createSyndicateConf(conf, "localhost");
+        SyndicateFSConfiguration sconf = HSynthConfigUtils.createSyndicateConf(conf, "localhost");
         try {
             return FileSystemFactory.getInstance(sconf);
         } catch (InstantiationException ex) {
@@ -150,7 +152,7 @@ public class HSynthFileSystem extends FileSystem {
             }
         }
         
-        int bSize = Math.max(HSynthConfigUtil.getHSynthOutputBufferSize(getConf()), bufferSize);
+        int bSize = Math.max(HSynthConfigUtils.getHSynthOutputBufferSize(getConf()), bufferSize);
         return new FSDataOutputStream(new BufferedOutputStream(this.syndicateFS.getFileOutputStream(hpath), bSize), this.statistics);
     }
     
@@ -164,7 +166,7 @@ public class HSynthFileSystem extends FileSystem {
             throw new IOException("Path " + path + " is a directory.");
         }
         
-        int bSize = Math.max(HSynthConfigUtil.getHSynthInputBufferSize(getConf()), bufferSize);
+        int bSize = Math.max(HSynthConfigUtils.getHSynthInputBufferSize(getConf()), bufferSize);
         return new FSDataInputStream(new BufferedHSynthInputStream(new HSynthInputStream(getConf(), hpath, this.syndicateFS, this.statistics), bSize));
     }
 
@@ -234,6 +236,49 @@ public class HSynthFileSystem extends FileSystem {
     @Override
     public long getDefaultBlockSize() {
         return this.syndicateFS.getBlockSize();
+    }
+    
+    @Override
+    public BlockLocation[] getFileBlockLocations(FileStatus file, long start, long len) {
+        try {
+            SliversMonitor monitor = new SliversMonitor(this.getConf());
+            SyndicateFSPath hpath = makeSyndicateFSPath(file.getPath());
+
+            long filesize = file.getLen();
+            long blocksize = getDefaultBlockSize();
+            
+            int startblockID = HSynthBlockUtils.getBlockID(start, blocksize);
+            int endblockID = HSynthBlockUtils.getBlockID(start + len, blocksize);
+            int effectiveblocklen = endblockID - startblockID + 1;
+            
+            BlockLocation[] locations = new BlockLocation[effectiveblocklen];
+            List<SliversMonitorResults<byte[]>> localCachedBlockInfo = monitor.getLocalCachedBlockInfo(hpath);
+            
+            for(int i=0;i<effectiveblocklen;i++) {
+                locations[i].setOffset(HSynthBlockUtils.getBlockStartOffset(startblockID + i, blocksize));
+                locations[i].setLength(HSynthBlockUtils.getBlockLength(filesize, blocksize, startblockID + i));
+                
+                List<String> hosts = new ArrayList<String>();
+                
+                for(SliversMonitorResults<byte[]> info : localCachedBlockInfo) {
+                    boolean hasCache = HSynthBlockUtils.checkBlockPresence(startblockID + i, info.getResult());
+                    if(hasCache) {
+                        hosts.add(info.getHostname());
+                    }
+                }
+                
+                if(hosts.isEmpty()) {
+                    hosts.add("localhost");
+                }
+                
+                locations[i].setHosts(hosts.toArray(new String[0]));
+            }
+            
+            return locations;
+        } catch (Exception ex) {
+            LOG.info(ex);
+        }
+        return null;
     }
     
     private static class HSynthFileStatus extends FileStatus {

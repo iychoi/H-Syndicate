@@ -4,7 +4,7 @@ import java.io.IOException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.fs.FSInputStream;
-import org.apache.hadoop.fs.hsynth.util.HSynthConfigUtil;
+import org.apache.hadoop.fs.hsynth.util.HSynthConfigUtils;
 
 public class BufferedHSynthInputStream extends FSInputStream {
     
@@ -18,7 +18,7 @@ public class BufferedHSynthInputStream extends FSInputStream {
     private HSynthInputStream is;
     
     public BufferedHSynthInputStream(HSynthInputStream is) throws IOException {
-        init(is, HSynthConfigUtil.DEFAULT_BUFFER_SIZE);
+        init(is, HSynthConfigUtils.DEFAULT_BUFFER_SIZE);
     }
     
     public BufferedHSynthInputStream(HSynthInputStream is, int buffer_size) throws IOException {

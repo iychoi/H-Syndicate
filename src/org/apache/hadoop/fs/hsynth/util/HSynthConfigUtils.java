@@ -6,9 +6,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 
-public class HSynthConfigUtil {
+public class HSynthConfigUtils {
     
-    public static final Log LOG = LogFactory.getLog(HSynthConfigUtil.class);
+    public static final Log LOG = LogFactory.getLog(HSynthConfigUtils.class);
     
     public static final String CONFIG_HSYNTH_HOSTS = "fs.hsynth.hosts";
     public static final String CONFIG_HSYNTH_PORT = "fs.hsynth.port";
@@ -93,13 +93,13 @@ public class HSynthConfigUtil {
         sconf.setHost(host);
         
         // port
-        int port = HSynthConfigUtil.getHSynthPort(conf);
+        int port = HSynthConfigUtils.getHSynthPort(conf);
         sconf.setPort(port);
         
-        int metadataCacheSize = HSynthConfigUtil.getHSynthMaxMetadataCacheSize(conf);
+        int metadataCacheSize = HSynthConfigUtils.getHSynthMaxMetadataCacheSize(conf);
         sconf.setMaxMetadataCacheSize(metadataCacheSize);
         
-        int metadataCacheTimeout = HSynthConfigUtil.getHSynthMetadataCacheTimeout(conf);
+        int metadataCacheTimeout = HSynthConfigUtils.getHSynthMetadataCacheTimeout(conf);
         sconf.setMetadataCacheTimeout(metadataCacheTimeout);
         
         return sconf;

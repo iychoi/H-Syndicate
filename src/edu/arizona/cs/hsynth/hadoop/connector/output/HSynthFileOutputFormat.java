@@ -26,7 +26,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.hsynth.FileSystemFactory;
-import org.apache.hadoop.fs.hsynth.util.HSynthConfigUtil;
+import org.apache.hadoop.fs.hsynth.util.HSynthConfigUtils;
 import org.apache.hadoop.io.compress.CompressionCodec;
 import org.apache.hadoop.mapred.FileAlreadyExistsException;
 import org.apache.hadoop.mapred.InvalidJobConfException;
@@ -95,7 +95,7 @@ public abstract class HSynthFileOutputFormat<K, V> extends OutputFormat<K, V> {
         
         ASyndicateFileSystem fs = null;
         try {
-            SyndicateFSConfiguration sconf = HSynthConfigUtil.createSyndicateConf(context.getConfiguration(), "localhost");
+            SyndicateFSConfiguration sconf = HSynthConfigUtils.createSyndicateConf(context.getConfiguration(), "localhost");
             fs = FileSystemFactory.getInstance(sconf);
         } catch (InstantiationException ex) {
             throw new IOException(ex);
@@ -150,7 +150,7 @@ public abstract class HSynthFileOutputFormat<K, V> extends OutputFormat<K, V> {
             
             ASyndicateFileSystem fs = null;
             try {
-                SyndicateFSConfiguration sconf = org.apache.hadoop.fs.hsynth.util.HSynthConfigUtil.createSyndicateConf(context.getConfiguration(), "localhost");
+                SyndicateFSConfiguration sconf = org.apache.hadoop.fs.hsynth.util.HSynthConfigUtils.createSyndicateConf(context.getConfiguration(), "localhost");
                 fs = FileSystemFactory.getInstance(sconf);
             } catch (InstantiationException ex) {
                 throw new IOException(ex);

@@ -14,7 +14,8 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.hsynth.SliversMonitor;
 import org.apache.hadoop.fs.hsynth.SliversMonitorResults;
-import org.apache.hadoop.fs.hsynth.util.HSynthConfigUtil;
+import org.apache.hadoop.fs.hsynth.util.HSynthBlockUtils;
+import org.apache.hadoop.fs.hsynth.util.HSynthConfigUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
@@ -34,13 +35,13 @@ public class testHSynthLocalCache extends Configured implements Tool {
     public int run(String[] args) throws Exception {
         Configuration conf = this.getConf();
         
-        String hosts = HSynthConfigUtil.getHSynthHosts(conf);
+        String hosts = HSynthConfigUtils.getHSynthHosts(conf);
         hosts = "localhost," + hosts;
-        HSynthConfigUtil.setHSynthHosts(conf, hosts);
+        HSynthConfigUtils.setHSynthHosts(conf, hosts);
         
         SliversMonitor monitor = new SliversMonitor(conf);
         SyndicateFSPath path = new SyndicateFSPath(args[0]);
-        
+/*        
         List<SliversMonitorResults<String[]>> listExtendedAttrs = monitor.listExtendedAttrs(path);
         for(SliversMonitorResults<String[]> attrs : listExtendedAttrs) {
             if(attrs != null) {
@@ -61,21 +62,12 @@ public class testHSynthLocalCache extends Configured implements Tool {
                 }
             }
         }
+*/      
         
-        List<SliversMonitorResults<String>> extendedAttrs = monitor.getExtendedAttrs(path, "user.syndicate_cached_blocks");
-        for(SliversMonitorResults<String> attrs : extendedAttrs) {
-            if(attrs != null) {
-                // Host
-                LOG.info("===========================================");
-                LOG.info("host : " + attrs.getHostname());
-                LOG.info("===========================================");
-                
-                if(attrs.getResult() != null) {
-                    // string?
-                    LOG.info("path " + path.getPath());
-                    LOG.info(attrs.getResult());
-                }
-            }
+        List<SliversMonitorResults<byte[]>> bitmaps = monitor.getLocalCachedBlockInfo(path);
+        for(SliversMonitorResults<byte[]> bitmap : bitmaps) {
+            LOG.info(bitmap.getHostname() + " - " + path);
+            byte[] map = bitmap.getResult();
         }
         return 0;
     }

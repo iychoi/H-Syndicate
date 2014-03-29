@@ -27,7 +27,7 @@ import java.io.DataOutputStream;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.hsynth.FileSystemFactory;
-import org.apache.hadoop.fs.hsynth.util.HSynthConfigUtil;
+import org.apache.hadoop.fs.hsynth.util.HSynthConfigUtils;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.BytesWritable;
@@ -181,7 +181,7 @@ public class HSynthSequenceFileAsBinaryOutputFormat
         SyndicateFSPath file = getDefaultWorkFile(context, "");
         ASyndicateFileSystem fs = null;
         try {
-            SyndicateFSConfiguration sconf = HSynthConfigUtil.createSyndicateConf(conf, "localhost");
+            SyndicateFSConfiguration sconf = HSynthConfigUtils.createSyndicateConf(conf, "localhost");
             fs = FileSystemFactory.getInstance(sconf);
         } catch (InstantiationException ex) {
             throw new IOException(ex);

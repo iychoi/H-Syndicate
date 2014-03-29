@@ -9,10 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.hadoop.fs.hsynth.util.HSynthBlockUtils;
 
 public abstract class ASyndicateFileSystem implements Closeable {
     
     private static final Log LOG = LogFactory.getLog(ASyndicateFileSystem.class);
+    
+    protected static final String LOCAL_CACHED_BLOCK_XATTR_NAME = "user.syndicate_cached_blocks";
     
     protected static final String FS_ROOT_PATH_STRING = "/";
     protected static final SyndicateFSPath FS_ROOT_PATH = new SyndicateFSPath(FS_ROOT_PATH_STRING);
@@ -380,6 +383,34 @@ public abstract class ASyndicateFileSystem implements Closeable {
             }
         }
         return false;
+    }
+    
+    public synchronized byte[] getLocalCacheBlocks(SyndicateFSPath path) throws IOException {
+        long blocksize = getBlockSize();
+        long filesize = this.getSize(path);
+        
+        int blocknum = HSynthBlockUtils.getBlocks(filesize, blocksize);
+        
+        String blockBitmapString = getLocalCacheBlocksInString(path);
+        
+        byte[] bitmap = new byte[blocknum];
+        for(int i=0;i<blocknum;i++) {
+            bitmap[i] = 0;
+            
+            if(blockBitmapString != null) {
+                if(i < blockBitmapString.length()) {
+                    // exist
+                    if(blockBitmapString.charAt(i) == '1') {
+                        bitmap[i] = 1;
+                    }
+                }
+            }
+        }
+        return bitmap;
+    }
+    
+    private synchronized String getLocalCacheBlocksInString(SyndicateFSPath path) throws IOException {
+        return getExtendedAttr(path, LOCAL_CACHED_BLOCK_XATTR_NAME);
     }
     
     @Override

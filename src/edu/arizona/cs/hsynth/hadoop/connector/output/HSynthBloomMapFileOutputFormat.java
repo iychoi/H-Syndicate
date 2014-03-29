@@ -34,7 +34,7 @@ import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.hadoop.util.ReflectionUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.hsynth.FileSystemFactory;
-import org.apache.hadoop.fs.hsynth.util.HSynthConfigUtil;
+import org.apache.hadoop.fs.hsynth.util.HSynthConfigUtils;
 
 public class HSynthBloomMapFileOutputFormat extends HSynthFileOutputFormat<WritableComparable<?>, Writable> {
 
@@ -56,7 +56,7 @@ public class HSynthBloomMapFileOutputFormat extends HSynthFileOutputFormat<Writa
         SyndicateFSPath file = getDefaultWorkFile(context, "");
         ASyndicateFileSystem fs = null;
         try {
-            SyndicateFSConfiguration sconf = org.apache.hadoop.fs.hsynth.util.HSynthConfigUtil.createSyndicateConf(context.getConfiguration(), "localhost");
+            SyndicateFSConfiguration sconf = org.apache.hadoop.fs.hsynth.util.HSynthConfigUtils.createSyndicateConf(context.getConfiguration(), "localhost");
             fs = FileSystemFactory.getInstance(sconf);
         } catch (InstantiationException ex) {
             throw new IOException(ex);
@@ -89,7 +89,7 @@ public class HSynthBloomMapFileOutputFormat extends HSynthFileOutputFormat<Writa
             Configuration conf) throws IOException {
         ASyndicateFileSystem fs = null;
         try {
-            SyndicateFSConfiguration sconf = HSynthConfigUtil.createSyndicateConf(conf, "localhost");
+            SyndicateFSConfiguration sconf = HSynthConfigUtils.createSyndicateConf(conf, "localhost");
             fs = FileSystemFactory.getInstance(sconf);
         } catch (InstantiationException ex) {
             throw new IOException(ex);

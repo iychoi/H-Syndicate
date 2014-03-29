@@ -57,7 +57,7 @@ public class HSynthSequenceFileOutputFormat<K, V> extends HSynthFileOutputFormat
         SyndicateFSPath file = getDefaultWorkFile(context, "");
         ASyndicateFileSystem fs = null;
         try {
-            SyndicateFSConfiguration sconf = org.apache.hadoop.fs.hsynth.util.HSynthConfigUtil.createSyndicateConf(conf, "localhost");
+            SyndicateFSConfiguration sconf = org.apache.hadoop.fs.hsynth.util.HSynthConfigUtils.createSyndicateConf(conf, "localhost");
             fs = FileSystemFactory.getInstance(sconf);
         } catch (InstantiationException ex) {
             throw new IOException(ex);

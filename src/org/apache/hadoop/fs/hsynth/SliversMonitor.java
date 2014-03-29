@@ -5,13 +5,12 @@ import edu.arizona.cs.syndicate.fs.SyndicateFSConfiguration;
 import edu.arizona.cs.syndicate.fs.SyndicateFSPath;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.hsynth.util.HSynthConfigUtil;
+import org.apache.hadoop.fs.hsynth.util.HSynthConfigUtils;
 
 public class SliversMonitor {
     private static final Log LOG = LogFactory.getLog(SliversMonitor.class);
@@ -20,7 +19,7 @@ public class SliversMonitor {
     private static Hashtable<String, ASyndicateFileSystem> syndicateFSs = new Hashtable<String, ASyndicateFileSystem>();
     
     public SliversMonitor(Configuration conf) throws IOException {
-        String[] slivers = HSynthConfigUtil.listHSynthHost(conf);
+        String[] slivers = HSynthConfigUtils.listHSynthHost(conf);
         for(String slave : slivers) {
             if(!syndicateFSs.containsKey(slave)) {
                 hosts.add(slave);
@@ -32,12 +31,29 @@ public class SliversMonitor {
     }
     
     private static ASyndicateFileSystem createHSynthFS(Configuration conf, String host) throws IOException {
-        SyndicateFSConfiguration sconf = HSynthConfigUtil.createSyndicateConf(conf, host);
+        SyndicateFSConfiguration sconf = HSynthConfigUtils.createSyndicateConf(conf, host);
         try {
             return FileSystemFactory.getInstance(sconf);
         } catch (InstantiationException ex) {
             throw new IOException(ex.getCause());
         }
+    }
+    
+    public List<SliversMonitorResults<byte[]>> getLocalCachedBlockInfo(SyndicateFSPath path) throws IOException {
+        List<SliversMonitorResults<byte[]>> bitmaps = new ArrayList<SliversMonitorResults<byte[]>>();
+        
+        for(String host : hosts) {
+            ASyndicateFileSystem fs = syndicateFSs.get(host);
+            if(fs != null) {
+                byte[] bitmap = fs.getLocalCacheBlocks(path);
+                
+                SliversMonitorResults<byte[]> result = new SliversMonitorResults<byte[]>(fs.getConfiguration().getHost());
+                result.setResult(bitmap);
+
+                bitmaps.add(result);
+            }
+        }
+        return bitmaps;
     }
     
     public List<SliversMonitorResults<String[]>> listExtendedAttrs(SyndicateFSPath path) throws IOException {

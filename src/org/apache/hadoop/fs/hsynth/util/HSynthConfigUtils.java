@@ -10,9 +10,9 @@ public class HSynthConfigUtils {
     
     public static final Log LOG = LogFactory.getLog(HSynthConfigUtils.class);
     
-    public static final String CONFIG_HSYNTH_HOSTS = "fs.hsynth.hosts";
-    public static final String CONFIG_HSYNTH_HOSTNAMES = "fs.hsynth.hostnames";
-    public static final String CONFIG_HSYNTH_PORT = "fs.hsynth.port";
+    public static final String CONFIG_HSYNTH_USER_GATEWAY_ADDRESSES = "fs.hsynth.usergateway.addresses";
+    public static final String CONFIG_HSYNTH_USER_GATEWAY_HOSTNAMES = "fs.hsynth.usergateway.hostnames";
+    public static final String CONFIG_HSYNTH_USER_GATEWAY_PORT = "fs.hsynth.usergateway.port";
     public static final String CONFIG_HSYNTH_METADATA_CACHE_SIZE = "fs.hsynth.metadata.cache.size";
     public static final String CONFIG_HSYNTH_METADATA_CACHE_TIMEOUT = "fs.hsynth.metadata.cache.timeout";
     public static final String CONFIG_HSYNTH_DEFAULT_INPUT_BUFFER_SIZE = "fs.hsynth.input.buffer.size";
@@ -25,56 +25,56 @@ public class HSynthConfigUtils {
     public static final int DEFAULT_METADATA_CACHE_TIMEOUT = 0;
     public static final int DEFAULT_BUFFER_SIZE = 1024 * 800;
     
-    public static String getHSynthHosts(Configuration conf) {
-        return conf.get(CONFIG_HSYNTH_HOSTS);
+    public static String getHSynthUGAddresses(Configuration conf) {
+        return conf.get(CONFIG_HSYNTH_USER_GATEWAY_ADDRESSES);
     }
     
-    public static String[] listHSynthHost(Configuration conf) {
-        return getHSynthHosts(conf).split(",");
+    public static String[] listHSynthUGAddresses(Configuration conf) {
+        return getHSynthUGAddresses(conf).split(",");
     }
     
-    public static String getHSynthHost(Configuration conf, int index) {
-        String[] hosts = listHSynthHost(conf);
+    public static String getHSynthUGAddress(Configuration conf, int index) {
+        String[] gateway_addresses = listHSynthUGAddresses(conf);
         
-        if(index >= hosts.length) {
+        if(index >= gateway_addresses.length) {
             return null;
         } else {
-            return hosts[index];
+            return gateway_addresses[index];
         }
     }
     
-    public static void setHSynthHosts(Configuration conf, String hosts) {
-        conf.set(CONFIG_HSYNTH_HOSTS, hosts);
+    public static void setHSynthUGAddresses(Configuration conf, String ug_addresses) {
+        conf.set(CONFIG_HSYNTH_USER_GATEWAY_ADDRESSES, ug_addresses);
     }
     
-    public static String getHSynthHostnames(Configuration conf) {
-        return conf.get(CONFIG_HSYNTH_HOSTNAMES);
+    public static String getHSynthUGHostnames(Configuration conf) {
+        return conf.get(CONFIG_HSYNTH_USER_GATEWAY_HOSTNAMES);
     }
     
-    public static String[] listHSynthHostname(Configuration conf) {
-        return getHSynthHostnames(conf).split(",");
+    public static String[] listHSynthUGHostname(Configuration conf) {
+        return getHSynthUGHostnames(conf).split(",");
     }
     
-    public static String getHSynthHostname(Configuration conf, int index) {
-        String[] hostnames = listHSynthHostname(conf);
+    public static String getHSynthUGHostname(Configuration conf, int index) {
+        String[] gateway_hostnames = listHSynthUGHostname(conf);
         
-        if(index >= hostnames.length) {
+        if(index >= gateway_hostnames.length) {
             return null;
         } else {
-            return hostnames[index];
+            return gateway_hostnames[index];
         }
     }
     
-    public static void setHSynthHostnames(Configuration conf, String hostnames) {
-        conf.set(CONFIG_HSYNTH_HOSTNAMES, hostnames);
+    public static void setHSynthUGHostnames(Configuration conf, String ug_hostnames) {
+        conf.set(CONFIG_HSYNTH_USER_GATEWAY_HOSTNAMES, ug_hostnames);
     }
     
-    public static int getHSynthPort(Configuration conf) {
-        return conf.getInt(CONFIG_HSYNTH_PORT, DEFAULT_PORT);
+    public static int getHSynthUGPort(Configuration conf) {
+        return conf.getInt(CONFIG_HSYNTH_USER_GATEWAY_PORT, DEFAULT_PORT);
     }
     
-    public static void setHSynthPort(Configuration conf, int port) {
-        conf.setInt(CONFIG_HSYNTH_PORT, port);
+    public static void setHSynthUGPort(Configuration conf, int port) {
+        conf.setInt(CONFIG_HSYNTH_USER_GATEWAY_PORT, port);
     }
     
     public static int getHSynthMaxMetadataCacheSize(Configuration conf) {
@@ -109,14 +109,14 @@ public class HSynthConfigUtils {
         conf.setInt(CONFIG_HSYNTH_DEFAULT_OUTPUT_BUFFER_SIZE, buffer_size);
     }
     
-    public static SyndicateFSConfiguration createSyndicateConf(Configuration conf, String host) throws IOException {
+    public static SyndicateFSConfiguration createSyndicateConf(Configuration conf, String ug_address) throws IOException {
         SyndicateFSConfiguration sconf = new SyndicateFSConfiguration();
 
         // host
-        sconf.setHost(host);
+        sconf.setHostAddress(ug_address);
         
         // port
-        int port = HSynthConfigUtils.getHSynthPort(conf);
+        int port = HSynthConfigUtils.getHSynthUGPort(conf);
         sconf.setPort(port);
         
         int metadataCacheSize = HSynthConfigUtils.getHSynthMaxMetadataCacheSize(conf);

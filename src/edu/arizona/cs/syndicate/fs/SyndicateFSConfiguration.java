@@ -2,13 +2,17 @@ package edu.arizona.cs.syndicate.fs;
 
 public class SyndicateFSConfiguration {
 
-    private String host;
+    private String host_address;
     private int port;
     private int cacheSize;
     private int metadataCacheTimeout;
     
-    public String getHost() {
-        return this.host;
+    public void setHostAddress(String host_address) {
+        this.host_address = host_address;
+    }
+    
+    public String getHostAddress() {
+        return this.host_address;
     }
     
     public void setPort(int port) {
@@ -33,9 +37,5 @@ public class SyndicateFSConfiguration {
     
     public int getMetadataCacheTimeout() {
         return this.metadataCacheTimeout;
-    }
-
-    public void setHost(String host) {
-        this.host = host;
     }
 }

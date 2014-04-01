@@ -1,17 +1,17 @@
 package org.apache.hadoop.fs.hsynth;
 
-public class SlavesMonitorResults<T> {
-    private String host;
+public class HSynthUGMonitorResults<T> {
+    private String address;
     private String hostname;
     private T result;
     
-    public SlavesMonitorResults(String host, String hostname) {
-        this.host = host;
+    public HSynthUGMonitorResults(String address, String hostname) {
+        this.address = address;
         this.hostname = hostname;
     }
     
-    public SlavesMonitorResults(String host, String hostname, T result) {
-        this.host = host;
+    public HSynthUGMonitorResults(String address, String hostname, T result) {
+        this.address = address;
         this.hostname = hostname;
         this.result = result;
     }
@@ -21,7 +21,7 @@ public class SlavesMonitorResults<T> {
     }
     
     public String getHost() {
-        return this.host;
+        return this.address;
     }
     
     public String getHostname() {

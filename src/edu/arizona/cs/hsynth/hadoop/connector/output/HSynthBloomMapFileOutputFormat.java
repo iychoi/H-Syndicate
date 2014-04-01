@@ -33,7 +33,7 @@ import org.apache.hadoop.mapreduce.RecordWriter;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.hadoop.util.ReflectionUtils;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.hsynth.FileSystemFactory;
+import org.apache.hadoop.fs.hsynth.util.SyndicateFileSystemFactory;
 import org.apache.hadoop.fs.hsynth.util.HSynthConfigUtils;
 
 public class HSynthBloomMapFileOutputFormat extends HSynthFileOutputFormat<WritableComparable<?>, Writable> {
@@ -57,7 +57,7 @@ public class HSynthBloomMapFileOutputFormat extends HSynthFileOutputFormat<Writa
         ASyndicateFileSystem fs = null;
         try {
             SyndicateFSConfiguration sconf = org.apache.hadoop.fs.hsynth.util.HSynthConfigUtils.createSyndicateConf(context.getConfiguration(), "localhost");
-            fs = FileSystemFactory.getInstance(sconf);
+            fs = SyndicateFileSystemFactory.getInstance(sconf);
         } catch (InstantiationException ex) {
             throw new IOException(ex);
         }
@@ -90,7 +90,7 @@ public class HSynthBloomMapFileOutputFormat extends HSynthFileOutputFormat<Writa
         ASyndicateFileSystem fs = null;
         try {
             SyndicateFSConfiguration sconf = HSynthConfigUtils.createSyndicateConf(conf, "localhost");
-            fs = FileSystemFactory.getInstance(sconf);
+            fs = SyndicateFileSystemFactory.getInstance(sconf);
         } catch (InstantiationException ex) {
             throw new IOException(ex);
         }

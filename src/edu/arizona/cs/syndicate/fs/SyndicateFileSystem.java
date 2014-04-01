@@ -41,7 +41,7 @@ public class SyndicateFileSystem extends ASyndicateFileSystem {
 
         super.initialize(conf);
         
-        this.client = new SyndicateIPCClient(conf.getHost(), conf.getPort());
+        this.client = new SyndicateIPCClient(conf.getHostAddress(), conf.getPort());
         this.filestatus_cache = new TimeoutCache<SyndicateFSPath, SyndicateFSFileStatus>(conf.getMaxMetadataCacheSize(), conf.getMetadataCacheTimeout());
         
         super.raiseOnAfterCreateEvent();

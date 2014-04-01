@@ -32,7 +32,7 @@ import org.apache.hadoop.mapreduce.RecordWriter;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.hadoop.util.ReflectionUtils;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.hsynth.FileSystemFactory;
+import org.apache.hadoop.fs.hsynth.util.SyndicateFileSystemFactory;
 
 /**
  * An {@link OutputFormat} that writes {@link SequenceFile}s.
@@ -58,7 +58,7 @@ public class HSynthSequenceFileOutputFormat<K, V> extends HSynthFileOutputFormat
         ASyndicateFileSystem fs = null;
         try {
             SyndicateFSConfiguration sconf = org.apache.hadoop.fs.hsynth.util.HSynthConfigUtils.createSyndicateConf(conf, "localhost");
-            fs = FileSystemFactory.getInstance(sconf);
+            fs = SyndicateFileSystemFactory.getInstance(sconf);
         } catch (InstantiationException ex) {
             throw new IOException(ex);
         }

@@ -26,7 +26,7 @@ import java.io.InputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.hsynth.FileSystemFactory;
+import org.apache.hadoop.fs.hsynth.util.SyndicateFileSystemFactory;
 import org.apache.hadoop.fs.hsynth.util.HSynthConfigUtils;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
@@ -78,7 +78,7 @@ public class HSynthLineRecordReader extends RecordReader<LongWritable, Text> {
         ASyndicateFileSystem fs = null;
         try {
             SyndicateFSConfiguration sconf = HSynthConfigUtils.createSyndicateConf(context.getConfiguration(), "localhost");
-            fs = FileSystemFactory.getInstance(sconf);
+            fs = SyndicateFileSystemFactory.getInstance(sconf);
         } catch (InstantiationException ex) {
             throw new IOException(ex);
         }

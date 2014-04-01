@@ -415,6 +415,6 @@ public abstract class ASyndicateFileSystem implements Closeable {
     
     @Override
     public String toString() {
-        return "Syndicate - " + this.conf.getHost() + ":" + this.conf.getPort();
+        return "Syndicate - " + this.conf.getHostAddress() + ":" + this.conf.getPort();
     }
 }

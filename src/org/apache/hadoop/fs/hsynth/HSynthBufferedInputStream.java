@@ -6,9 +6,9 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.fs.FSInputStream;
 import org.apache.hadoop.fs.hsynth.util.HSynthConfigUtils;
 
-public class BufferedHSynthInputStream extends FSInputStream {
+public class HSynthBufferedInputStream extends FSInputStream {
     
-    private static final Log LOG = LogFactory.getLog(BufferedHSynthInputStream.class);
+    private static final Log LOG = LogFactory.getLog(HSynthBufferedInputStream.class);
     
     private byte[] buffer;
     private int buffer_end = 0;
@@ -17,11 +17,11 @@ public class BufferedHSynthInputStream extends FSInputStream {
     private int buffer_size = 0;
     private HSynthInputStream is;
     
-    public BufferedHSynthInputStream(HSynthInputStream is) throws IOException {
+    public HSynthBufferedInputStream(HSynthInputStream is) throws IOException {
         init(is, HSynthConfigUtils.DEFAULT_BUFFER_SIZE);
     }
     
-    public BufferedHSynthInputStream(HSynthInputStream is, int buffer_size) throws IOException {
+    public HSynthBufferedInputStream(HSynthInputStream is, int buffer_size) throws IOException {
         init(is, buffer_size);
     }
     

@@ -1,5 +1,6 @@
 package org.apache.hadoop.fs.hsynth;
 
+import org.apache.hadoop.fs.hsynth.util.SyndicateFileSystemFactory;
 import edu.arizona.cs.syndicate.fs.SyndicateFSPath;
 import edu.arizona.cs.syndicate.fs.ASyndicateFileSystem;
 import edu.arizona.cs.syndicate.fs.SyndicateFSConfiguration;
@@ -53,7 +54,7 @@ public class HSynthFileSystem extends FileSystem {
     private static ASyndicateFileSystem createHSynthFS(Configuration conf) throws IOException {
         SyndicateFSConfiguration sconf = HSynthConfigUtils.createSyndicateConf(conf, "localhost");
         try {
-            return FileSystemFactory.getInstance(sconf);
+            return SyndicateFileSystemFactory.getInstance(sconf);
         } catch (InstantiationException ex) {
             throw new IOException(ex.getCause());
         }
@@ -167,7 +168,7 @@ public class HSynthFileSystem extends FileSystem {
         }
         
         int bSize = Math.max(HSynthConfigUtils.getHSynthInputBufferSize(getConf()), bufferSize);
-        return new FSDataInputStream(new BufferedHSynthInputStream(new HSynthInputStream(getConf(), hpath, this.syndicateFS, this.statistics), bSize));
+        return new FSDataInputStream(new HSynthBufferedInputStream(new HSynthInputStream(getConf(), hpath, this.syndicateFS, this.statistics), bSize));
     }
 
     @Override
@@ -241,7 +242,7 @@ public class HSynthFileSystem extends FileSystem {
     @Override
     public BlockLocation[] getFileBlockLocations(FileStatus file, long start, long len) {
         try {
-            SlavesMonitor monitor = new SlavesMonitor(this.getConf());
+            HSynthUGMonitor monitor = new HSynthUGMonitor(this.getConf());
             SyndicateFSPath hpath = makeSyndicateFSPath(file.getPath());
 
             long filesize = file.getLen();
@@ -252,29 +253,29 @@ public class HSynthFileSystem extends FileSystem {
             int effectiveblocklen = endblockID - startblockID + 1;
 
             BlockLocation[] locations = new BlockLocation[effectiveblocklen];
-            List<SlavesMonitorResults<byte[]>> localCachedBlockInfo = monitor.getLocalCachedBlockInfo(hpath);
+            List<HSynthUGMonitorResults<byte[]>> localCachedBlockInfo = monitor.getLocalCachedBlockInfo(hpath);
             
             for(int i=0;i<effectiveblocklen;i++) {
                 locations[i] = new BlockLocation();
                 locations[i].setOffset(HSynthBlockUtils.getBlockStartOffset(startblockID + i, blocksize));
                 locations[i].setLength(HSynthBlockUtils.getBlockLength(filesize, blocksize, startblockID + i));
                 
-                List<String> hosts = new ArrayList<String>();
+                List<String> gateway_hostnames = new ArrayList<String>();
                 
-                for(SlavesMonitorResults<byte[]> info : localCachedBlockInfo) {
+                for(HSynthUGMonitorResults<byte[]> info : localCachedBlockInfo) {
                     if(info.getResult() != null) {
                         boolean hasCache = HSynthBlockUtils.checkBlockPresence(startblockID + i, info.getResult());
                         if(hasCache) {
-                            hosts.add(info.getHostname());
+                            gateway_hostnames.add(info.getHostname());
                         }
                     }
                 }
                 
-                if(hosts.isEmpty()) {
-                    hosts.add("localhost");
+                if(gateway_hostnames.isEmpty()) {
+                    gateway_hostnames.add("localhost");
                 }
                 
-                locations[i].setHosts(hosts.toArray(new String[0]));
+                locations[i].setHosts(gateway_hostnames.toArray(new String[0]));
                 LOG.info("block " + i + " : " + locations[i].getHosts()[0]);
                 locations[i].setNames(null);
             }

@@ -26,6 +26,7 @@ public class SyndicateIPCClient implements Closeable {
         this.port = port;
         
         try {
+            LOG.info("connect to " + address);
             this.clientSocket = new Socket(address, port);
             this.socketDataInputStream = new DataInputStream(this.clientSocket.getInputStream());
             this.socketDataOutputStream = new DataOutputStream(this.clientSocket.getOutputStream());

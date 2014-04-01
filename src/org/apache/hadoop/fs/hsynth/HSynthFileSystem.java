@@ -241,7 +241,7 @@ public class HSynthFileSystem extends FileSystem {
     @Override
     public BlockLocation[] getFileBlockLocations(FileStatus file, long start, long len) {
         try {
-            SliversMonitor monitor = new SliversMonitor(this.getConf());
+            SlavesMonitor monitor = new SlavesMonitor(this.getConf());
             SyndicateFSPath hpath = makeSyndicateFSPath(file.getPath());
 
             long filesize = file.getLen();
@@ -250,20 +250,23 @@ public class HSynthFileSystem extends FileSystem {
             int startblockID = HSynthBlockUtils.getBlockID(start, blocksize);
             int endblockID = HSynthBlockUtils.getBlockID(start + len, blocksize);
             int effectiveblocklen = endblockID - startblockID + 1;
-            
+
             BlockLocation[] locations = new BlockLocation[effectiveblocklen];
-            List<SliversMonitorResults<byte[]>> localCachedBlockInfo = monitor.getLocalCachedBlockInfo(hpath);
+            List<SlavesMonitorResults<byte[]>> localCachedBlockInfo = monitor.getLocalCachedBlockInfo(hpath);
             
             for(int i=0;i<effectiveblocklen;i++) {
+                locations[i] = new BlockLocation();
                 locations[i].setOffset(HSynthBlockUtils.getBlockStartOffset(startblockID + i, blocksize));
                 locations[i].setLength(HSynthBlockUtils.getBlockLength(filesize, blocksize, startblockID + i));
                 
                 List<String> hosts = new ArrayList<String>();
                 
-                for(SliversMonitorResults<byte[]> info : localCachedBlockInfo) {
-                    boolean hasCache = HSynthBlockUtils.checkBlockPresence(startblockID + i, info.getResult());
-                    if(hasCache) {
-                        hosts.add(info.getHostname());
+                for(SlavesMonitorResults<byte[]> info : localCachedBlockInfo) {
+                    if(info.getResult() != null) {
+                        boolean hasCache = HSynthBlockUtils.checkBlockPresence(startblockID + i, info.getResult());
+                        if(hasCache) {
+                            hosts.add(info.getHostname());
+                        }
                     }
                 }
                 
@@ -272,6 +275,8 @@ public class HSynthFileSystem extends FileSystem {
                 }
                 
                 locations[i].setHosts(hosts.toArray(new String[0]));
+                LOG.info("block " + i + " : " + locations[i].getHosts()[0]);
+                locations[i].setNames(null);
             }
             
             return locations;

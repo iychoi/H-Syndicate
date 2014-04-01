@@ -12,8 +12,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
-import org.apache.hadoop.fs.hsynth.SliversMonitor;
-import org.apache.hadoop.fs.hsynth.SliversMonitorResults;
+import org.apache.hadoop.fs.hsynth.SlavesMonitor;
+import org.apache.hadoop.fs.hsynth.SlavesMonitorResults;
 import org.apache.hadoop.fs.hsynth.util.HSynthBlockUtils;
 import org.apache.hadoop.fs.hsynth.util.HSynthConfigUtils;
 import org.apache.hadoop.util.Tool;
@@ -39,7 +39,7 @@ public class testHSynthLocalCache extends Configured implements Tool {
         hosts = "localhost," + hosts;
         HSynthConfigUtils.setHSynthHosts(conf, hosts);
         
-        SliversMonitor monitor = new SliversMonitor(conf);
+        SlavesMonitor monitor = new SlavesMonitor(conf);
         SyndicateFSPath path = new SyndicateFSPath(args[0]);
 /*        
         List<SliversMonitorResults<String[]>> listExtendedAttrs = monitor.listExtendedAttrs(path);
@@ -64,8 +64,8 @@ public class testHSynthLocalCache extends Configured implements Tool {
         }
 */      
         
-        List<SliversMonitorResults<byte[]>> bitmaps = monitor.getLocalCachedBlockInfo(path);
-        for(SliversMonitorResults<byte[]> bitmap : bitmaps) {
+        List<SlavesMonitorResults<byte[]>> bitmaps = monitor.getLocalCachedBlockInfo(path);
+        for(SlavesMonitorResults<byte[]> bitmap : bitmaps) {
             LOG.info(bitmap.getHostname() + " - " + path);
             byte[] map = bitmap.getResult();
         }

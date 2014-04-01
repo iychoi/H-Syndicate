@@ -16,7 +16,7 @@ public class HSynthBlockUtils {
     
     public static int getBlockID(long offset, long blocksize) {
         int blockid = (int) (offset / blocksize);
-        if(offset % blocksize == 0) {
+        if(offset != 0 && offset % blocksize == 0) {
             blockid++;
         }
         return blockid;

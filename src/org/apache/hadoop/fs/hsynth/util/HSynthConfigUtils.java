@@ -11,6 +11,7 @@ public class HSynthConfigUtils {
     public static final Log LOG = LogFactory.getLog(HSynthConfigUtils.class);
     
     public static final String CONFIG_HSYNTH_HOSTS = "fs.hsynth.hosts";
+    public static final String CONFIG_HSYNTH_HOSTNAMES = "fs.hsynth.hostnames";
     public static final String CONFIG_HSYNTH_PORT = "fs.hsynth.port";
     public static final String CONFIG_HSYNTH_METADATA_CACHE_SIZE = "fs.hsynth.metadata.cache.size";
     public static final String CONFIG_HSYNTH_METADATA_CACHE_TIMEOUT = "fs.hsynth.metadata.cache.timeout";
@@ -44,6 +45,28 @@ public class HSynthConfigUtils {
     
     public static void setHSynthHosts(Configuration conf, String hosts) {
         conf.set(CONFIG_HSYNTH_HOSTS, hosts);
+    }
+    
+    public static String getHSynthHostnames(Configuration conf) {
+        return conf.get(CONFIG_HSYNTH_HOSTNAMES);
+    }
+    
+    public static String[] listHSynthHostname(Configuration conf) {
+        return getHSynthHostnames(conf).split(",");
+    }
+    
+    public static String getHSynthHostname(Configuration conf, int index) {
+        String[] hostnames = listHSynthHostname(conf);
+        
+        if(index >= hostnames.length) {
+            return null;
+        } else {
+            return hostnames[index];
+        }
+    }
+    
+    public static void setHSynthHostnames(Configuration conf, String hostnames) {
+        conf.set(CONFIG_HSYNTH_HOSTNAMES, hostnames);
     }
     
     public static int getHSynthPort(Configuration conf) {

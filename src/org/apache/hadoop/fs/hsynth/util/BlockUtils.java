@@ -3,8 +3,8 @@ package org.apache.hadoop.fs.hsynth.util;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-public class HSynthBlockUtils {
-    private static final Log LOG = LogFactory.getLog(HSynthBlockUtils.class);
+public class BlockUtils {
+    private static final Log LOG = LogFactory.getLog(BlockUtils.class);
     
     public static int getBlocks(long filesize, long blocksize) {
         int blocknum = (int) ((filesize / blocksize) + 1);

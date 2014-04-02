@@ -19,7 +19,7 @@ import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.fs.hsynth.util.HSynthBlockUtils;
+import org.apache.hadoop.fs.hsynth.util.BlockUtils;
 import org.apache.hadoop.fs.hsynth.util.HSynthConfigUtils;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.util.Progressable;
@@ -248,8 +248,8 @@ public class HSynthFileSystem extends FileSystem {
             long filesize = file.getLen();
             long blocksize = getDefaultBlockSize();
             
-            int startblockID = HSynthBlockUtils.getBlockID(start, blocksize);
-            int endblockID = HSynthBlockUtils.getBlockID(start + len, blocksize);
+            int startblockID = BlockUtils.getBlockID(start, blocksize);
+            int endblockID = BlockUtils.getBlockID(start + len, blocksize);
             int effectiveblocklen = endblockID - startblockID + 1;
 
             BlockLocation[] locations = new BlockLocation[effectiveblocklen];
@@ -257,14 +257,14 @@ public class HSynthFileSystem extends FileSystem {
             
             for(int i=0;i<effectiveblocklen;i++) {
                 locations[i] = new BlockLocation();
-                locations[i].setOffset(HSynthBlockUtils.getBlockStartOffset(startblockID + i, blocksize));
-                locations[i].setLength(HSynthBlockUtils.getBlockLength(filesize, blocksize, startblockID + i));
+                locations[i].setOffset(BlockUtils.getBlockStartOffset(startblockID + i, blocksize));
+                locations[i].setLength(BlockUtils.getBlockLength(filesize, blocksize, startblockID + i));
                 
                 List<String> gateway_hostnames = new ArrayList<String>();
                 
                 for(HSynthUGMonitorResults<byte[]> info : localCachedBlockInfo) {
                     if(info.getResult() != null) {
-                        boolean hasCache = HSynthBlockUtils.checkBlockPresence(startblockID + i, info.getResult());
+                        boolean hasCache = BlockUtils.checkBlockPresence(startblockID + i, info.getResult());
                         if(hasCache) {
                             gateway_hostnames.add(info.getHostname());
                         }

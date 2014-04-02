@@ -11,7 +11,6 @@ public class HSynthConfigUtils {
     public static final Log LOG = LogFactory.getLog(HSynthConfigUtils.class);
     
     public static final String CONFIG_HSYNTH_USER_GATEWAY_ADDRESSES = "fs.hsynth.usergateway.addresses";
-    public static final String CONFIG_HSYNTH_USER_GATEWAY_HOSTNAMES = "fs.hsynth.usergateway.hostnames";
     public static final String CONFIG_HSYNTH_USER_GATEWAY_PORT = "fs.hsynth.usergateway.port";
     public static final String CONFIG_HSYNTH_METADATA_CACHE_SIZE = "fs.hsynth.metadata.cache.size";
     public static final String CONFIG_HSYNTH_METADATA_CACHE_TIMEOUT = "fs.hsynth.metadata.cache.timeout";
@@ -45,28 +44,6 @@ public class HSynthConfigUtils {
     
     public static void setHSynthUGAddresses(Configuration conf, String ug_addresses) {
         conf.set(CONFIG_HSYNTH_USER_GATEWAY_ADDRESSES, ug_addresses);
-    }
-    
-    public static String getHSynthUGHostnames(Configuration conf) {
-        return conf.get(CONFIG_HSYNTH_USER_GATEWAY_HOSTNAMES);
-    }
-    
-    public static String[] listHSynthUGHostname(Configuration conf) {
-        return getHSynthUGHostnames(conf).split(",");
-    }
-    
-    public static String getHSynthUGHostname(Configuration conf, int index) {
-        String[] gateway_hostnames = listHSynthUGHostname(conf);
-        
-        if(index >= gateway_hostnames.length) {
-            return null;
-        } else {
-            return gateway_hostnames[index];
-        }
-    }
-    
-    public static void setHSynthUGHostnames(Configuration conf, String ug_hostnames) {
-        conf.set(CONFIG_HSYNTH_USER_GATEWAY_HOSTNAMES, ug_hostnames);
     }
     
     public static int getHSynthUGPort(Configuration conf) {

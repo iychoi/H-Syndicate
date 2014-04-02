@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.hadoop.fs.hsynth.util.HSynthBlockUtils;
+import org.apache.hadoop.fs.hsynth.util.BlockUtils;
 
 public abstract class ASyndicateFileSystem implements Closeable {
     
@@ -389,7 +389,7 @@ public abstract class ASyndicateFileSystem implements Closeable {
         long blocksize = getBlockSize();
         long filesize = this.getSize(path);
         
-        int blocknum = HSynthBlockUtils.getBlocks(filesize, blocksize);
+        int blocknum = BlockUtils.getBlocks(filesize, blocksize);
         
         String blockBitmapString = getLocalCacheBlocksInString(path);
         

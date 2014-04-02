@@ -12,6 +12,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.hsynth.util.HSynthConfigUtils;
+import org.apache.hadoop.fs.hsynth.util.HostNameUtils;
 
 public class HSynthUGMonitor {
     private static final Log LOG = LogFactory.getLog(HSynthUGMonitor.class);
@@ -22,12 +23,10 @@ public class HSynthUGMonitor {
     
     public HSynthUGMonitor(Configuration conf) throws IOException {
         String[] gateway_addresses = HSynthConfigUtils.listHSynthUGAddresses(conf);
-        String[] gateway_hostnames = HSynthConfigUtils.listHSynthUGHostname(conf);
         
         for(int i=0;i<gateway_addresses.length;i++) {
             String gateway_address = gateway_addresses[i];
-            // todo later, host name can be obtained automatically
-            String gateway_hostname = gateway_hostnames[i];
+            String gateway_hostname = HostNameUtils.getHostNameByAdress(gateway_address);
             
             if(!syndicateFSs.containsKey(gateway_address)) {
                 usergateway_addresses.add(gateway_address);
@@ -56,13 +55,13 @@ public class HSynthUGMonitor {
             if(fs != null) {
                 byte[] bitmap = fs.getLocalCacheBlocks(path);
                 if(bitmap != null) {
-                    int caches = 0;
+                    int sum_caches = 0;
                     for(int i=0;i<bitmap.length;i++) {
                         if(bitmap[i] == 1) {
-                            caches++;
+                            sum_caches++;
                         }
                     }
-                    LOG.info("UserGateway : " + gateway_addr + " has " + caches + " caches of " + path);
+                    LOG.info("UserGateway : " + gateway_addr + " has " + sum_caches + " caches of " + path);
                 }
                 
                 String gateway_hostname = usergateway_hostnames.get(gateway_addr);

@@ -12,28 +12,24 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.hsynth.util.HSynthConfigUtils;
-import org.apache.hadoop.fs.hsynth.util.HostNameUtils;
 
 public class HSynthUGMonitor {
     private static final Log LOG = LogFactory.getLog(HSynthUGMonitor.class);
     
-    private static List<String> usergateway_addresses = new ArrayList<String>();
+    private static List<String> usergateway_hostnames = new ArrayList<String>();
     private static Hashtable<String, ASyndicateFileSystem> syndicateFSs = new Hashtable<String, ASyndicateFileSystem>();
-    private static Hashtable<String, String> usergateway_hostnames = new Hashtable<String, String>();
     
     public HSynthUGMonitor(Configuration conf) throws IOException {
-        String[] gateway_addresses = HSynthConfigUtils.listHSynthUGAddresses(conf);
+        String[] gateway_hostnames = HSynthConfigUtils.listHSynthUGHostname(conf);
         
-        for(int i=0;i<gateway_addresses.length;i++) {
-            String gateway_address = gateway_addresses[i];
-            String gateway_hostname = HostNameUtils.getHostNameByAdress(gateway_address);
+        for(int i=0;i<gateway_hostnames.length;i++) {
+            String gateway_hostname = gateway_hostnames[i];
             
-            if(!syndicateFSs.containsKey(gateway_address)) {
-                usergateway_addresses.add(gateway_address);
-                usergateway_hostnames.put(gateway_address, gateway_hostname);
+            if(!syndicateFSs.containsKey(gateway_hostname)) {
+                usergateway_hostnames.add(gateway_hostname);
                 
-                ASyndicateFileSystem fs = createHSynthFS(conf, gateway_address);
-                syndicateFSs.put(gateway_address, fs);
+                ASyndicateFileSystem fs = createHSynthFS(conf, gateway_hostname);
+                syndicateFSs.put(gateway_hostname, fs);
             }
         }
     }
@@ -50,22 +46,23 @@ public class HSynthUGMonitor {
     public List<HSynthUGMonitorResults<byte[]>> getLocalCachedBlockInfo(SyndicateFSPath path) throws IOException {
         List<HSynthUGMonitorResults<byte[]>> bitmaps = new ArrayList<HSynthUGMonitorResults<byte[]>>();
         
-        for(String gateway_addr : usergateway_addresses) {
-            ASyndicateFileSystem fs = syndicateFSs.get(gateway_addr);
+        for(String gateway_hostname : usergateway_hostnames) {
+            ASyndicateFileSystem fs = syndicateFSs.get(gateway_hostname);
             if(fs != null) {
                 byte[] bitmap = fs.getLocalCacheBlocks(path);
+                int sum_caches = 0;
+                
                 if(bitmap != null) {
-                    int sum_caches = 0;
                     for(int i=0;i<bitmap.length;i++) {
                         if(bitmap[i] == 1) {
                             sum_caches++;
                         }
                     }
-                    LOG.info("UserGateway : " + gateway_addr + " has " + sum_caches + " caches of " + path);
                 }
                 
-                String gateway_hostname = usergateway_hostnames.get(gateway_addr);
-                HSynthUGMonitorResults<byte[]> result = new HSynthUGMonitorResults<byte[]>(gateway_addr, gateway_hostname);
+                LOG.info("UserGateway : " + gateway_hostname + " has " + sum_caches + " caches of " + path);
+                
+                HSynthUGMonitorResults<byte[]> result = new HSynthUGMonitorResults<byte[]>(gateway_hostname);
                 result.setResult(bitmap);
 
                 bitmaps.add(result);
@@ -77,13 +74,12 @@ public class HSynthUGMonitor {
     public List<HSynthUGMonitorResults<String[]>> listExtendedAttrs(SyndicateFSPath path) throws IOException {
         List<HSynthUGMonitorResults<String[]>> attrs = new ArrayList<HSynthUGMonitorResults<String[]>>();
         
-        for(String gateway_addr : usergateway_addresses) {
-            ASyndicateFileSystem fs = syndicateFSs.get(gateway_addr);
+        for(String gateway_hostname : usergateway_hostnames) {
+            ASyndicateFileSystem fs = syndicateFSs.get(gateway_hostname);
             if(fs != null) {
                 String[] attr_names = fs.listExtendedAttrs(path);
 
-                String gateway_hostname = usergateway_hostnames.get(gateway_addr);
-                HSynthUGMonitorResults<String[]> result = new HSynthUGMonitorResults<String[]>(gateway_addr, gateway_hostname);
+                HSynthUGMonitorResults<String[]> result = new HSynthUGMonitorResults<String[]>(gateway_hostname);
                 result.setResult(attr_names);
 
                 attrs.add(result);
@@ -95,13 +91,12 @@ public class HSynthUGMonitor {
     public List<HSynthUGMonitorResults<String>> getExtendedAttrs(SyndicateFSPath path, String attr_name) throws IOException {
         List<HSynthUGMonitorResults<String>> attrs = new ArrayList<HSynthUGMonitorResults<String>>();
         
-        for(String gateway_addr : usergateway_addresses) {
-            ASyndicateFileSystem fs = syndicateFSs.get(gateway_addr);
+        for(String gateway_hostname : usergateway_hostnames) {
+            ASyndicateFileSystem fs = syndicateFSs.get(gateway_hostname);
             if(fs != null) {
                 String attr_value = fs.getExtendedAttr(path, attr_name);
                 
-                String gateway_hostname = usergateway_hostnames.get(gateway_addr);
-                HSynthUGMonitorResults<String> result = new HSynthUGMonitorResults<String>(gateway_addr, gateway_hostname);
+                HSynthUGMonitorResults<String> result = new HSynthUGMonitorResults<String>(gateway_hostname);
                 result.setResult(attr_value);
 
                 attrs.add(result);

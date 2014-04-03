@@ -31,6 +31,8 @@ public class HSynthFileSystem extends FileSystem {
     private URI uri;
     private ASyndicateFileSystem syndicateFS;
     private Path workingDir;
+    
+    private static final int BLOCK_NUM_PER_READ = 12;
 
     public HSynthFileSystem() {
     }
@@ -154,6 +156,7 @@ public class HSynthFileSystem extends FileSystem {
         }
         
         int bSize = Math.max(HSynthConfigUtils.getHSynthOutputBufferSize(getConf()), bufferSize);
+        bSize = (int) Math.max(bSize, getDefaultBlockSize());
         return new FSDataOutputStream(new BufferedOutputStream(this.syndicateFS.getFileOutputStream(hpath), bSize), this.statistics);
     }
     
@@ -168,6 +171,7 @@ public class HSynthFileSystem extends FileSystem {
         }
         
         int bSize = Math.max(HSynthConfigUtils.getHSynthInputBufferSize(getConf()), bufferSize);
+        bSize = (int) Math.max(bSize, getDefaultBlockSize());
         return new FSDataInputStream(new HSynthBufferedInputStream(new HSynthInputStream(getConf(), hpath, this.syndicateFS, this.statistics), bSize));
     }
 
@@ -236,7 +240,7 @@ public class HSynthFileSystem extends FileSystem {
     
     @Override
     public long getDefaultBlockSize() {
-        return this.syndicateFS.getBlockSize();
+        return this.syndicateFS.getBlockSize() * BLOCK_NUM_PER_READ;
     }
     
     @Override
@@ -264,7 +268,7 @@ public class HSynthFileSystem extends FileSystem {
                 
                 for(HSynthUGMonitorResults<byte[]> info : localCachedBlockInfo) {
                     if(info.getResult() != null) {
-                        boolean hasCache = BlockUtils.checkBlockPresence(startblockID + i, info.getResult());
+                        boolean hasCache = BlockUtils.checkBlockPresence((startblockID + i)*BLOCK_NUM_PER_READ, info.getResult());
                         if(hasCache) {
                             gateway_hostnames.add(info.getHostname());
                         }
@@ -301,7 +305,7 @@ public class HSynthFileSystem extends FileSystem {
         }
 
         private static long findBlocksize(ASyndicateFileSystem fs) {
-            return fs.getBlockSize();
+            return fs.getBlockSize() * BLOCK_NUM_PER_READ;
         }
     }
     

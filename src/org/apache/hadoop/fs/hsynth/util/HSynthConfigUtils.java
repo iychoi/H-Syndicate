@@ -10,7 +10,7 @@ public class HSynthConfigUtils {
     
     public static final Log LOG = LogFactory.getLog(HSynthConfigUtils.class);
     
-    public static final String CONFIG_HSYNTH_USER_GATEWAY_ADDRESSES = "fs.hsynth.usergateway.addresses";
+    public static final String CONFIG_HSYNTH_USER_GATEWAY_HOSTNAME = "fs.hsynth.usergateway.hostnames";
     public static final String CONFIG_HSYNTH_USER_GATEWAY_PORT = "fs.hsynth.usergateway.port";
     public static final String CONFIG_HSYNTH_METADATA_CACHE_SIZE = "fs.hsynth.metadata.cache.size";
     public static final String CONFIG_HSYNTH_METADATA_CACHE_TIMEOUT = "fs.hsynth.metadata.cache.timeout";
@@ -24,26 +24,26 @@ public class HSynthConfigUtils {
     public static final int DEFAULT_METADATA_CACHE_TIMEOUT = 0;
     public static final int DEFAULT_BUFFER_SIZE = 1024 * 800;
     
-    public static String getHSynthUGAddresses(Configuration conf) {
-        return conf.get(CONFIG_HSYNTH_USER_GATEWAY_ADDRESSES);
+    public static String getHSynthUGHostnames(Configuration conf) {
+        return conf.get(CONFIG_HSYNTH_USER_GATEWAY_HOSTNAME);
     }
     
-    public static String[] listHSynthUGAddresses(Configuration conf) {
-        return getHSynthUGAddresses(conf).split(",");
+    public static String[] listHSynthUGHostname(Configuration conf) {
+        return getHSynthUGHostnames(conf).split(",");
     }
     
     public static String getHSynthUGAddress(Configuration conf, int index) {
-        String[] gateway_addresses = listHSynthUGAddresses(conf);
+        String[] gateway_hostnames = listHSynthUGHostname(conf);
         
-        if(index >= gateway_addresses.length) {
+        if(index >= gateway_hostnames.length) {
             return null;
         } else {
-            return gateway_addresses[index];
+            return gateway_hostnames[index];
         }
     }
     
-    public static void setHSynthUGAddresses(Configuration conf, String ug_addresses) {
-        conf.set(CONFIG_HSYNTH_USER_GATEWAY_ADDRESSES, ug_addresses);
+    public static void setHSynthUGHostnames(Configuration conf, String ug_hostnames) {
+        conf.set(CONFIG_HSYNTH_USER_GATEWAY_HOSTNAME, ug_hostnames);
     }
     
     public static int getHSynthUGPort(Configuration conf) {

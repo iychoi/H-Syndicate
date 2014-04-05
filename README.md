@@ -1,30 +1,10 @@
-HSynth
-======
+H-Syndicate
+===========
 
-HSynth is a system for scientific data processing. HSynth works on Hadoop system and provides modules for processing big scientific data processing.
+H-Syndicate provides a Hadoop file system interface for [Syndicate distributed file system](https://github.com/jcnelson/syndicate).
 
-Storage
--------
-
-HSynth provides a Hadoop Distributed File System (HDFS) driver for Syndicate. Syndicate, a CDN-backed Distributed Filesystem, provides decentralized, scalable, fast, flexible and secure storage for scientific research data.
-
+Syndicate, a CDN-backed Distributed Filesystem, provides decentralized, scalable, fast, flexible and secure storage.
 See the [Syndicate](https://github.com/jcnelson/syndicate) project for details.
-
-Data Processing
----------------
-
-Currently this project focuses on bioinformatics and provides features for genomic data processing.
-
-HSynth supports following input formats.
-* Fasta / Compressed Fasta
-* HDF5 (incomplete)
-
-Reading HDF5 file data on Hadoop MapReduce is working on the separated project [HDF5HadoopReader](https://github.com/iychoi/HDF5HadoopReader).
-
-HSynth supports fasta processing tools.
-* K-mer index builder
-* Fasta ID index builder
-* K-mer searcher
 
 Building
 --------

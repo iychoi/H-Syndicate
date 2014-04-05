@@ -9,7 +9,7 @@ public class Main {
 
     private static final Log LOG = LogFactory.getLog(Main.class);
     
-    private static final String[] packages = {"org.apache.hadoop.fs.hsynth.test"};
+    private static final String[] packages = {"org.apache.hadoop.fs.hsyndicate.test"};
     
     public static void main(String[] args) throws Exception {
         if(args.length >= 1) {

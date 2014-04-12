@@ -32,8 +32,6 @@ public class HSyndicateFileSystem extends FileSystem {
     private ASyndicateFileSystem syndicateFS;
     private Path workingDir;
     
-    private static final int BLOCK_NUM_PER_READ = 12;
-
     public HSyndicateFileSystem() {
     }
 
@@ -240,7 +238,7 @@ public class HSyndicateFileSystem extends FileSystem {
     
     @Override
     public long getDefaultBlockSize() {
-        return this.syndicateFS.getBlockSize() * BLOCK_NUM_PER_READ;
+        return this.syndicateFS.getBlockSize();
     }
     
     @Override
@@ -268,7 +266,7 @@ public class HSyndicateFileSystem extends FileSystem {
                 
                 for(HSyndicateUGMonitorResults<byte[]> info : localCachedBlockInfo) {
                     if(info.getResult() != null) {
-                        boolean hasCache = BlockUtils.checkBlockPresence((startblockID + i)*BLOCK_NUM_PER_READ, info.getResult());
+                        boolean hasCache = BlockUtils.checkBlockPresence(startblockID + i, info.getResult());
                         if(hasCache) {
                             gateway_hostnames.add(info.getHostname());
                         }
@@ -305,7 +303,7 @@ public class HSyndicateFileSystem extends FileSystem {
         }
 
         private static long findBlocksize(ASyndicateFileSystem fs) {
-            return fs.getBlockSize() * BLOCK_NUM_PER_READ;
+            return fs.getBlockSize();
         }
     }
     

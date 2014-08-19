@@ -7,35 +7,35 @@ public class SyndicateFSConfiguration {
     private int cacheSize;
     private int metadataCacheTimeout;
     
-    public void setHostAddress(String host_address) {
+    public synchronized void setHostAddress(String host_address) {
         this.host_address = host_address;
     }
     
-    public String getHostAddress() {
+    public synchronized String getHostAddress() {
         return this.host_address;
     }
     
-    public void setPort(int port) {
+    public synchronized void setPort(int port) {
         this.port = port;
     }
     
-    public int getPort() {
+    public synchronized int getPort() {
         return this.port;
     }
 
-    public void setMaxMetadataCacheSize(int cacheSize) {
+    public synchronized void setMaxMetadataCacheSize(int cacheSize) {
         this.cacheSize = cacheSize;
     }
     
-    public int getMaxMetadataCacheSize() {
+    public synchronized int getMaxMetadataCacheSize() {
         return this.cacheSize;
     }
 
-    public void setMetadataCacheTimeout(int metadataCacheTimeout) {
+    public synchronized void setMetadataCacheTimeout(int metadataCacheTimeout) {
         this.metadataCacheTimeout = metadataCacheTimeout;
     }
     
-    public int getMetadataCacheTimeout() {
+    public synchronized int getMetadataCacheTimeout() {
         return this.metadataCacheTimeout;
     }
 }

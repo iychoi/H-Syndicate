@@ -20,7 +20,7 @@ public class SyndicateFSRandomAccess implements ISyndicateFSRandomAccess {
     }
     
     @Override
-    public int read() throws IOException {
+    public synchronized int read() throws IOException {
         if(this.closed) {
             LOG.error("RandomAccess is already closed");
             throw new IOException("RandomAccess is already closed");
@@ -47,7 +47,7 @@ public class SyndicateFSRandomAccess implements ISyndicateFSRandomAccess {
     }
 
     @Override
-    public int read(byte[] bytes) throws IOException {
+    public synchronized int read(byte[] bytes) throws IOException {
         if(this.closed) {
             LOG.error("RandomAccess is already closed");
             throw new IOException("RandomAccess is already closed");
@@ -65,7 +65,7 @@ public class SyndicateFSRandomAccess implements ISyndicateFSRandomAccess {
     }
 
     @Override
-    public int read(byte[] bytes, int off, int len) throws IOException {
+    public synchronized int read(byte[] bytes, int off, int len) throws IOException {
         if(this.closed) {
             LOG.error("RandomAccess is already closed");
             throw new IOException("RandomAccess is already closed");
@@ -83,7 +83,7 @@ public class SyndicateFSRandomAccess implements ISyndicateFSRandomAccess {
     }
 
     @Override
-    public int skip(int n) throws IOException {
+    public synchronized int skip(int n) throws IOException {
         if(this.closed) {
             LOG.error("RandomAccess is already closed");
             throw new IOException("RandomAccess is already closed");
@@ -105,7 +105,7 @@ public class SyndicateFSRandomAccess implements ISyndicateFSRandomAccess {
     }
 
     @Override
-    public long getFilePointer() throws IOException {
+    public synchronized long getFilePointer() throws IOException {
         if(this.closed) {
             LOG.error("RandomAccess is already closed");
             throw new IOException("RandomAccess is already closed");
@@ -115,7 +115,7 @@ public class SyndicateFSRandomAccess implements ISyndicateFSRandomAccess {
     }
 
     @Override
-    public long length() throws IOException {
+    public synchronized long length() throws IOException {
         if(this.closed) {
             LOG.error("RandomAccess is already closed");
             throw new IOException("RandomAccess is already closed");
@@ -125,7 +125,7 @@ public class SyndicateFSRandomAccess implements ISyndicateFSRandomAccess {
     }
 
     @Override
-    public void seek(long l) throws IOException {
+    public synchronized void seek(long l) throws IOException {
         if(this.closed) {
             LOG.error("RandomAccess is already closed");
             throw new IOException("RandomAccess is already closed");
@@ -145,7 +145,7 @@ public class SyndicateFSRandomAccess implements ISyndicateFSRandomAccess {
     }
     
     @Override
-    public void close() throws IOException {
+    public synchronized void close() throws IOException {
         this.handle.close();
         this.handle.getFileSystem().notifyRandomAccessClosed(this);
         this.closed = true;

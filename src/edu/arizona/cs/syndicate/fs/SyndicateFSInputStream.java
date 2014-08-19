@@ -21,7 +21,7 @@ public class SyndicateFSInputStream extends InputStream {
     }
     
     @Override
-    public int read() throws IOException {
+    public synchronized int read() throws IOException {
         if(this.closed) {
             LOG.error("InputStream is already closed");
             throw new IOException("InputStream is already closed");
@@ -48,7 +48,7 @@ public class SyndicateFSInputStream extends InputStream {
     }
     
     @Override
-    public int read(byte[] bytes) throws IOException {
+    public synchronized int read(byte[] bytes) throws IOException {
         if(this.closed) {
             LOG.error("InputStream is already closed");
             throw new IOException("InputStream is already closed");
@@ -66,7 +66,7 @@ public class SyndicateFSInputStream extends InputStream {
     }
     
     @Override
-    public int read(byte[] bytes, int off, int len) throws IOException {
+    public synchronized int read(byte[] bytes, int off, int len) throws IOException {
         if(this.closed) {
             LOG.error("InputStream is already closed");
             throw new IOException("InputStream is already closed");
@@ -84,7 +84,7 @@ public class SyndicateFSInputStream extends InputStream {
     }
     
     @Override
-    public long skip(long n) throws IOException {
+    public synchronized long skip(long n) throws IOException {
         if(this.closed) {
             LOG.error("InputStream is already closed");
             throw new IOException("InputStream is already closed");
@@ -105,7 +105,7 @@ public class SyndicateFSInputStream extends InputStream {
     }
     
     @Override
-    public int available() throws IOException {
+    public synchronized int available() throws IOException {
         if(this.closed) {
             LOG.error("InputStream is already closed");
             throw new IOException("InputStream is already closed");
@@ -122,7 +122,7 @@ public class SyndicateFSInputStream extends InputStream {
     }
     
     @Override
-    public void close() throws IOException {
+    public synchronized void close() throws IOException {
         this.handle.close();
         this.handle.getFileSystem().notifyInputStreamClosed(this);
         this.closed = true;
@@ -141,7 +141,7 @@ public class SyndicateFSInputStream extends InputStream {
     }
     
     @Override
-    public boolean markSupported() {
+    public synchronized boolean markSupported() {
         return false;
     }
 }

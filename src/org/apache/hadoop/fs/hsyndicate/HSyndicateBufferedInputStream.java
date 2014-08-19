@@ -49,7 +49,7 @@ public class HSyndicateBufferedInputStream extends FSInputStream {
     }
     
     @Override
-    public long skip(long l) throws IOException {
+    public synchronized long skip(long l) throws IOException {
         if(l <= 0) {
             return 0;
         }
@@ -113,7 +113,7 @@ public class HSyndicateBufferedInputStream extends FSInputStream {
     }
     
     @Override
-    public int read(byte[] bytes, int off, int len) throws IOException {
+    public synchronized int read(byte[] bytes, int off, int len) throws IOException {
         if(len <= (this.buffer_end - this.buffer_pos)) {
             System.arraycopy(this.buffer, this.buffer_pos, bytes, off, len);
             this.buffer_pos += len;
@@ -146,7 +146,7 @@ public class HSyndicateBufferedInputStream extends FSInputStream {
     }
     
     @Override
-    public void close() throws IOException {
+    public synchronized void close() throws IOException {
         this.buffer_end = 0;
         this.buffer_pos = 0;
         this.buffer = null;
@@ -154,17 +154,17 @@ public class HSyndicateBufferedInputStream extends FSInputStream {
     }
     
     @Override
-    public boolean markSupported() {
+    public synchronized boolean markSupported() {
         return false;
     }
 
     @Override
-    public void mark(int readLimit) {
+    public synchronized void mark(int readLimit) {
         // Do nothing
     }
 
     @Override
-    public void reset() throws IOException {
+    public synchronized void reset() throws IOException {
         throw new IOException("Mark not supported");
     }
 }

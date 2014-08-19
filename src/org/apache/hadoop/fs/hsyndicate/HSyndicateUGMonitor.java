@@ -43,13 +43,13 @@ public class HSyndicateUGMonitor {
         }
     }
     
-    public List<HSyndicateUGMonitorResults<byte[]>> getLocalCachedBlockInfo(SyndicateFSPath path) throws IOException {
+    public synchronized List<HSyndicateUGMonitorResults<byte[]>> getLocalCachedBlockInfo(SyndicateFSPath path) throws IOException {
         List<HSyndicateUGMonitorResults<byte[]>> bitmaps = new ArrayList<HSyndicateUGMonitorResults<byte[]>>();
         
         for(String gateway_hostname : usergateway_hostnames) {
             ASyndicateFileSystem fs = syndicateFSs.get(gateway_hostname);
             if(fs != null) {
-                byte[] bitmap = fs.getLocalCacheBlocks(path);
+                byte[] bitmap = fs.getLocalCachedBlocks(path);
                 int sum_caches = 0;
                 
                 if(bitmap != null) {
@@ -71,7 +71,7 @@ public class HSyndicateUGMonitor {
         return bitmaps;
     }
     
-    public List<HSyndicateUGMonitorResults<String[]>> listExtendedAttrs(SyndicateFSPath path) throws IOException {
+    public synchronized List<HSyndicateUGMonitorResults<String[]>> listExtendedAttrs(SyndicateFSPath path) throws IOException {
         List<HSyndicateUGMonitorResults<String[]>> attrs = new ArrayList<HSyndicateUGMonitorResults<String[]>>();
         
         for(String gateway_hostname : usergateway_hostnames) {
@@ -88,7 +88,7 @@ public class HSyndicateUGMonitor {
         return attrs;
     }
     
-    public List<HSyndicateUGMonitorResults<String>> getExtendedAttrs(SyndicateFSPath path, String attr_name) throws IOException {
+    public synchronized List<HSyndicateUGMonitorResults<String>> getExtendedAttrs(SyndicateFSPath path, String attr_name) throws IOException {
         List<HSyndicateUGMonitorResults<String>> attrs = new ArrayList<HSyndicateUGMonitorResults<String>>();
         
         for(String gateway_hostname : usergateway_hostnames) {

@@ -24,38 +24,38 @@ public class SyndicateFSFileStatus {
         this.localFileSize = 0;
     }
     
-    public SyndicateFileSystem getFileSystem() {
+    public synchronized SyndicateFileSystem getFileSystem() {
         return this.filesystem;
     }
     
-    public SyndicateFSPath getPath() {
+    public synchronized SyndicateFSPath getPath() {
         return this.path;
     }
     
-    public boolean isDirectory() {
+    public synchronized boolean isDirectory() {
         if((this.stat.getMode() & Stat.S_IFDIR) == Stat.S_IFDIR)
             return true;
         return false;
     }
 
-    public boolean isFile() {
+    public synchronized boolean isFile() {
         if((this.stat.getMode() & Stat.S_IFREG) == Stat.S_IFREG)
             return true;
         return false;
     }
 
-    public long getSize() {
+    public synchronized long getSize() {
         if(this.sizeModified)
             return this.localFileSize;
         else
             return this.stat.getSize();
     }
 
-    public long getBlockSize() {
+    public synchronized long getBlockSize() {
         return this.stat.getBlksize();
     }
 
-    public long getBlocks() {
+    public synchronized long getBlocks() {
         if(this.sizeModified) {
             long blockSize = this.stat.getBlocks();
             long blocks = this.localFileSize / blockSize;
@@ -68,23 +68,23 @@ public class SyndicateFSFileStatus {
         }
     }
 
-    public long getLastAccess() {
+    public synchronized long getLastAccess() {
         return this.stat.getAtim();
     }
 
-    public long getLastModification() {
+    public synchronized long getLastModification() {
         return this.stat.getMtim();
     }
 
-    public boolean isDirty() {
+    public synchronized boolean isDirty() {
         return this.dirty;
     }
 
-    public void setDirty() {
+    public synchronized void setDirty() {
         this.dirty = true;
     }
 
-    void notifySizeChanged(long size) {
+    synchronized void notifySizeChanged(long size) {
         this.localFileSize = size;
         this.sizeModified = true;
     }

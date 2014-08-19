@@ -15,7 +15,8 @@ public abstract class ASyndicateFileSystem implements Closeable {
     
     private static final Log LOG = LogFactory.getLog(ASyndicateFileSystem.class);
     
-    protected static final String LOCAL_CACHED_BLOCK_XATTR_NAME = "user.syndicate_cached_blocks";
+    protected static final String LOCAL_CACHED_BLOCKS_XATTR_NAME = "user.syndicate_cached_blocks";
+    protected static final String LOCAL_CACHED_FILE_PATH_XATTR_NAME = "user.syndicate_cached_file_path";
     
     protected static final String FS_ROOT_PATH_STRING = "/";
     protected static final SyndicateFSPath FS_ROOT_PATH = new SyndicateFSPath(FS_ROOT_PATH_STRING);
@@ -385,13 +386,13 @@ public abstract class ASyndicateFileSystem implements Closeable {
         return false;
     }
     
-    public synchronized byte[] getLocalCacheBlocks(SyndicateFSPath path) throws IOException {
+    public synchronized byte[] getLocalCachedBlocks(SyndicateFSPath path) throws IOException {
         long blocksize = getBlockSize();
         long filesize = this.getSize(path);
         
         int blocknum = BlockUtils.getBlocks(filesize, blocksize);
         
-        String blockBitmapString = getLocalCacheBlocksInString(path);
+        String blockBitmapString = getLocalCachedBlocksInString(path);
         
         byte[] bitmap = new byte[blocknum];
         for(int i=0;i<blocknum;i++) {
@@ -409,8 +410,12 @@ public abstract class ASyndicateFileSystem implements Closeable {
         return bitmap;
     }
     
-    private synchronized String getLocalCacheBlocksInString(SyndicateFSPath path) throws IOException {
-        return getExtendedAttr(path, LOCAL_CACHED_BLOCK_XATTR_NAME);
+    private synchronized String getLocalCachedBlocksInString(SyndicateFSPath path) throws IOException {
+        return getExtendedAttr(path, LOCAL_CACHED_BLOCKS_XATTR_NAME);
+    }
+    
+    public synchronized String getLocalCachedFilePath(SyndicateFSPath path) throws IOException {
+        return getExtendedAttr(path, LOCAL_CACHED_FILE_PATH_XATTR_NAME);
     }
     
     @Override

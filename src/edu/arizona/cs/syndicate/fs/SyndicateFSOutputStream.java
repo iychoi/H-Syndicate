@@ -23,7 +23,7 @@ public class SyndicateFSOutputStream extends OutputStream {
     }
     
     @Override
-    public void write(int i) throws IOException {
+    public synchronized void write(int i) throws IOException {
         if(this.closed) {
             LOG.error("OutputStream is already closed");
             throw new IOException("OutputStream is already closed");
@@ -37,7 +37,7 @@ public class SyndicateFSOutputStream extends OutputStream {
     }
     
     @Override
-    public void write(byte[] bytes) throws IOException {
+    public synchronized void write(byte[] bytes) throws IOException {
         if(this.closed) {
             LOG.error("OutputStream is already closed");
             throw new IOException("OutputStream is already closed");
@@ -48,7 +48,7 @@ public class SyndicateFSOutputStream extends OutputStream {
     }
     
     @Override
-    public void write(byte[] bytes, int offset, int len) throws IOException {
+    public synchronized void write(byte[] bytes, int offset, int len) throws IOException {
         if(this.closed) {
             LOG.error("OutputStream is already closed");
             throw new IOException("OutputStream is already closed");
@@ -64,7 +64,7 @@ public class SyndicateFSOutputStream extends OutputStream {
     }
     
     @Override
-    public void flush() throws IOException {
+    public synchronized void flush() throws IOException {
         if(this.closed) {
             LOG.error("OutputStream is already closed");
             throw new IOException("OutputStream is already closed");
@@ -78,7 +78,7 @@ public class SyndicateFSOutputStream extends OutputStream {
     }
     
     @Override
-    public void close() throws IOException {
+    public synchronized void close() throws IOException {
         flush();
         
         this.handle.close();

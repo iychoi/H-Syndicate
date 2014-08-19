@@ -47,11 +47,11 @@ public class SyndicateFileSystem extends ASyndicateFileSystem {
         super.raiseOnAfterCreateEvent();
     }
     
-    public SyndicateIPCClient getIPCClient() {
+    public synchronized SyndicateIPCClient getIPCClient() {
         return this.client;
     }
     
-    private SyndicateFSFileStatus getFileStatus(SyndicateFSPath abspath) {
+    private synchronized SyndicateFSFileStatus getFileStatus(SyndicateFSPath abspath) {
         if(abspath == null) {
             LOG.error("Can not get FileStatus from null abspath");
             throw new IllegalArgumentException("Can not get FileStatus from null abspath");
@@ -95,7 +95,7 @@ public class SyndicateFileSystem extends ASyndicateFileSystem {
         return status;
     }
     
-    private SyndicateFSFileHandle getFileHandle(SyndicateFSFileStatus status, boolean readonly) throws IOException {
+    private synchronized SyndicateFSFileHandle getFileHandle(SyndicateFSFileStatus status, boolean readonly) throws IOException {
         if(status == null) {
             LOG.error("Can not get FileHandle from null status");
             throw new IllegalArgumentException("Can not get FileHandle from null status");
@@ -114,7 +114,7 @@ public class SyndicateFileSystem extends ASyndicateFileSystem {
         return new SyndicateFSFileHandle(this, status, fi, readonly);
     }
     
-    private SyndicateFSFileHandle createNewFile(SyndicateFSPath abspath) throws IOException {
+    private synchronized SyndicateFSFileHandle createNewFile(SyndicateFSPath abspath) throws IOException {
         if(abspath == null) {
             LOG.error("abspath is null");
             throw new IllegalArgumentException("abspath is null");
@@ -146,7 +146,7 @@ public class SyndicateFileSystem extends ASyndicateFileSystem {
     }
     
     @Override
-    public boolean exists(SyndicateFSPath path) {
+    public synchronized boolean exists(SyndicateFSPath path) {
         if(path == null) {
             LOG.error("path is null");
             throw new IllegalArgumentException("path is null");
@@ -161,7 +161,7 @@ public class SyndicateFileSystem extends ASyndicateFileSystem {
     }
 
     @Override
-    public boolean isDirectory(SyndicateFSPath path) {
+    public synchronized boolean isDirectory(SyndicateFSPath path) {
         if(path == null) {
             LOG.error("path is null");
             throw new IllegalArgumentException("path is null");
@@ -176,7 +176,7 @@ public class SyndicateFileSystem extends ASyndicateFileSystem {
     }
 
     @Override
-    public boolean isFile(SyndicateFSPath path) {
+    public synchronized boolean isFile(SyndicateFSPath path) {
         if(path == null) {
             LOG.error("path is null");
             throw new IllegalArgumentException("path is null");
@@ -191,7 +191,7 @@ public class SyndicateFileSystem extends ASyndicateFileSystem {
     }
 
     @Override
-    public long getSize(SyndicateFSPath path) {
+    public synchronized long getSize(SyndicateFSPath path) {
         if(path == null) {
             LOG.error("path is null");
             throw new IllegalArgumentException("path is null");
@@ -206,7 +206,7 @@ public class SyndicateFileSystem extends ASyndicateFileSystem {
     }
     
     @Override
-    public long getBlockSize() {
+    public synchronized long getBlockSize() {
         SyndicateFSFileStatus status = getFileStatus(getRootPath());
         if(status != null) {
             return status.getBlockSize();
@@ -215,7 +215,7 @@ public class SyndicateFileSystem extends ASyndicateFileSystem {
     }
     
     @Override
-    public String[] listExtendedAttrs(SyndicateFSPath path) throws IOException {
+    public synchronized String[] listExtendedAttrs(SyndicateFSPath path) throws IOException {
         if(path == null) {
             LOG.error("path is null");
             throw new IllegalArgumentException("path is null");
@@ -232,7 +232,7 @@ public class SyndicateFileSystem extends ASyndicateFileSystem {
     }
 
     @Override
-    public String getExtendedAttr(SyndicateFSPath path, String name) throws IOException {
+    public synchronized String getExtendedAttr(SyndicateFSPath path, String name) throws IOException {
         if(path == null) {
             LOG.error("path is null");
             throw new IllegalArgumentException("path is null");
@@ -249,7 +249,7 @@ public class SyndicateFileSystem extends ASyndicateFileSystem {
     }
 
     @Override
-    public boolean delete(SyndicateFSPath path) throws IOException {
+    public synchronized boolean delete(SyndicateFSPath path) throws IOException {
         if(path == null) {
             LOG.error("path is null");
             throw new IllegalArgumentException("path is null");
@@ -276,7 +276,7 @@ public class SyndicateFileSystem extends ASyndicateFileSystem {
     }
 
     @Override
-    public void rename(SyndicateFSPath path, SyndicateFSPath newpath) throws IOException {
+    public synchronized void rename(SyndicateFSPath path, SyndicateFSPath newpath) throws IOException {
         if(path == null) {
             LOG.error("path is null");
             throw new IllegalArgumentException("path is null");
@@ -314,7 +314,7 @@ public class SyndicateFileSystem extends ASyndicateFileSystem {
     }
 
     @Override
-    public void mkdir(SyndicateFSPath path) throws IOException {
+    public synchronized void mkdir(SyndicateFSPath path) throws IOException {
         if(path == null) {
             LOG.error("path is null");
             throw new IllegalArgumentException("path is null");
@@ -330,7 +330,7 @@ public class SyndicateFileSystem extends ASyndicateFileSystem {
     }
 
     @Override
-    public InputStream getFileInputStream(SyndicateFSPath path) throws IOException {
+    public synchronized InputStream getFileInputStream(SyndicateFSPath path) throws IOException {
         if(path == null) {
             LOG.error("path is null");
             throw new IllegalArgumentException("path is null");
@@ -355,7 +355,7 @@ public class SyndicateFileSystem extends ASyndicateFileSystem {
     }
 
     @Override
-    public OutputStream getFileOutputStream(SyndicateFSPath path) throws IOException {
+    public synchronized OutputStream getFileOutputStream(SyndicateFSPath path) throws IOException {
         if(path == null) {
             LOG.error("path is null");
             throw new IllegalArgumentException("path is null");
@@ -396,7 +396,7 @@ public class SyndicateFileSystem extends ASyndicateFileSystem {
     }
 
     @Override
-    public ISyndicateFSRandomAccess getRandomAccess(SyndicateFSPath path) throws IOException {
+    public synchronized ISyndicateFSRandomAccess getRandomAccess(SyndicateFSPath path) throws IOException {
         if(path == null) {
             LOG.error("path is null");
             throw new IllegalArgumentException("path is null");
@@ -421,7 +421,7 @@ public class SyndicateFileSystem extends ASyndicateFileSystem {
     }
 
     @Override
-    public String[] readDirectoryEntries(SyndicateFSPath path, ISyndicateFSFilenameFilter filter) throws FileNotFoundException, IOException {
+    public synchronized String[] readDirectoryEntries(SyndicateFSPath path, ISyndicateFSFilenameFilter filter) throws FileNotFoundException, IOException {
         if(path == null) {
             LOG.error("path is null");
             throw new IllegalArgumentException("path is null");
@@ -452,7 +452,7 @@ public class SyndicateFileSystem extends ASyndicateFileSystem {
     }
 
     @Override
-    public String[] readDirectoryEntries(SyndicateFSPath path, ISyndicateFSPathFilter filter) throws FileNotFoundException, IOException {
+    public synchronized String[] readDirectoryEntries(SyndicateFSPath path, ISyndicateFSPathFilter filter) throws FileNotFoundException, IOException {
         if(path == null) {
             LOG.error("path is null");
             throw new IllegalArgumentException("path is null");
@@ -482,7 +482,7 @@ public class SyndicateFileSystem extends ASyndicateFileSystem {
         }
     }
     
-    void notifyInputStreamClosed(SyndicateFSInputStream inputStream) {
+    synchronized void notifyInputStreamClosed(SyndicateFSInputStream inputStream) {
         if(inputStream == null) {
             LOG.error("inputStream is null");
             throw new IllegalArgumentException("inputStream is null");
@@ -491,7 +491,7 @@ public class SyndicateFileSystem extends ASyndicateFileSystem {
         this.openInputStream.remove(inputStream);
     }
     
-    void notifyOutputStreamClosed(SyndicateFSOutputStream outputStream) {
+    synchronized void notifyOutputStreamClosed(SyndicateFSOutputStream outputStream) {
         if(outputStream == null) {
             LOG.error("outputStream is null");
             throw new IllegalArgumentException("outputStream is null");
@@ -500,7 +500,7 @@ public class SyndicateFileSystem extends ASyndicateFileSystem {
         this.openOutputStream.remove(outputStream);
     }
     
-    void notifyRandomAccessClosed(SyndicateFSRandomAccess raf) {
+    synchronized void notifyRandomAccessClosed(SyndicateFSRandomAccess raf) {
         if(raf == null) {
             LOG.error("RandomAccess is null");
             throw new IllegalArgumentException("RandomAccess is null");

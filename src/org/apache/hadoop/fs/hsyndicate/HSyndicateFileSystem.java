@@ -36,12 +36,12 @@ public class HSyndicateFileSystem extends FileSystem {
     }
 
     @Override
-    public URI getUri() {
+    public synchronized URI getUri() {
         return this.uri;
     }
 
     @Override
-    public void initialize(URI uri, Configuration conf) throws IOException {
+    public synchronized void initialize(URI uri, Configuration conf) throws IOException {
         super.initialize(uri, conf);
         if (this.syndicateFS == null) {
             this.syndicateFS = createHSyndicateFS(conf);
@@ -61,17 +61,17 @@ public class HSyndicateFileSystem extends FileSystem {
     }
     
     @Override
-    public String getName() {
+    public synchronized String getName() {
         return getUri().toString();
     }
 
     @Override
-    public Path getWorkingDirectory() {
+    public synchronized Path getWorkingDirectory() {
         return this.workingDir;
     }
     
     @Override
-    public void setWorkingDirectory(Path path) {
+    public synchronized void setWorkingDirectory(Path path) {
         this.workingDir = makeAbsolute(path);
     }
     
@@ -96,19 +96,19 @@ public class HSyndicateFileSystem extends FileSystem {
     }
     
     @Override
-    public boolean mkdirs(Path path, FsPermission permission) throws IOException {
+    public synchronized boolean mkdirs(Path path, FsPermission permission) throws IOException {
         SyndicateFSPath hpath = makeSyndicateFSPath(path);
         return this.syndicateFS.mkdirs(hpath);
     }
     
     @Override
-    public boolean isFile(Path path) throws IOException {
+    public synchronized boolean isFile(Path path) throws IOException {
         SyndicateFSPath hpath = makeSyndicateFSPath(path);
         return this.syndicateFS.isFile(hpath);
     }
     
     @Override
-    public FileStatus[] listStatus(Path f) throws IOException {
+    public synchronized FileStatus[] listStatus(Path f) throws IOException {
         SyndicateFSPath hpath = makeSyndicateFSPath(f);
         if(!this.syndicateFS.exists(hpath)) {
             return null;
@@ -131,12 +131,12 @@ public class HSyndicateFileSystem extends FileSystem {
      * This optional operation is not yet supported.
      */
     @Override
-    public FSDataOutputStream append(Path f, int bufferSize, Progressable progress) throws IOException {
+    public synchronized FSDataOutputStream append(Path f, int bufferSize, Progressable progress) throws IOException {
         throw new IOException("Not supported");
     }
     
     @Override
-    public FSDataOutputStream create(Path file, FsPermission permission, boolean overwrite, int bufferSize, short replication, long blockSize, Progressable progress) throws IOException {
+    public synchronized FSDataOutputStream create(Path file, FsPermission permission, boolean overwrite, int bufferSize, short replication, long blockSize, Progressable progress) throws IOException {
         SyndicateFSPath hpath = makeSyndicateFSPath(file);
         if(this.syndicateFS.exists(hpath)) {
             if (overwrite) {
@@ -159,7 +159,7 @@ public class HSyndicateFileSystem extends FileSystem {
     }
     
     @Override
-    public FSDataInputStream open(Path path, int bufferSize) throws IOException {
+    public synchronized FSDataInputStream open(Path path, int bufferSize) throws IOException {
         SyndicateFSPath hpath = makeSyndicateFSPath(path);
         if (!this.syndicateFS.exists(hpath)) {
             throw new IOException("No such file.");
@@ -174,7 +174,7 @@ public class HSyndicateFileSystem extends FileSystem {
     }
 
     @Override
-    public boolean rename(Path src, Path dst) throws IOException {
+    public synchronized boolean rename(Path src, Path dst) throws IOException {
         SyndicateFSPath hsrc = makeSyndicateFSPath(src);
         SyndicateFSPath hdst = makeSyndicateFSPath(dst);
         
@@ -203,7 +203,7 @@ public class HSyndicateFileSystem extends FileSystem {
     }
     
     @Override
-    public boolean delete(Path path, boolean recursive) throws IOException {
+    public synchronized boolean delete(Path path, boolean recursive) throws IOException {
         SyndicateFSPath hpath = makeSyndicateFSPath(path);
         if (!this.syndicateFS.exists(hpath)) {
             return false;
@@ -222,12 +222,12 @@ public class HSyndicateFileSystem extends FileSystem {
     }
     
     @Override
-    public boolean delete(Path path) throws IOException {
+    public synchronized boolean delete(Path path) throws IOException {
         return delete(path, true);
     }
 
     @Override
-    public FileStatus getFileStatus(Path f) throws IOException {
+    public synchronized FileStatus getFileStatus(Path f) throws IOException {
         SyndicateFSPath hpath = makeSyndicateFSPath(f);
         if(!this.syndicateFS.exists(hpath)) {
             throw new FileNotFoundException(f + ": No such file or directory.");
@@ -237,12 +237,12 @@ public class HSyndicateFileSystem extends FileSystem {
     }
     
     @Override
-    public long getDefaultBlockSize() {
+    public synchronized long getDefaultBlockSize() {
         return this.syndicateFS.getBlockSize();
     }
     
     @Override
-    public BlockLocation[] getFileBlockLocations(FileStatus file, long start, long len) {
+    public synchronized BlockLocation[] getFileBlockLocations(FileStatus file, long start, long len) {
         try {
             HSyndicateUGMonitor monitor = new HSyndicateUGMonitor(this.getConf());
             SyndicateFSPath hpath = makeSyndicateFSPath(file.getPath());
@@ -308,7 +308,7 @@ public class HSyndicateFileSystem extends FileSystem {
     }
     
     @Override
-    public void close() throws IOException {
+    public synchronized void close() throws IOException {
         this.syndicateFS.close();
         
         super.close();

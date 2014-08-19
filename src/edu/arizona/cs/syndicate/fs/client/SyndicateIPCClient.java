@@ -39,15 +39,15 @@ public class SyndicateIPCClient implements Closeable {
         }
     }
 
-    public String getAddress() {
+    public synchronized String getAddress() {
         return this.address;
     }
     
-    public int getPort() {
+    public synchronized int getPort() {
         return this.port;
     }
     
-    public String getHostString() {
+    public synchronized String getHostString() {
         return this.address + ":" + this.port;
     }
     

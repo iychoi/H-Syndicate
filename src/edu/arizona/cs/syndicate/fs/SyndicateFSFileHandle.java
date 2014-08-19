@@ -114,10 +114,22 @@ public class SyndicateFSFileHandle implements Closeable {
                 // has cache
                 RandomAccessFile raf = new RandomAccessFile(cachedBlockFile, "r");
                 long inneroffset = fileoffset - (blockid * this.blockSize);
+                long left = this.blockSize - inneroffset;
+                int toRead = (int) Math.min(left, size);
+                int readBytes = 0;
+                
                 raf.seek(inneroffset);
-                int result = raf.read(buffer, offset, size);
+                while(readBytes < toRead) {
+                    int result = raf.read(buffer, offset + readBytes, toRead - readBytes);
+                    if(result > 0) {
+                        readBytes += result;
+                    } else {
+                        break;
+                    }
+                }
+                
                 raf.close();
-                return result;
+                return readBytes;
             }
         }
         

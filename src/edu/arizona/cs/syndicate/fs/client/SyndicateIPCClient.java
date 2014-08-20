@@ -20,6 +20,8 @@ public class SyndicateIPCClient implements Closeable {
     private Socket clientSocket;
     private DataInputStream socketDataInputStream;
     private DataOutputStream socketDataOutputStream;
+    private final static int SOCKET_TIMEOUT = 10000;
+    private final static int SOCKET_RECV_BUFFER_SIZE = 5*1024*1024;
     
     public SyndicateIPCClient(String address, int port) throws InstantiationException {
         this.address = address;
@@ -28,6 +30,9 @@ public class SyndicateIPCClient implements Closeable {
         try {
             LOG.info("connect to " + address);
             this.clientSocket = new Socket(address, port);
+            this.clientSocket.setKeepAlive(true);
+            this.clientSocket.setSoTimeout(SOCKET_TIMEOUT);
+            this.clientSocket.setReceiveBufferSize(SOCKET_RECV_BUFFER_SIZE);
             this.socketDataInputStream = new DataInputStream(this.clientSocket.getInputStream());
             this.socketDataOutputStream = new DataOutputStream(this.clientSocket.getOutputStream());
         } catch (UnknownHostException ex) {

@@ -10,7 +10,7 @@ public class HSyndicateConfigUtils {
     
     public static final Log LOG = LogFactory.getLog(HSyndicateConfigUtils.class);
     
-    public static final String CONFIG_HSYNDICATE_USER_GATEWAY_HOSTNAME = "fs.hsyndicate.usergateway.hostnames";
+    public static final String CONFIG_HSYNDICATE_USER_GATEWAY_HOSTNAMES = "fs.hsyndicate.usergateway.hostnames";
     public static final String CONFIG_HSYNDICATE_USER_GATEWAY_IPC_PORT = "fs.hsyndicate.usergateway.port";
     public static final String CONFIG_HSYNDICATE_METADATA_CACHE_SIZE = "fs.hsyndicate.metadata.cache.size";
     public static final String CONFIG_HSYNDICATE_METADATA_CACHE_TIMEOUT = "fs.hsyndicate.metadata.cache.timeout";
@@ -24,16 +24,32 @@ public class HSyndicateConfigUtils {
     public static final int DEFAULT_METADATA_CACHE_TIMEOUT = 0;
     public static final int DEFAULT_BUFFER_SIZE = 1024 * 800;
     
+    private static String autoDetectedDataNodes = null;
+    
     public static String getHSyndicateUGHostnames(Configuration conf) {
-        return conf.get(CONFIG_HSYNDICATE_USER_GATEWAY_HOSTNAME);
+        String ug_hostnames = conf.get(CONFIG_HSYNDICATE_USER_GATEWAY_HOSTNAMES, null);
+        if(ug_hostnames == null) {
+            // use auto detect
+            if(autoDetectedDataNodes == null) {
+                try {
+                    autoDetectedDataNodes = DFSNodeInfoUtils.getDataNodesCommaSeparated(conf);
+                } catch (IOException ex) {
+                    LOG.info("failed to read DFS data node info.");
+                    autoDetectedDataNodes = null;
+                }
+            }
+            return autoDetectedDataNodes;
+        } else {
+            return ug_hostnames;
+        }
     }
     
-    public static String[] listHSyndicateUGHostname(Configuration conf) {
+    public static String[] listHSyndicateUGHostnames(Configuration conf) {
         return getHSyndicateUGHostnames(conf).split(",");
     }
     
     public static String getHSyndicateUGAddress(Configuration conf, int index) {
-        String[] gateway_hostnames = listHSyndicateUGHostname(conf);
+        String[] gateway_hostnames = listHSyndicateUGHostnames(conf);
         
         if(index >= gateway_hostnames.length) {
             return null;
@@ -43,7 +59,7 @@ public class HSyndicateConfigUtils {
     }
     
     public static void setHSyndicateUGHostnames(Configuration conf, String ug_hostnames) {
-        conf.set(CONFIG_HSYNDICATE_USER_GATEWAY_HOSTNAME, ug_hostnames);
+        conf.set(CONFIG_HSYNDICATE_USER_GATEWAY_HOSTNAMES, ug_hostnames);
     }
     
     public static int getHSyndicateUGIPCPort(Configuration conf) {

@@ -23,4 +23,20 @@ public class StringUtils {
         }
         return path;
     }
+    
+    public static String makeCommaSeparated(String[] str) {
+        if (str == null) {
+            return null;
+        }
+        
+        StringBuilder sb = new StringBuilder();
+        for(String s : str) {
+            if(sb.length() != 0) {
+                sb.append(",");
+            }
+            sb.append(s);
+        }
+        
+        return sb.toString();
+    }
 }

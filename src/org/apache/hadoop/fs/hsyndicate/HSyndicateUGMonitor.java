@@ -20,7 +20,7 @@ public class HSyndicateUGMonitor {
     private static Hashtable<String, ASyndicateFileSystem> syndicateFSs = new Hashtable<String, ASyndicateFileSystem>();
     
     public HSyndicateUGMonitor(Configuration conf) throws IOException {
-        String[] gateway_hostnames = HSyndicateConfigUtils.listHSyndicateUGHostname(conf);
+        String[] gateway_hostnames = HSyndicateConfigUtils.listHSyndicateUGHostnames(conf);
         
         for(int i=0;i<gateway_hostnames.length;i++) {
             String gateway_hostname = gateway_hostnames[i];

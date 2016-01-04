@@ -16,18 +16,18 @@
  */
 package edu.arizona.cs.hsyndicate.hadoop.connector.output;
 
-import edu.arizona.cs.syndicate.fs.SyndicateFSPath;
-import edu.arizona.cs.syndicate.fs.ASyndicateFileSystem;
+import edu.arizona.cs.hsyndicate.fs.SyndicateFSPath;
+import edu.arizona.cs.hsyndicate.fs.AHSyndicateFileSystemBase;
 import edu.arizona.cs.hsyndicate.hadoop.connector.io.HSyndicateSequenceFile;
 import edu.arizona.cs.hsyndicate.hadoop.connector.io.HSyndicateSequenceFile.CompressionType;
 import edu.arizona.cs.hsyndicate.hadoop.connector.io.HSyndicateSequenceFile.ValueBytes;
-import edu.arizona.cs.syndicate.fs.SyndicateFSConfiguration;
+import edu.arizona.cs.hsyndicate.fs.SyndicateFSConfiguration;
 import java.io.IOException;
 import java.io.DataOutputStream;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.hsyndicate.util.SyndicateFileSystemFactory;
-import org.apache.hadoop.fs.hsyndicate.util.HSyndicateConfigUtils;
+import edu.arizona.cs.hsyndicate.dfs.util.SyndicateFileSystemFactory;
+import edu.arizona.cs.hsyndicate.dfs.util.HSyndicateConfigUtils;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.BytesWritable;
@@ -179,7 +179,7 @@ public class HSyndicateSequenceFileAsBinaryOutputFormat
         }
         // get the path of the temporary output file
         SyndicateFSPath file = getDefaultWorkFile(context, "");
-        ASyndicateFileSystem fs = null;
+        AHSyndicateFileSystemBase fs = null;
         try {
             SyndicateFSConfiguration sconf = HSyndicateConfigUtils.createSyndicateConf(conf, "localhost");
             fs = SyndicateFileSystemFactory.getInstance(sconf);

@@ -17,7 +17,7 @@
  */
 package edu.arizona.cs.hsyndicate.hadoop.connector.input;
 
-import edu.arizona.cs.syndicate.fs.SyndicateFSPath;
+import edu.arizona.cs.hsyndicate.fs.SyndicateFSPath;
 import edu.arizona.cs.hsyndicate.hadoop.connector.util.HSyndicateCompressionCodecUtil;
 import java.io.IOException;
 import org.apache.hadoop.conf.Configuration;

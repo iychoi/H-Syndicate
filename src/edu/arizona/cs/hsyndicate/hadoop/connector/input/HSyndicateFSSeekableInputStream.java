@@ -17,7 +17,7 @@
  */
 package edu.arizona.cs.hsyndicate.hadoop.connector.input;
 
-import edu.arizona.cs.syndicate.fs.ISyndicateFSRandomAccess;
+import edu.arizona.cs.hsyndicate.fs.SyndicateFSInputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,30 +26,25 @@ import org.apache.hadoop.fs.Seekable;
 
 public class HSyndicateFSSeekableInputStream extends InputStream implements Seekable, PositionedReadable {
 
-    private ISyndicateFSRandomAccess raf;
-    private long length = 0;
+    private SyndicateFSInputStream is;
     
-    public HSyndicateFSSeekableInputStream(ISyndicateFSRandomAccess raf) {
-        this.raf = raf;
-        try {
-            // for better performance
-            this.length = raf.length();
-        } catch (IOException ex) {}
+    public HSyndicateFSSeekableInputStream(SyndicateFSInputStream is) {
+        this.is = is;
     }
 
     @Override
     public int read() throws IOException {
-        return this.raf.read();
+        return this.is.read();
     }
     
     @Override
     public int read(byte[] bytes) throws IOException {
-        return this.raf.read(bytes);
+        return this.is.read(bytes);
     }
     
     @Override
     public int read(byte[] bytes, int off, int len) throws IOException {
-        return this.raf.read(bytes, off, len);
+        return this.is.read(bytes, off, len);
     }
     
     @Override
@@ -86,26 +81,22 @@ public class HSyndicateFSSeekableInputStream extends InputStream implements Seek
 
     @Override
     public long skip(long n) throws IOException {
-        return this.raf.skip((int)n);
+        return this.is.skip((int)n);
     }
     
     @Override
     public void seek(long l) throws IOException {
-        this.raf.seek(l);
+        this.is.seek(l);
     }
 
     @Override
     public long getPos() throws IOException {
-        return this.raf.getFilePointer();
+        return this.is.getPos();
     }
     
     @Override
     public int available() throws IOException {
-        if((this.length - getPos()) > Integer.MAX_VALUE) {
-            return Integer.MAX_VALUE;
-        } else {
-            return (int)(this.length - getPos());
-        }
+        return this.is.available();
     }
 
     @Override
@@ -115,7 +106,7 @@ public class HSyndicateFSSeekableInputStream extends InputStream implements Seek
     
     @Override
     public void close() throws IOException {
-        this.raf.close();
+        this.is.close();
     }
     
     @Override

@@ -17,16 +17,16 @@
  */
 package edu.arizona.cs.hsyndicate.hadoop.connector.output;
 
-import edu.arizona.cs.syndicate.fs.SyndicateFSPath;
-import edu.arizona.cs.syndicate.fs.ASyndicateFileSystem;
-import edu.arizona.cs.syndicate.fs.SyndicateFSConfiguration;
+import edu.arizona.cs.hsyndicate.fs.SyndicateFSPath;
+import edu.arizona.cs.hsyndicate.fs.AHSyndicateFileSystemBase;
+import edu.arizona.cs.hsyndicate.fs.SyndicateFSConfiguration;
 import java.io.IOException;
 import java.text.NumberFormat;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.hsyndicate.util.SyndicateFileSystemFactory;
-import org.apache.hadoop.fs.hsyndicate.util.HSyndicateConfigUtils;
+import edu.arizona.cs.hsyndicate.dfs.util.SyndicateFileSystemFactory;
+import edu.arizona.cs.hsyndicate.dfs.util.HSyndicateConfigUtils;
 import org.apache.hadoop.io.compress.CompressionCodec;
 import org.apache.hadoop.mapred.FileAlreadyExistsException;
 import org.apache.hadoop.mapred.InvalidJobConfException;
@@ -93,7 +93,7 @@ public abstract class HSyndicateFileOutputFormat<K, V> extends OutputFormat<K, V
             throw new InvalidJobConfException("Output directory not set.");
         }
         
-        ASyndicateFileSystem fs = null;
+        AHSyndicateFileSystemBase fs = null;
         try {
             SyndicateFSConfiguration sconf = HSyndicateConfigUtils.createSyndicateConf(context.getConfiguration(), "localhost");
             fs = SyndicateFileSystemFactory.getInstance(sconf);
@@ -148,9 +148,9 @@ public abstract class HSyndicateFileOutputFormat<K, V> extends OutputFormat<K, V
         if (this.committer == null) {
             SyndicateFSPath output = getOutputPath(context);
             
-            ASyndicateFileSystem fs = null;
+            AHSyndicateFileSystemBase fs = null;
             try {
-                SyndicateFSConfiguration sconf = org.apache.hadoop.fs.hsyndicate.util.HSyndicateConfigUtils.createSyndicateConf(context.getConfiguration(), "localhost");
+                SyndicateFSConfiguration sconf = edu.arizona.cs.hsyndicate.dfs.util.HSyndicateConfigUtils.createSyndicateConf(context.getConfiguration(), "localhost");
                 fs = SyndicateFileSystemFactory.getInstance(sconf);
             } catch (InstantiationException ex) {
                 throw new IOException(ex);

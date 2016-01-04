@@ -1,7 +1,7 @@
 package edu.arizona.cs.hsyndicate.hadoop.connector.input;
 
-import edu.arizona.cs.syndicate.fs.ASyndicateFileSystem;
-import edu.arizona.cs.syndicate.fs.SyndicateFSPath;
+import edu.arizona.cs.hsyndicate.fs.AHSyndicateFileSystemBase;
+import edu.arizona.cs.hsyndicate.fs.SyndicateFSPath;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -11,7 +11,7 @@ import org.apache.hadoop.mapreduce.InputSplit;
 
 public class HSyndicateInputSplit extends InputSplit implements Writable {
 
-    private ASyndicateFileSystem filesystem;
+    private AHSyndicateFileSystemBase filesystem;
     private SyndicateFSPath path;
     private long start;
     private long length;
@@ -22,7 +22,7 @@ public class HSyndicateInputSplit extends InputSplit implements Writable {
     /*
      * Constructs a split
      */
-    public HSyndicateInputSplit(ASyndicateFileSystem fs, SyndicateFSPath path, long start, long length) {
+    public HSyndicateInputSplit(AHSyndicateFileSystemBase fs, SyndicateFSPath path, long start, long length) {
         if(fs == null)
             throw new IllegalArgumentException("Can not create Input Split from null file system");
         if(path == null)
@@ -34,7 +34,7 @@ public class HSyndicateInputSplit extends InputSplit implements Writable {
         this.length = length;
     }
 
-    public ASyndicateFileSystem getFileSystem() {
+    public AHSyndicateFileSystemBase getFileSystem() {
         return this.filesystem;
     }
     

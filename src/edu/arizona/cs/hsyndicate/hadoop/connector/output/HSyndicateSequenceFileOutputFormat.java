@@ -16,11 +16,11 @@
  */
 package edu.arizona.cs.hsyndicate.hadoop.connector.output;
 
-import edu.arizona.cs.syndicate.fs.SyndicateFSPath;
-import edu.arizona.cs.syndicate.fs.ASyndicateFileSystem;
+import edu.arizona.cs.hsyndicate.fs.SyndicateFSPath;
+import edu.arizona.cs.hsyndicate.fs.AHSyndicateFileSystemBase;
 import edu.arizona.cs.hsyndicate.hadoop.connector.io.HSyndicateSequenceFile;
 import edu.arizona.cs.hsyndicate.hadoop.connector.io.HSyndicateSequenceFile.CompressionType;
-import edu.arizona.cs.syndicate.fs.SyndicateFSConfiguration;
+import edu.arizona.cs.hsyndicate.fs.SyndicateFSConfiguration;
 import java.io.IOException;
 
 import org.apache.hadoop.io.compress.CompressionCodec;
@@ -32,7 +32,7 @@ import org.apache.hadoop.mapreduce.RecordWriter;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.hadoop.util.ReflectionUtils;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.hsyndicate.util.SyndicateFileSystemFactory;
+import edu.arizona.cs.hsyndicate.dfs.util.SyndicateFileSystemFactory;
 
 /**
  * An {@link OutputFormat} that writes {@link SequenceFile}s.
@@ -55,9 +55,9 @@ public class HSyndicateSequenceFileOutputFormat<K, V> extends HSyndicateFileOutp
         
         // get the path of the temporary output file 
         SyndicateFSPath file = getDefaultWorkFile(context, "");
-        ASyndicateFileSystem fs = null;
+        AHSyndicateFileSystemBase fs = null;
         try {
-            SyndicateFSConfiguration sconf = org.apache.hadoop.fs.hsyndicate.util.HSyndicateConfigUtils.createSyndicateConf(conf, "localhost");
+            SyndicateFSConfiguration sconf = edu.arizona.cs.hsyndicate.dfs.util.HSyndicateConfigUtils.createSyndicateConf(conf, "localhost");
             fs = SyndicateFileSystemFactory.getInstance(sconf);
         } catch (InstantiationException ex) {
             throw new IOException(ex);

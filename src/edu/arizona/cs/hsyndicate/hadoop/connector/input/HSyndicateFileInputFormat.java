@@ -17,11 +17,11 @@
  */
 package edu.arizona.cs.hsyndicate.hadoop.connector.input;
 
-import edu.arizona.cs.syndicate.fs.SyndicateFSPath;
-import edu.arizona.cs.syndicate.fs.ISyndicateFSPathFilter;
-import edu.arizona.cs.syndicate.fs.ASyndicateFileSystem;
-import edu.arizona.cs.syndicate.fs.SyndicateFSConfiguration;
-import edu.arizona.cs.syndicate.util.StringUtils;
+import edu.arizona.cs.hsyndicate.fs.SyndicateFSPath;
+import edu.arizona.cs.hsyndicate.fs.ISyndicateFSPathFilter;
+import edu.arizona.cs.hsyndicate.fs.AHSyndicateFileSystemBase;
+import edu.arizona.cs.hsyndicate.fs.SyndicateFSConfiguration;
+import edu.arizona.cs.hsyndicate.util.StringUtils;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,8 +29,8 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.hsyndicate.util.SyndicateFileSystemFactory;
-import org.apache.hadoop.fs.hsyndicate.util.HSyndicateConfigUtils;
+import edu.arizona.cs.hsyndicate.dfs.util.SyndicateFileSystemFactory;
+import edu.arizona.cs.hsyndicate.dfs.util.HSyndicateConfigUtils;
 import org.apache.hadoop.mapreduce.InputFormat;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.Job;
@@ -126,7 +126,7 @@ public abstract class HSyndicateFileInputFormat<K extends Object, V extends Obje
         }
         ISyndicateFSPathFilter inputFilter = new MultiPathFilter(filters);
         
-        ASyndicateFileSystem fs = null;
+        AHSyndicateFileSystemBase fs = null;
         try {
             SyndicateFSConfiguration sconf = HSyndicateConfigUtils.createSyndicateConf(context.getConfiguration(), "localhost");
             fs = SyndicateFileSystemFactory.getInstance(sconf);
@@ -163,7 +163,7 @@ public abstract class HSyndicateFileInputFormat<K extends Object, V extends Obje
         long minSize = Math.max(getFormatMinSplitSize(), getMinSplitSize(context));
         long maxSize = getMaxSplitSize(context);
         
-        ASyndicateFileSystem fs = null;
+        AHSyndicateFileSystemBase fs = null;
         try {
             SyndicateFSConfiguration sconf = HSyndicateConfigUtils.createSyndicateConf(context.getConfiguration(), "localhost");
             fs = SyndicateFileSystemFactory.getInstance(sconf);

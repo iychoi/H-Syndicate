@@ -16,15 +16,15 @@
  */
 package edu.arizona.cs.hsyndicate.hadoop.connector.output;
 
-import edu.arizona.cs.syndicate.fs.SyndicateFSPath;
-import edu.arizona.cs.syndicate.fs.ASyndicateFileSystem;
-import edu.arizona.cs.syndicate.fs.SyndicateFSConfiguration;
+import edu.arizona.cs.hsyndicate.fs.SyndicateFSPath;
+import edu.arizona.cs.hsyndicate.fs.AHSyndicateFileSystemBase;
+import edu.arizona.cs.hsyndicate.fs.SyndicateFSConfiguration;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.hsyndicate.util.SyndicateFileSystemFactory;
-import org.apache.hadoop.fs.hsyndicate.util.HSyndicateConfigUtils;
+import edu.arizona.cs.hsyndicate.dfs.util.SyndicateFileSystemFactory;
+import edu.arizona.cs.hsyndicate.dfs.util.HSyndicateConfigUtils;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.compress.CompressionCodec;
@@ -117,7 +117,7 @@ public class HSyndicateTextOutputFormat<K, V> extends HSyndicateFileOutputFormat
         }
 
         SyndicateFSPath path = getDefaultWorkFile(context, extension);
-        ASyndicateFileSystem fs = null;
+        AHSyndicateFileSystemBase fs = null;
         try {
             SyndicateFSConfiguration sconf = HSyndicateConfigUtils.createSyndicateConf(conf, "localhost");
             fs = SyndicateFileSystemFactory.getInstance(sconf);

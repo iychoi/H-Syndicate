@@ -1,7 +1,7 @@
 package edu.arizona.cs.hsyndicate.hadoop.connector.output;
 
-import edu.arizona.cs.syndicate.fs.ASyndicateFileSystem;
-import edu.arizona.cs.syndicate.fs.SyndicateFSPath;
+import edu.arizona.cs.hsyndicate.fs.AHSyndicateFileSystemBase;
+import edu.arizona.cs.hsyndicate.fs.SyndicateFSPath;
 import java.io.IOException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -13,10 +13,10 @@ public class HSyndicateOutputCommitter extends OutputCommitter {
 
     private static final Log LOG = LogFactory.getLog(HSyndicateOutputCommitter.class);
 
-    private ASyndicateFileSystem outputFileSystem = null;
+    private AHSyndicateFileSystemBase outputFileSystem = null;
     private SyndicateFSPath outputPath = null;
 
-    public HSyndicateOutputCommitter(ASyndicateFileSystem fs, SyndicateFSPath output, TaskAttemptContext context) {
+    public HSyndicateOutputCommitter(AHSyndicateFileSystemBase fs, SyndicateFSPath output, TaskAttemptContext context) {
         if (output != null) {
             this.outputPath = output;
             this.outputFileSystem = fs;
@@ -65,7 +65,7 @@ public class HSyndicateOutputCommitter extends OutputCommitter {
         return this.outputPath;
     }
 
-    public ASyndicateFileSystem getOutFileSystem() {
+    public AHSyndicateFileSystemBase getOutFileSystem() {
         return this.outputFileSystem;
     }
 }

@@ -16,8 +16,8 @@
  */
 package edu.arizona.cs.hsyndicate.hadoop.connector.io;
 
-import edu.arizona.cs.syndicate.fs.SyndicateFSPath;
-import edu.arizona.cs.syndicate.fs.ASyndicateFileSystem;
+import edu.arizona.cs.hsyndicate.fs.SyndicateFSPath;
+import edu.arizona.cs.hsyndicate.fs.AHSyndicateFileSystemBase;
 import edu.arizona.cs.hsyndicate.hadoop.connector.input.HSyndicateFSDataInputStream;
 import edu.arizona.cs.hsyndicate.hadoop.connector.input.HSyndicateFSSeekableInputStream;
 import edu.arizona.cs.hsyndicate.hadoop.connector.io.HSyndicateSequenceFile.CompressionType;
@@ -53,7 +53,7 @@ public class HSyndicateBloomMapFile {
     public static final String BLOOM_FILE_NAME = "bloom";
     public static final int HASH_COUNT = 5;
 
-    public static void delete(ASyndicateFileSystem fs, String name) throws IOException {
+    public static void delete(AHSyndicateFileSystemBase fs, String name) throws IOException {
         SyndicateFSPath dir = new SyndicateFSPath(name);
         SyndicateFSPath data = new SyndicateFSPath(dir, HSyndicateMapFile.DATA_FILE_NAME);
         SyndicateFSPath index = new SyndicateFSPath(dir, HSyndicateMapFile.INDEX_FILE_NAME);
@@ -82,10 +82,10 @@ public class HSyndicateBloomMapFile {
         private int vectorSize;
         private Key bloomKey = new Key();
         private DataOutputBuffer buf = new DataOutputBuffer();
-        private ASyndicateFileSystem fs;
+        private AHSyndicateFileSystemBase fs;
         private SyndicateFSPath dir;
 
-        public Writer(Configuration conf, ASyndicateFileSystem fs, String dirName,
+        public Writer(Configuration conf, AHSyndicateFileSystemBase fs, String dirName,
                 Class<? extends WritableComparable> keyClass,
                 Class<? extends Writable> valClass, CompressionType compress,
                 CompressionCodec codec, Progressable progress) throws IOException {
@@ -95,7 +95,7 @@ public class HSyndicateBloomMapFile {
             initBloomFilter(conf);
         }
 
-        public Writer(Configuration conf, ASyndicateFileSystem fs, String dirName,
+        public Writer(Configuration conf, AHSyndicateFileSystemBase fs, String dirName,
                 Class<? extends WritableComparable> keyClass,
                 Class valClass, CompressionType compress,
                 Progressable progress) throws IOException {
@@ -105,7 +105,7 @@ public class HSyndicateBloomMapFile {
             initBloomFilter(conf);
         }
 
-        public Writer(Configuration conf, ASyndicateFileSystem fs, String dirName,
+        public Writer(Configuration conf, AHSyndicateFileSystemBase fs, String dirName,
                 Class<? extends WritableComparable> keyClass,
                 Class valClass, CompressionType compress)
                 throws IOException {
@@ -115,7 +115,7 @@ public class HSyndicateBloomMapFile {
             initBloomFilter(conf);
         }
 
-        public Writer(Configuration conf, ASyndicateFileSystem fs, String dirName,
+        public Writer(Configuration conf, AHSyndicateFileSystemBase fs, String dirName,
                 WritableComparator comparator, Class valClass,
                 CompressionType compress, CompressionCodec codec, Progressable progress)
                 throws IOException {
@@ -125,7 +125,7 @@ public class HSyndicateBloomMapFile {
             initBloomFilter(conf);
         }
 
-        public Writer(Configuration conf, ASyndicateFileSystem fs, String dirName,
+        public Writer(Configuration conf, AHSyndicateFileSystemBase fs, String dirName,
                 WritableComparator comparator, Class valClass,
                 CompressionType compress, Progressable progress) throws IOException {
             super(conf, fs, dirName, comparator, valClass, compress, progress);
@@ -134,7 +134,7 @@ public class HSyndicateBloomMapFile {
             initBloomFilter(conf);
         }
 
-        public Writer(Configuration conf, ASyndicateFileSystem fs, String dirName,
+        public Writer(Configuration conf, AHSyndicateFileSystemBase fs, String dirName,
                 WritableComparator comparator, Class valClass, CompressionType compress)
                 throws IOException {
             super(conf, fs, dirName, comparator, valClass, compress);
@@ -143,7 +143,7 @@ public class HSyndicateBloomMapFile {
             initBloomFilter(conf);
         }
 
-        public Writer(Configuration conf, ASyndicateFileSystem fs, String dirName,
+        public Writer(Configuration conf, AHSyndicateFileSystemBase fs, String dirName,
                 WritableComparator comparator, Class valClass) throws IOException {
             super(conf, fs, dirName, comparator, valClass);
             this.fs = fs;
@@ -151,7 +151,7 @@ public class HSyndicateBloomMapFile {
             initBloomFilter(conf);
         }
 
-        public Writer(Configuration conf, ASyndicateFileSystem fs, String dirName,
+        public Writer(Configuration conf, AHSyndicateFileSystemBase fs, String dirName,
                 Class<? extends WritableComparable> keyClass,
                 Class valClass) throws IOException {
             super(conf, fs, dirName, keyClass, valClass);
@@ -200,28 +200,28 @@ public class HSyndicateBloomMapFile {
         private DataOutputBuffer buf = new DataOutputBuffer();
         private Key bloomKey = new Key();
 
-        public Reader(ASyndicateFileSystem fs, String dirName, Configuration conf)
+        public Reader(AHSyndicateFileSystemBase fs, String dirName, Configuration conf)
                 throws IOException {
             super(fs, dirName, conf);
             initBloomFilter(fs, dirName, conf);
         }
 
-        public Reader(ASyndicateFileSystem fs, String dirName, WritableComparator comparator,
+        public Reader(AHSyndicateFileSystemBase fs, String dirName, WritableComparator comparator,
                 Configuration conf, boolean open) throws IOException {
             super(fs, dirName, comparator, conf, open);
             initBloomFilter(fs, dirName, conf);
         }
 
-        public Reader(ASyndicateFileSystem fs, String dirName, WritableComparator comparator,
+        public Reader(AHSyndicateFileSystemBase fs, String dirName, WritableComparator comparator,
                 Configuration conf) throws IOException {
             super(fs, dirName, comparator, conf);
             initBloomFilter(fs, dirName, conf);
         }
 
-        private void initBloomFilter(ASyndicateFileSystem fs, String dirName,
+        private void initBloomFilter(AHSyndicateFileSystemBase fs, String dirName,
                 Configuration conf) {
             try {
-                DataInputStream in = new HSyndicateFSDataInputStream(new HSyndicateFSSeekableInputStream(fs.getRandomAccess(new SyndicateFSPath(dirName, BLOOM_FILE_NAME))));
+                DataInputStream in = new HSyndicateFSDataInputStream(new HSyndicateFSSeekableInputStream(fs.getFileInputStream(new SyndicateFSPath(dirName, BLOOM_FILE_NAME))));
                 bloomFilter = new DynamicBloomFilter();
                 bloomFilter.readFields(in);
                 in.close();

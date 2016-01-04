@@ -172,7 +172,7 @@ public class SyndicateFSInputStream extends InputStream {
                     this.cachedBlockData.put(blockID, blockData);
                 }
                 
-                int toCopy = Math.min(totalReadLen - readLen, blockSize);
+                int toCopy = Math.min(readLen - totalReadLen, blockSize);
                 int read = blockData.getData(blockOffset, bytes, totalReadLen, toCopy);
                 if(read <= 0) {
                     // EOF
@@ -211,7 +211,7 @@ public class SyndicateFSInputStream extends InputStream {
                     this.cachedBlockData.put(blockID, blockData);
                 }
                 
-                int toCopy = Math.min(totalReadLen - readLen, blockSize);
+                int toCopy = Math.min(readLen - totalReadLen, blockSize);
                 int read = blockData.getData(blockOffset, bytes, off + totalReadLen, toCopy);
                 if(read <= 0) {
                     // EOF

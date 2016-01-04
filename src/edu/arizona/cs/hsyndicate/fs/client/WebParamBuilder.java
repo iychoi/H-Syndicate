@@ -32,7 +32,7 @@ public class WebParamBuilder {
     }
     
     public void addParam(String key, String value) {
-        this.params.put(key, "\'" + value + "\'");
+        this.params.put(key, value);
     }
     
     public void addParam(String key, int value) {

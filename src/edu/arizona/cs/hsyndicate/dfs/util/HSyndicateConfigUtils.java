@@ -42,7 +42,7 @@ public class HSyndicateConfigUtils {
                 try {
                     autoDetectedDataNodes = DFSNodeInfoUtils.getDataNodesCommaSeparated(conf);
                 } catch (IOException ex) {
-                    LOG.info("failed to read DFS data node info.");
+                    LOG.info("failed to read DFS data node info.", ex);
                     autoDetectedDataNodes = null;
                 }
             }
@@ -53,7 +53,12 @@ public class HSyndicateConfigUtils {
     }
     
     public static String[] listHSyndicateUGHosts(Configuration conf) {
-        return getHSyndicateUGHosts(conf).split(",");
+        String hosts = getHSyndicateUGHosts(conf);
+        if(hosts == null) {
+            return null;
+        } else {
+            return hosts.split(",");
+        }
     }
     
     public static int getHSyndicateUGDefaultPort(Configuration conf) {

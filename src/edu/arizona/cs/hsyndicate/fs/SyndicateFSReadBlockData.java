@@ -19,12 +19,17 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  *
  * @author iychoi
  */
 public class SyndicateFSReadBlockData implements Closeable {
+    
+    private static final Log LOG = LogFactory.getLog(SyndicateFSReadBlockData.class);
+    
     private long offset;
     private InputStream inputStream;
     private int blockSize;

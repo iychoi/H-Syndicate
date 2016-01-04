@@ -132,9 +132,9 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
         FileInfo fi = null;
         Future<ClientResponse> openFuture = null;
         if(readonly) {
-            openFuture = this.client.open(status.getPath().getPath(), "r", 0x700);
+            openFuture = this.client.open(status.getPath().getPath(), "r", 0x666);
         } else {
-            openFuture = this.client.open(status.getPath().getPath(), "w", 0x700);
+            openFuture = this.client.open(status.getPath().getPath(), "w", 0x666);
         }
         
         if(openFuture != null) {
@@ -165,7 +165,7 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
             }
         }
         
-        Future<ClientResponse> openFuture = this.client.open(abspath.getPath(), "w", 0x700);
+        Future<ClientResponse> openFuture = this.client.open(abspath.getPath(), "w", 0x666);
         if(openFuture != null) {
             FileInfo fi = this.client.processOpen(openFuture);
             Future<ClientResponse> closeFuture = this.client.close(abspath.getPath(), fi);

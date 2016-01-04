@@ -223,22 +223,26 @@ public class SyndicateFSFileHandle implements Closeable {
     
     @Override
     public synchronized void close() throws IOException {
-        Future<ClientResponse> closeFuture = this.filesystem.getUGRestClient().close(this.status.getPath().getPath(), this.fileinfo);
-        if(closeFuture != null) {
-            this.filesystem.getUGRestClient().processClose(closeFuture);
-        } else {
-            LOG.error("failed to close file - " + this.status.getPath().getPath());
-            throw new IOException("failed to close file - " + this.status.getPath().getPath());
-        }
-        
-        this.closed = true;
-        
-        if(!this.readonly) {
-            if(this.modified) {
-                this.status.setDirty();
+        if(!this.closed) {
+            Future<ClientResponse> closeFuture = this.filesystem.getUGRestClient().close(this.status.getPath().getPath(), this.fileinfo);
+            if(closeFuture != null) {
+                this.filesystem.getUGRestClient().processClose(closeFuture);
+            } else {
+                LOG.error("failed to close file - " + this.status.getPath().getPath());
+                throw new IOException("failed to close file - " + this.status.getPath().getPath());
+            }
+
+            this.closed = true;
+
+            if(!this.readonly) {
+                if(this.modified) {
+                    this.status.setDirty();
+                }
+            }
+
+            if(this.cachedBlocks != null) {
+                this.cachedBlocks.clear();
             }
         }
-        
-        this.cachedBlocks.clear();
     }
 }

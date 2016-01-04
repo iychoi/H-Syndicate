@@ -41,12 +41,19 @@ public class HSyndicateFileSystem extends FileSystem {
 
     @Override
     public synchronized void initialize(URI uri, Configuration conf) throws IOException {
+        if(uri == null) {
+            throw new IllegalArgumentException("uri is null");
+        }
+        
         super.initialize(uri, conf);
+        
         if (this.syndicateFS == null) {
             this.syndicateFS = createHSyndicateFS(conf);
         }
+        
         setConf(conf);
-        this.uri = URI.create(uri.getScheme() + "://" + uri.getAuthority());
+        
+        this.uri = uri;
         this.workingDir = new Path("/").makeQualified(this);
     }
     

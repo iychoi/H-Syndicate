@@ -100,7 +100,7 @@ public class RestfulClient {
         // wait for completion
         try {
             ClientResponse response = future.get();
-            if(response.getStatus() != 200) {
+            if(response.getStatus() < 200 && response.getStatus() > 299) {
                 throw new IOException("HTTP error code : " + response.getStatus());
             }
             
@@ -144,7 +144,7 @@ public class RestfulClient {
         // wait for completion
         try {
             ClientResponse response = future.get();
-            if(response.getStatus() == 200) {
+            if(response.getStatus() >= 200 && response.getStatus() <= 299) {
                 return response.getEntity(generic);
             } else if(response.getStatus() == 404) {
                 throw new FileNotFoundException(response.toString());
@@ -186,7 +186,7 @@ public class RestfulClient {
         // wait for completion
         try {
             ClientResponse response = future.get();
-            if(response.getStatus() == 200) {
+            if(response.getStatus() >= 200 && response.getStatus() <= 299) {
                 if(generic == null) {
                     return true;
                 } else {
@@ -228,7 +228,7 @@ public class RestfulClient {
         // wait for completition
         try {
             ClientResponse response = future.get();
-            if(response.getStatus() == 200) {
+            if(response.getStatus() >= 200 && response.getStatus() <= 299) {
                 return response.getEntityInputStream();
             } else if(response.getStatus() == 404) {
                 throw new FileNotFoundException(response.toString());

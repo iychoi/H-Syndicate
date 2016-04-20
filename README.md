@@ -1,10 +1,11 @@
 H-Syndicate
 ===========
 
-H-Syndicate provides a Hadoop file system interface for [Syndicate distributed file system](https://github.com/jcnelson/syndicate).
+H-Syndicate allows accesses to Syndicate Volumes via filesystem-like interfaces. There are two filesystem interfaces provided:
+- hsyndicate.fs.SyndicateFileSystem: General filesystem interface in Java
+- hsyndicate.hadoop.dfs.HSyndicateDFS: Implementation of Hadoop filesystem interface.
 
-Syndicate, a CDN-backed Distributed Filesystem, provides decentralized, scalable, fast, flexible and secure storage.
-See the [Syndicate](https://github.com/jcnelson/syndicate) project for details.
+The H-Syndicate requires [Syndicate-UG HTTP/REST services](https://github.com/syndicate-storage/syndicate-ug-http) running. 
 
 Building
 --------

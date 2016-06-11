@@ -312,19 +312,24 @@ public class HSyndicateDFS extends FileSystem {
     
     private static class HSyndicateFileStatus extends FileStatus {
 
-        HSyndicateFileStatus(Path f, AHSyndicateFileSystemBase fs, SyndicateFSPath hpath) throws IOException {
-            super(findLength(fs, hpath), fs.isDirectory(hpath), 1, findBlocksize(fs), 0, f);
+        HSyndicateFileStatus(Path p, SyndicateFileSystem fs, SyndicateFSPath hpath) throws IOException {
+            super(getFileLength(fs, hpath), 
+                    fs.isDirectory(hpath), 
+                    fs.getReplication(hpath), 
+                    fs.getBlockSize(), 
+                    fs.getLastModifiedTime(hpath), 
+                    fs.getLastAccessTime(hpath), 
+                    fs.getPermission(hpath), 
+                    fs.getOwner(hpath), 
+                    fs.getGroup(hpath), 
+                    p);
         }
 
-        private static long findLength(AHSyndicateFileSystemBase fs, SyndicateFSPath hpath) {
+        private static long getFileLength(SyndicateFileSystem fs, SyndicateFSPath hpath) {
             if (!fs.isDirectory(hpath)) {
                 return fs.getSize(hpath);
             }
             return 0;
-        }
-
-        private static long findBlocksize(AHSyndicateFileSystemBase fs) {
-            return fs.getBlockSize();
         }
     }
     

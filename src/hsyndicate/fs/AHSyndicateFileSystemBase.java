@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.hadoop.fs.permission.FsPermission;
 
 public abstract class AHSyndicateFileSystemBase implements Closeable {
     
@@ -149,6 +150,18 @@ public abstract class AHSyndicateFileSystemBase implements Closeable {
     public abstract boolean isFile(SyndicateFSPath path);
     
     public abstract long getSize(SyndicateFSPath path);
+    
+    public abstract long getLastModifiedTime(SyndicateFSPath path);
+    
+    public abstract long getLastAccessTime(SyndicateFSPath path);
+    
+    public abstract FsPermission getPermission(SyndicateFSPath path);
+    
+    public abstract String getOwner(SyndicateFSPath path);
+    
+    public abstract String getGroup(SyndicateFSPath path);
+    
+    public abstract int getReplication(SyndicateFSPath path);
     
     public abstract long getBlockSize();
     

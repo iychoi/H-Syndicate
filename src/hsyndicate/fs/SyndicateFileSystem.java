@@ -37,6 +37,8 @@ import java.util.concurrent.Future;
 import org.apache.commons.collections4.map.PassiveExpiringMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.hadoop.fs.permission.FsAction;
+import org.apache.hadoop.fs.permission.FsPermission;
 
 public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
 
@@ -269,6 +271,124 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
             return status.getSize();
         }
         return 0;
+    }
+    
+    @Override
+    public synchronized long getLastModifiedTime(SyndicateFSPath path) {
+        if(path == null) {
+            LOG.error("path is null");
+            throw new IllegalArgumentException("path is null");
+        }
+        
+        SyndicateFSPath absPath = getAbsolutePath(path);
+        SyndicateFSFileStatus status = null;
+        try {
+            status = getFileStatus(absPath);
+        } catch (IOException ex) {
+            LOG.error(ex);
+        }
+        
+        if(status != null) {
+            return status.getLastModification();
+        }
+        return 0;
+    }
+    
+    @Override
+    public synchronized long getLastAccessTime(SyndicateFSPath path) {
+        if(path == null) {
+            LOG.error("path is null");
+            throw new IllegalArgumentException("path is null");
+        }
+        
+        SyndicateFSPath absPath = getAbsolutePath(path);
+        SyndicateFSFileStatus status = null;
+        try {
+            status = getFileStatus(absPath);
+        } catch (IOException ex) {
+            LOG.error(ex);
+        }
+        
+        if(status != null) {
+            return status.getLastAccess();
+        }
+        return 0;
+    }
+    
+    @Override
+    public synchronized FsPermission getPermission(SyndicateFSPath path) {
+        if(path == null) {
+            LOG.error("path is null");
+            throw new IllegalArgumentException("path is null");
+        }
+        
+        SyndicateFSPath absPath = getAbsolutePath(path);
+        SyndicateFSFileStatus status = null;
+        try {
+            status = getFileStatus(absPath);
+        } catch (IOException ex) {
+            LOG.error(ex);
+        }
+        
+        // TODO: status does not provide permission info yet
+        if(status != null) {
+            return new FsPermission(FsAction.READ_WRITE, FsAction.READ_WRITE, FsAction.READ_WRITE);
+        }
+        return new FsPermission(FsAction.NONE, FsAction.NONE, FsAction.NONE);
+    }
+    
+    @Override
+    public synchronized String getOwner(SyndicateFSPath path) {
+        if(path == null) {
+            LOG.error("path is null");
+            throw new IllegalArgumentException("path is null");
+        }
+        
+        SyndicateFSPath absPath = getAbsolutePath(path);
+        SyndicateFSFileStatus status = null;
+        try {
+            status = getFileStatus(absPath);
+        } catch (IOException ex) {
+            LOG.error(ex);
+        }
+        
+        // TODO: status does not provide owner info yet
+        if(status != null) {
+            return "syndicate";
+        }
+        return "syndicate";
+    }
+    
+    @Override
+    public synchronized String getGroup(SyndicateFSPath path) {
+        if(path == null) {
+            LOG.error("path is null");
+            throw new IllegalArgumentException("path is null");
+        }
+        
+        SyndicateFSPath absPath = getAbsolutePath(path);
+        SyndicateFSFileStatus status = null;
+        try {
+            status = getFileStatus(absPath);
+        } catch (IOException ex) {
+            LOG.error(ex);
+        }
+        
+        // TODO: status does not provide permission info yet
+        if(status != null) {
+            return "syndicate";
+        }
+        return "syndicate";
+    }
+    
+    @Override
+    public synchronized int getReplication(SyndicateFSPath path) {
+        if(path == null) {
+            LOG.error("path is null");
+            throw new IllegalArgumentException("path is null");
+        }
+        
+        return 1;
     }
     
     @Override

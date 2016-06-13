@@ -15,7 +15,7 @@
 */
 package hsyndicate.rest.common;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -25,7 +25,7 @@ import java.util.Set;
  */
 public class WebParamBuilder {
     private String resourceURL;
-    private Map<String, String> params = new HashMap<String, String>();
+    private Map<String, String> params = new LinkedHashMap<String, String>();
     
     public WebParamBuilder(String contentURL) {
         this.resourceURL = contentURL;

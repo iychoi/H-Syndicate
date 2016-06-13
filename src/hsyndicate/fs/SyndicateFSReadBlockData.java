@@ -86,7 +86,7 @@ public class SyndicateFSReadBlockData implements Closeable {
         ensureLoadData(offset + length);
         
         int toCopy = Math.min(this.bufferredSize - offset, length);
-        System.arraycopy(this.bufferredData, offset, buffer, 0, Math.min(this.bufferredSize - offset, length));
+        System.arraycopy(this.bufferredData, offset, buffer, 0, toCopy);
         return toCopy;
     }
     
@@ -98,7 +98,7 @@ public class SyndicateFSReadBlockData implements Closeable {
         ensureLoadData(offset + length);
         
         int toCopy = Math.min(this.bufferredSize - offset, length);
-        System.arraycopy(this.bufferredData, offset, buffer, bufferStartOffset, Math.min(this.bufferredSize - offset, length));
+        System.arraycopy(this.bufferredData, offset, buffer, bufferStartOffset, toCopy);
         return toCopy;
     }
     

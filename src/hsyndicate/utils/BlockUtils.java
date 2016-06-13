@@ -31,9 +31,6 @@ public class BlockUtils {
     
     public static int getBlockID(long offset, long blocksize) {
         int blockid = (int) (offset / blocksize);
-        if(offset != 0 && offset % blocksize == 0) {
-            blockid++;
-        }
         return blockid;
     }
     

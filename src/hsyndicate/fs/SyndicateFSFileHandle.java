@@ -73,7 +73,7 @@ public class SyndicateFSFileHandle implements Closeable {
                         try {
                             this.client.processExtendTtl(extendTtlFuture);
                         } catch (Exception ex) {
-                            LOG.error(ex);
+                            LOG.error("exception occurred", ex);
                             throw new IOException(ex);
                         }
                     } else {
@@ -83,7 +83,7 @@ public class SyndicateFSFileHandle implements Closeable {
             } catch (InterruptedException ex) {
                 // silient ignore
             } catch (Exception ex) {
-                LOG.error(ex);
+                LOG.error("exception occurred", ex);
             }
         }
     }
@@ -154,7 +154,7 @@ public class SyndicateFSFileHandle implements Closeable {
             try {
                 readIS = client.processRead(readFuture);
             } catch (Exception ex) {
-                LOG.error(ex);
+                LOG.error("exception occurred", ex);
                 throw new IOException(ex);
             }
             
@@ -191,7 +191,7 @@ public class SyndicateFSFileHandle implements Closeable {
             try {
                 client.processWrite(writeFuture);
             } catch (Exception ex) {
-                LOG.error(ex);
+                LOG.error("exception occurred", ex);
                 throw new IOException(ex);
             }
         } else {
@@ -229,7 +229,7 @@ public class SyndicateFSFileHandle implements Closeable {
                 try {
                     this.filesystem.getUGRestClient().processClose(closeFuture);
                 } catch (Exception ex) {
-                    LOG.error(ex);
+                    LOG.error("exception occurred", ex);
                     throw new IOException(ex);
                 }
             } else {

@@ -107,7 +107,7 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
             // silent
             return null;
         } catch (Exception ex) {
-            LOG.error(ex);
+            LOG.error("exception occurred", ex);
             throw new IOException(ex);
         }
         
@@ -142,7 +142,7 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
                 fi = this.client.processOpen(openFuture);
                 return new SyndicateFSFileHandle(this, status, fi, readonly);
             } catch (Exception ex) {
-                LOG.error(ex);
+                LOG.error("exception occurred", ex);
                 throw new IOException(ex);
             }
         } else {
@@ -182,7 +182,7 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
                     throw new IOException("Can not create a REST client");
                 }
             } catch (Exception ex) {
-                LOG.error(ex);
+                LOG.error("exception occurred", ex);
                 throw new IOException(ex);
             }
         } else {
@@ -205,7 +205,7 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
         try {
             status = getFileStatus(absPath);
         } catch (IOException ex) {
-            LOG.error(ex);
+            LOG.error("exception occurred", ex);
         }
         
         if(status != null) {
@@ -226,7 +226,7 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
         try {
             status = getFileStatus(absPath);
         } catch (IOException ex) {
-            LOG.error(ex);
+            LOG.error("exception occurred", ex);
         }
         
         if(status != null) {
@@ -247,7 +247,7 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
         try {
             status = getFileStatus(absPath);
         } catch (IOException ex) {
-            LOG.error(ex);
+            LOG.error("exception occurred", ex);
         }
         
         if(status != null) {
@@ -268,7 +268,7 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
         try {
             status = getFileStatus(absPath);
         } catch (IOException ex) {
-            LOG.error(ex);
+            LOG.error("exception occurred", ex);
         }
         
         if(status != null) {
@@ -289,7 +289,7 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
         try {
             status = getFileStatus(absPath);
         } catch (IOException ex) {
-            LOG.error(ex);
+            LOG.error("exception occurred", ex);
         }
         
         if(status != null) {
@@ -310,7 +310,7 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
         try {
             status = getFileStatus(absPath);
         } catch (IOException ex) {
-            LOG.error(ex);
+            LOG.error("exception occurred", ex);
         }
         
         if(status != null) {
@@ -331,7 +331,7 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
         try {
             status = getFileStatus(absPath);
         } catch (IOException ex) {
-            LOG.error(ex);
+            LOG.error("exception occurred", ex);
         }
         
         // TODO: status does not provide permission info yet
@@ -353,7 +353,7 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
         try {
             status = getFileStatus(absPath);
         } catch (IOException ex) {
-            LOG.error(ex);
+            LOG.error("exception occurred", ex);
         }
         
         // TODO: status does not provide owner info yet
@@ -375,7 +375,7 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
         try {
             status = getFileStatus(absPath);
         } catch (IOException ex) {
-            LOG.error(ex);
+            LOG.error("exception occurred", ex);
         }
         
         // TODO: status does not provide permission info yet
@@ -412,7 +412,7 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
                 LOG.error("Can not create a REST client");
             }
         } catch (Exception ex) {
-            LOG.error(ex);
+            LOG.error("exception occurred", ex);
             this.fsBlockSize = 0;
         }
         
@@ -440,7 +440,7 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
                 XattrKeyList processListXattr = this.client.processListXattr(listXattrFuture);
                 return processListXattr.getKeys().toArray(new String[0]);
             } catch (Exception ex) {
-                LOG.error(ex);
+                LOG.error("exception occurred", ex);
                 throw new IOException(ex);
             }
         } else {
@@ -468,7 +468,7 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
                 Xattr processGetXattr = this.client.processGetXattr(getXattrFuture);
                 return processGetXattr.getValue();
             } catch (Exception ex) {
-                LOG.error(ex);
+                LOG.error("exception occurred", ex);
                 throw new IOException(ex);
             }
         } else {
@@ -496,7 +496,7 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
                 try {
                     this.client.processUnlink(unlinkFuture);
                 } catch (RestfulException ex) {
-                    LOG.error(ex);
+                    LOG.error("exception occurred", ex);
                     throw new IOException(ex);
                 }
             } else {
@@ -508,7 +508,7 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
                 try {
                     this.client.processRemoveDir(removeDirFuture);
                 } catch (RestfulException ex) {
-                    LOG.error(ex);
+                    LOG.error("exception occurred", ex);
                     throw new IOException(ex);
                 }
             } else {
@@ -561,7 +561,7 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
             try {
                 this.client.processRename(renameFuture);
             } catch (Exception ex) {
-                LOG.error(ex);
+                LOG.error("exception occurred", ex);
                 throw new IOException(ex);
             }
         } else {
@@ -590,7 +590,7 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
             try {
                 this.client.processMakeDir(makeDirFuture);
             } catch (Exception ex) {
-                LOG.error(ex);
+                LOG.error("exception occurred", ex);
                 throw new IOException(ex);
             }
         } else {
@@ -716,7 +716,7 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
                     this.filestatusCache.put(entryPath, entryStatus);
                 }
             } catch (Exception ex) {
-                LOG.error(ex);
+                LOG.error("exception occurred", ex);
                 throw new IOException(ex);
             }
         } else {
@@ -827,7 +827,7 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
             try {
                 is.close();
             } catch (IOException ex) {
-                LOG.error(ex);
+                LOG.error("exception occurred", ex);
             }
         }
         
@@ -835,7 +835,7 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
             try {
                 os.close();
             } catch (IOException ex) {
-                LOG.error(ex);
+                LOG.error("exception occurred", ex);
             }
         }
         

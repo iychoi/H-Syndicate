@@ -92,7 +92,7 @@ public class SyndicateUGHttpClient implements Closeable {
             URI serviceURI = new URI("http://" + host + ":" + port);
             initialize(serviceURI);
         } catch (URISyntaxException ex) {
-            LOG.error(ex);
+            LOG.error("exception occurred", ex);
             throw new InstantiationException(ex.getMessage());
         }
     }

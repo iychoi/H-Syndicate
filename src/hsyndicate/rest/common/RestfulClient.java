@@ -79,9 +79,10 @@ public class RestfulClient {
             throw new IllegalArgumentException("path is null or empty");
         }
         
-        if(request == null) {
-            throw new IllegalArgumentException("request is null");
-        }
+        // request can be null
+        //if(request == null) {
+        //    throw new IllegalArgumentException("request is null");
+        //}
         
         URI requestURL = this.serviceURL.resolve(path);
         

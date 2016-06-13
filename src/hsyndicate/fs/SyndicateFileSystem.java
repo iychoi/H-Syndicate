@@ -127,6 +127,8 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
             throw new IllegalArgumentException("Can not get FileHandle from dirty status");
         }
         
+        LOG.info("opening a file - " + status.getPath().getPath());
+        
         FileDescriptor fi = null;
         Future<ClientResponse> openFuture = null;
         if(readonly) {
@@ -166,6 +168,8 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
                 throw new IOException("Parent directory does not exist");
             }
         }
+        
+        LOG.info("creating a file - " + abspath.getPath());
         
         Future<ClientResponse> openFuture = this.client.open(abspath.getPath(), "w");
         if(openFuture != null) {

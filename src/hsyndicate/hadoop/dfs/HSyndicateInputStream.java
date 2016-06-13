@@ -117,7 +117,7 @@ public class HSyndicateInputStream extends FSInputStream implements Seekable, Po
             throw new IOException("Cannot find position : " + pos);
         }
         
-        super.read(bytes, off, len);
+        this.in.read(bytes, off, len);
     }
 
     @Override
@@ -128,7 +128,7 @@ public class HSyndicateInputStream extends FSInputStream implements Seekable, Po
             throw new IOException("Cannot find position : " + pos);
         }
         
-        super.read(bytes, 0, bytes.length);
+        this.in.read(bytes, 0, bytes.length);
     }
     
     @Override

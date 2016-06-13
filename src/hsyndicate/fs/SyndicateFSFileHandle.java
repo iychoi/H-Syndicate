@@ -66,6 +66,8 @@ public class SyndicateFSFileHandle implements Closeable {
             // notify that the handle is still in use periodically
             try {
                 while(true) {
+                    Thread.sleep(NOTIFY_PERIOD);
+                    
                     Future<ClientResponse> extendTtlFuture = this.client.extendTtl(this.path.getPath(), this.fd);
                     if (extendTtlFuture != null) {
                         try {
@@ -77,9 +79,9 @@ public class SyndicateFSFileHandle implements Closeable {
                     } else {
                         throw new IOException("Can not create a REST client");
                     }
-                    
-                    Thread.sleep(NOTIFY_PERIOD);
                 }
+            } catch (InterruptedException ex) {
+                // silient ignore
             } catch (Exception ex) {
                 LOG.error(ex);
             }
@@ -111,7 +113,8 @@ public class SyndicateFSFileHandle implements Closeable {
         }
         
         this.keepaliveThread = new Thread(new KeepaliveWorker(this.filesystem.getUGRestClient(), this.status.getPath(), this.fileDescriptor));
-        this.keepaliveThread.run();
+        this.keepaliveThread.start();
+        LOG.info("file opened - " + this.status.getPath().getPath());
     }
     
     public synchronized SyndicateFileSystem getFileSystem() {
@@ -167,6 +170,7 @@ public class SyndicateFSFileHandle implements Closeable {
     }
     
     public synchronized SyndicateFSReadBlockData readFileDataBlock(int blockID) throws IOException {
+        LOG.info("reading a block " + blockID);
         InputStream is = readFileDataBlockInputStream(blockID);
         
         return new SyndicateFSReadBlockData(BlockUtils.getBlockStartOffset(blockID, this.blockSize), is, (int) this.blockSize);
@@ -202,6 +206,7 @@ public class SyndicateFSFileHandle implements Closeable {
     }
     
     public synchronized void writeFileDataBlockByteArray(int blockID, byte[] buffer, int size) throws IOException {
+        LOG.info("writing a block " + blockID);
         InputStream is = new ByteArrayInputStream(buffer, 0, size);
         writeFileDataBlockInputStream(blockID, is, size);
         IOUtils.closeQuietly(is);
@@ -218,6 +223,7 @@ public class SyndicateFSFileHandle implements Closeable {
     @Override
     public synchronized void close() throws IOException {
         if(!this.closed) {
+            LOG.info("closing a file");
             Future<ClientResponse> closeFuture = this.filesystem.getUGRestClient().close(this.status.getPath().getPath(), this.fileDescriptor);
             if(closeFuture != null) {
                 try {

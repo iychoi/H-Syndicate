@@ -15,6 +15,7 @@
 */
 package hsyndicate.fs;
 
+import com.google.common.primitives.UnsignedLong;
 import com.sun.jersey.api.client.ClientResponse;
 import hsyndicate.rest.client.SyndicateUGHttpClient;
 import hsyndicate.rest.common.RestfulException;

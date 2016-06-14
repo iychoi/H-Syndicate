@@ -15,6 +15,7 @@
 */
 package hsyndicate.rest.datatypes;
 
+import com.google.common.primitives.UnsignedLong;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
 
@@ -25,7 +26,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
 public class StatRaw {
     private int type;
     private String name;
-    private long file_id;
+    private UnsignedLong file_id;
     private long ctime_sec;
     private int ctime_nsec;
     private long mtime_sec;
@@ -37,9 +38,9 @@ public class StatRaw {
     private long version;
     private int max_read_freshness;
     private int max_write_freshness;
-    private long owner;
-    private long coordinator;
-    private long volume;
+    private UnsignedLong owner;
+    private UnsignedLong coordinator;
+    private UnsignedLong volume;
     private int mode;
     private long size;
     private int error;
@@ -48,7 +49,7 @@ public class StatRaw {
     private long capacity;
     private String ent_sig;
     private long ent_sig_len;
-    private long parent_id;
+    private UnsignedLong parent_id;
     private String xattr_hash;
 
     public StatRaw() {
@@ -86,12 +87,12 @@ public class StatRaw {
     }
 
     @JsonProperty("file_id")
-    public long getFile_id() {
+    public UnsignedLong getFile_id() {
         return file_id;
     }
 
     @JsonProperty("file_id")
-    public void setFile_id(long file_id) {
+    public void setFile_id(UnsignedLong file_id) {
         this.file_id = file_id;
     }
 
@@ -216,32 +217,32 @@ public class StatRaw {
     }
 
     @JsonProperty("owner")
-    public long getOwner() {
+    public UnsignedLong getOwner() {
         return owner;
     }
 
     @JsonProperty("owner")
-    public void setOwner(long owner) {
+    public void setOwner(UnsignedLong owner) {
         this.owner = owner;
     }
 
     @JsonProperty("coordinator")
-    public long getCoordinator() {
+    public UnsignedLong getCoordinator() {
         return coordinator;
     }
 
     @JsonProperty("coordinator")
-    public void setCoordinator(long coordinator) {
+    public void setCoordinator(UnsignedLong coordinator) {
         this.coordinator = coordinator;
     }
 
     @JsonProperty("volume")
-    public long getVolume() {
+    public UnsignedLong getVolume() {
         return volume;
     }
 
     @JsonProperty("volume")
-    public void setVolume(long volume) {
+    public void setVolume(UnsignedLong volume) {
         this.volume = volume;
     }
 
@@ -326,12 +327,12 @@ public class StatRaw {
     }
 
     @JsonProperty("parent_id")
-    public long getParent_id() {
+    public UnsignedLong getParent_id() {
         return parent_id;
     }
 
     @JsonProperty("parent_id")
-    public void setParent_id(long parent_id) {
+    public void setParent_id(UnsignedLong parent_id) {
         this.parent_id = parent_id;
     }
 

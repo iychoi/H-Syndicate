@@ -130,7 +130,7 @@ public class SyndicateFSInputStream extends InputStream {
             int blockID = BlockUtils.getBlockID(this.offset, blockSize);
             int blockOffset = (int) (this.offset - BlockUtils.getBlockStartOffset(blockID, blockSize));
 
-            LOG.info("read - offset(" + this.offset + "), blockId(" + blockID + "), blockOffset(" + blockOffset + ")");
+            //LOG.info("read - offset(" + this.offset + "), blockId(" + blockID + "), blockOffset(" + blockOffset + ")");
             SyndicateFSReadBlockData blockData = this.cachedBlockData.get(blockID);
             if(blockData == null) {
                 blockData = this.handle.readFileDataBlock(blockID);
@@ -167,7 +167,7 @@ public class SyndicateFSInputStream extends InputStream {
                 int blockID = BlockUtils.getBlockID(this.offset, blockSize);
                 int blockOffset = (int) (this.offset - BlockUtils.getBlockStartOffset(blockID, blockSize));
             
-                LOG.info("read - offset(" + this.offset + "), blockId(" + blockID + "), blockOffset(" + blockOffset + ")");
+                //LOG.info("read - offset(" + this.offset + "), blockId(" + blockID + "), blockOffset(" + blockOffset + ")");
                 SyndicateFSReadBlockData blockData = this.cachedBlockData.get(blockID);
                 if(blockData == null) {
                     blockData = this.handle.readFileDataBlock(blockID);
@@ -207,7 +207,7 @@ public class SyndicateFSInputStream extends InputStream {
                 int blockID = BlockUtils.getBlockID(this.offset, blockSize);
                 int blockOffset = (int) (this.offset - BlockUtils.getBlockStartOffset(blockID, blockSize));
             
-                LOG.info("read - offset(" + this.offset + "), blockId(" + blockID + "), blockOffset(" + blockOffset + ")");
+                //LOG.info("read - offset(" + this.offset + "), blockId(" + blockID + "), blockOffset(" + blockOffset + ")");
                 SyndicateFSReadBlockData blockData = this.cachedBlockData.get(blockID);
                 if(blockData == null) {
                     blockData = this.handle.readFileDataBlock(blockID);

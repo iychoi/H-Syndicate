@@ -40,6 +40,14 @@ public class SyndicateUGHttpClient implements Closeable {
     
     private static final Log LOG = LogFactory.getLog(SyndicateUGHttpClient.class);
     
+    public static enum API_CALL {
+        API_SYNC, 
+        API_ASYNC
+    };
+    
+    private static final API_CALL API_CALL_DEFAULT = API_CALL.API_ASYNC;
+    private static final String ASYNC_API_SUFFIX = "_async";
+    
     private static final String GET_STATVFS = "statvfs";
     private static final String GET_STAT = "stat";
     private static final String GET_XATTR = "getxattr";
@@ -78,6 +86,7 @@ public class SyndicateUGHttpClient implements Closeable {
     
     private URI serviceURI;
     private RestfulClient client;
+    private API_CALL api_call;
     
     public SyndicateUGHttpClient(String host, int port) throws InstantiationException {
         if(host == null) {
@@ -90,14 +99,32 @@ public class SyndicateUGHttpClient implements Closeable {
         
         try {
             URI serviceURI = new URI("http://" + host + ":" + port);
-            initialize(serviceURI);
+            initialize(serviceURI, API_CALL_DEFAULT);
         } catch (URISyntaxException ex) {
             LOG.error("exception occurred", ex);
             throw new InstantiationException(ex.getMessage());
         }
     }
     
-    private void initialize(URI serviceURI) {
+    public SyndicateUGHttpClient(String host, int port, API_CALL api_call) throws InstantiationException {
+        if(host == null) {
+            throw new IllegalArgumentException("host is null");
+        }
+        
+        if(port <= 0) {
+            throw new IllegalArgumentException("port is illegal");
+        }
+        
+        try {
+            URI serviceURI = new URI("http://" + host + ":" + port);
+            initialize(serviceURI, api_call);
+        } catch (URISyntaxException ex) {
+            LOG.error("exception occurred", ex);
+            throw new InstantiationException(ex.getMessage());
+        }
+    }
+    
+    private void initialize(URI serviceURI, API_CALL api_call) {
         if(serviceURI == null) {
             throw new IllegalArgumentException("serviceURI is null");
         }
@@ -106,6 +133,7 @@ public class SyndicateUGHttpClient implements Closeable {
         
         this.serviceURI = serviceURI;
         this.client = new RestfulClient(serviceURI, DEFAULT_THREAD_POOL_SIZE);
+        this.api_call = api_call;
     }
 
     public URI getServiceURI() {
@@ -125,9 +153,20 @@ public class SyndicateUGHttpClient implements Closeable {
         this.client.close();
     }
     
+    private String getAPI(String api) throws IOException {
+        switch(this.api_call) {
+            case API_SYNC:
+                return api;
+            case API_ASYNC:
+                return api + ASYNC_API_SUFFIX;
+            default:
+                throw new IOException("unknown api_call mode : " + this.api_call.toString());
+        }
+    }
+    
     public Future<ClientResponse> getStatvfs() throws IOException {
         WebParamBuilder builder = new WebParamBuilder("/");
-        builder.addParam(GET_STATVFS, null);
+        builder.addParam(getAPI(GET_STATVFS), null);
         return this.client.getAsync(builder.build());
     }
     
@@ -137,7 +176,7 @@ public class SyndicateUGHttpClient implements Closeable {
 
     public Future<ClientResponse> getStat(String path) throws IOException {
         WebParamBuilder builder = new WebParamBuilder(path);
-        builder.addParam(GET_STAT, null);
+        builder.addParam(getAPI(GET_STAT), null);
         return this.client.getAsync(builder.build());
     }
     
@@ -147,7 +186,7 @@ public class SyndicateUGHttpClient implements Closeable {
     
     public Future<ClientResponse> getXattr(String path, String key) throws IOException {
         WebParamBuilder builder = new WebParamBuilder(path);
-        builder.addParam(GET_XATTR, null);
+        builder.addParam(getAPI(GET_XATTR), null);
         builder.addParam(GET_XATTR_KEY, key);
         return this.client.getAsync(builder.build());
     }
@@ -158,7 +197,7 @@ public class SyndicateUGHttpClient implements Closeable {
     
     public Future<ClientResponse> listXattr(String path) throws IOException {
         WebParamBuilder builder = new WebParamBuilder(path);
-        builder.addParam(LIST_XATTR, null);
+        builder.addParam(getAPI(LIST_XATTR), null);
         return this.client.getAsync(builder.build());
     }
     
@@ -168,7 +207,7 @@ public class SyndicateUGHttpClient implements Closeable {
     
     public Future<ClientResponse> listDir(String path) throws IOException {
         WebParamBuilder builder = new WebParamBuilder(path);
-        builder.addParam(LIST_DIR, null);
+        builder.addParam(getAPI(LIST_DIR), null);
         return this.client.getAsync(builder.build());
     }
     
@@ -178,7 +217,7 @@ public class SyndicateUGHttpClient implements Closeable {
     
     public Future<ClientResponse> open(String path, String flag) throws IOException {
         WebParamBuilder builder = new WebParamBuilder(path);
-        builder.addParam(OPEN, null);
+        builder.addParam(getAPI(OPEN), null);
         builder.addParam(OPEN_FLAG, flag);
         return this.client.getAsync(builder.build());
     }
@@ -189,7 +228,7 @@ public class SyndicateUGHttpClient implements Closeable {
     
     public Future<ClientResponse> read(String path, FileDescriptor fi, long offset, int len) throws IOException {
         WebParamBuilder builder = new WebParamBuilder(path);
-        builder.addParam(READ, null);
+        builder.addParam(getAPI(READ), null);
         builder.addParam(READ_FD, fi.getFd());
         builder.addParam(READ_OFFSET, offset);
         builder.addParam(READ_LENGTH, len);
@@ -202,7 +241,7 @@ public class SyndicateUGHttpClient implements Closeable {
     
     public Future<ClientResponse> makeDir(String path, int mode) throws IOException {
         WebParamBuilder builder = new WebParamBuilder(path);
-        builder.addParam(MAKE_DIR, null);
+        builder.addParam(getAPI(MAKE_DIR), null);
         builder.addParam(MAKE_DIR_MODE, mode);
         return this.client.postAsync(builder.build(), null);
     }
@@ -213,7 +252,7 @@ public class SyndicateUGHttpClient implements Closeable {
     
     public Future<ClientResponse> setXattr(String path, String key, String value) throws IOException {
         WebParamBuilder builder = new WebParamBuilder(path);
-        builder.addParam(SET_XATTR, null);
+        builder.addParam(getAPI(SET_XATTR), null);
         builder.addParam(SET_XATTR_KEY, key);
         builder.addParam(SET_XATTR_VALUE, value);
         return this.client.postAsync(builder.build(), null);
@@ -225,7 +264,7 @@ public class SyndicateUGHttpClient implements Closeable {
     
     public Future<ClientResponse> write(String path, FileDescriptor fi, long offset, int len, InputStream is) throws IOException {
         WebParamBuilder builder = new WebParamBuilder(path);
-        builder.addParam(WRITE, null);
+        builder.addParam(getAPI(WRITE), null);
         builder.addParam(WRITE_FD, fi.getFd());
         builder.addParam(WRITE_OFFSET, offset);
         builder.addParam(WRITE_LENGTH, len);
@@ -238,7 +277,7 @@ public class SyndicateUGHttpClient implements Closeable {
     
     public Future<ClientResponse> extendTtl(String path, FileDescriptor fi) throws IOException {
         WebParamBuilder builder = new WebParamBuilder(path);
-        builder.addParam(EXTEND_TTL, null);
+        builder.addParam(getAPI(EXTEND_TTL), null);
         builder.addParam(EXTEND_TTL_FD, fi.getFd());
         return this.client.postAsync(builder.build(), null);
     }
@@ -249,7 +288,7 @@ public class SyndicateUGHttpClient implements Closeable {
     
     public Future<ClientResponse> updateTimes(String path, long time) throws IOException {
         WebParamBuilder builder = new WebParamBuilder(path);
-        builder.addParam(UPDATE_TIMES, null);
+        builder.addParam(getAPI(UPDATE_TIMES), null);
         builder.addParam(UPDATE_TIMES_TIME, time);
         return this.client.postAsync(builder.build(), null);
     }
@@ -260,7 +299,7 @@ public class SyndicateUGHttpClient implements Closeable {
     
     public Future<ClientResponse> rename(String path, String toPath) throws IOException {
         WebParamBuilder builder = new WebParamBuilder(path);
-        builder.addParam(RENAME, null);
+        builder.addParam(getAPI(RENAME), null);
         builder.addParam(RENAME_TO, toPath);
         return this.client.postAsync(builder.build(), null);
     }
@@ -271,7 +310,7 @@ public class SyndicateUGHttpClient implements Closeable {
     
     public Future<ClientResponse> removeDir(String path) throws IOException {
         WebParamBuilder builder = new WebParamBuilder(path);
-        builder.addParam(REMOVE_DIR, null);
+        builder.addParam(getAPI(REMOVE_DIR), null);
         return this.client.deleteAsync(builder.build());
     }
     
@@ -281,7 +320,7 @@ public class SyndicateUGHttpClient implements Closeable {
     
     public Future<ClientResponse> unlink(String path) throws IOException {
         WebParamBuilder builder = new WebParamBuilder(path);
-        builder.addParam(UNLINK, null);
+        builder.addParam(getAPI(UNLINK), null);
         return this.client.deleteAsync(builder.build());
     }
     
@@ -291,7 +330,7 @@ public class SyndicateUGHttpClient implements Closeable {
     
     public Future<ClientResponse> removeXattr(String path, String key) throws IOException {
         WebParamBuilder builder = new WebParamBuilder(path);
-        builder.addParam(REMOVE_XATTR, null);
+        builder.addParam(getAPI(REMOVE_XATTR), null);
         builder.addParam(REMOVE_XATTR_KEY, key);
         return this.client.deleteAsync(builder.build());
     }
@@ -302,7 +341,7 @@ public class SyndicateUGHttpClient implements Closeable {
     
     public Future<ClientResponse> close(String path, FileDescriptor fi) throws IOException {
         WebParamBuilder builder = new WebParamBuilder(path);
-        builder.addParam(CLOSE, null);
+        builder.addParam(getAPI(CLOSE), null);
         builder.addParam(CLOSE_FD, fi.getFd());
         return this.client.deleteAsync(builder.build());
     }

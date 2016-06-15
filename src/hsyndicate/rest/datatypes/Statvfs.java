@@ -15,7 +15,6 @@
 */
 package hsyndicate.rest.datatypes;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 /**

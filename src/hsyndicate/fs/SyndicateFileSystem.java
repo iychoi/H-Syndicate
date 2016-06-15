@@ -320,6 +320,20 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
         return 0;
     }
     
+    private FsAction parseMode(int mode) {
+        FsAction action = FsAction.NONE;
+        if((mode & 0x04) == 0x04) {
+            action = action.or(FsAction.READ);
+        }
+        if((mode & 0x02) == 0x02) {
+            action = action.or(FsAction.WRITE);
+        }
+        if((mode & 0x01) == 0x01) {
+            action = action.or(FsAction.EXECUTE);
+        }
+        return action;
+    }
+    
     @Override
     public synchronized FsPermission getPermission(SyndicateFSPath path) {
         if(path == null) {
@@ -335,9 +349,12 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
             LOG.error("exception occurred", ex);
         }
         
-        // TODO: status does not provide permission info yet
         if(status != null) {
-            return new FsPermission(FsAction.READ_WRITE, FsAction.READ_WRITE, FsAction.READ_WRITE);
+            int userMode = status.getUserMode();
+            int groupMode = status.getGroupMode();
+            int othersMode = status.getOthersMode();
+            
+            return new FsPermission(parseMode(userMode), parseMode(groupMode), parseMode(othersMode));
         }
         return new FsPermission(FsAction.NONE, FsAction.NONE, FsAction.NONE);
     }

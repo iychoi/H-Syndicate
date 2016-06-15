@@ -84,6 +84,22 @@ public class SyndicateFSFileStatus {
     public synchronized long getLastModification() {
         return this.statRaw.getMtime();
     }
+    
+    public synchronized int getMode() {
+        return this.statRaw.getMode();
+    }
+    
+    public synchronized int getUserMode() {
+        return this.statRaw.getUserMode();
+    }
+    
+    public synchronized int getGroupMode() {
+        return this.statRaw.getGroupMode();
+    }
+    
+    public synchronized int getOthersMode() {
+        return this.statRaw.getOthersMode();
+    }
 
     public synchronized boolean isDirty() {
         return this.dirty;

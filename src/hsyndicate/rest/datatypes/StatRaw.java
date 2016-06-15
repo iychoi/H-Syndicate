@@ -255,6 +255,21 @@ public class StatRaw {
     public void setMode(int mode) {
         this.mode = mode;
     }
+    
+    @JsonIgnore
+    public int getUserMode() {
+        return (mode >> 6) & 0x07;
+    }
+    
+    @JsonIgnore
+    public int getGroupMode() {
+        return (mode >> 3) & 0x07;
+    }
+    
+    @JsonIgnore
+    public int getOthersMode() {
+        return mode & 0x07;
+    }
 
     @JsonProperty("size")
     public long getSize() {

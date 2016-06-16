@@ -15,7 +15,6 @@
 */
 package hsyndicate.fs;
 
-import com.google.common.primitives.UnsignedLong;
 import com.sun.jersey.api.client.ClientResponse;
 import hsyndicate.rest.client.SyndicateUGHttpClient;
 import hsyndicate.rest.common.RestfulException;
@@ -769,6 +768,7 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
         return bitmap;
     }
     
+    @Override
     public synchronized Map<Integer, File> listLocalCachedBlocks(SyndicateFSPath path) throws FileNotFoundException, IOException {
         String localCachePath = getExtendedAttr(path, LOCAL_CACHED_FILE_PATH_XATTR_NAME);
     

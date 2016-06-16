@@ -113,7 +113,9 @@ public class RestfulClient {
             } else {
                 RestError err = response.getEntity(new GenericType<RestError>(){});
                 err.setHttpErrno(response.getStatus());
-                err.setPath(response.getLocation().toString());
+                if(response.getLocation() != null) {
+                    err.setPath(response.getLocation().toString());
+                }
                 throw err.makeException();
             }
         } catch (InterruptedException ex) {
@@ -158,7 +160,9 @@ public class RestfulClient {
             } else {
                 RestError err = response.getEntity(new GenericType<RestError>(){});
                 err.setHttpErrno(response.getStatus());
-                err.setPath(response.getLocation().toString());
+                if(response.getLocation() != null) {
+                    err.setPath(response.getLocation().toString());
+                }
                 throw err.makeException();
             }
         } catch (InterruptedException ex) {
@@ -207,7 +211,9 @@ public class RestfulClient {
             } else {
                 RestError err = response.getEntity(new GenericType<RestError>(){});
                 err.setHttpErrno(response.getStatus());
-                err.setPath(response.getLocation().toString());
+                if(response.getLocation() != null) {
+                    err.setPath(response.getLocation().toString());
+                }
                 throw err.makeException();
             }
         } catch (InterruptedException ex) {
@@ -248,7 +254,9 @@ public class RestfulClient {
             } else {
                 RestError err = response.getEntity(new GenericType<RestError>(){});
                 err.setHttpErrno(response.getStatus());
-                err.setPath(response.getLocation().toString());
+                if(response.getLocation() != null) {
+                    err.setPath(response.getLocation().toString());
+                }
                 throw err.makeException();
             }
         } catch (InterruptedException ex) {

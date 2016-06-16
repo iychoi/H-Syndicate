@@ -17,7 +17,6 @@ package hsyndicate.hadoop.dfs;
 
 import hsyndicate.fs.SyndicateFileSystemFactory;
 import hsyndicate.fs.SyndicateFSPath;
-import hsyndicate.fs.AHSyndicateFileSystemBase;
 import hsyndicate.fs.SyndicateFSConfiguration;
 import hsyndicate.fs.SyndicateFileSystem;
 import java.io.FileNotFoundException;

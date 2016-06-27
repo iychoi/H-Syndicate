@@ -66,4 +66,6 @@
 - name: Download Jackson-xc
   get_url: url=http://central.maven.org/maven2/org/codehaus/jackson/jackson-xc/1.5.2/jackson-xc-1.5.2.jar dest="{{ work_root }}/hadoop/lib/jackson-xc-1.5.2.jar"
 
+- name: Download Guava
+  get_url: url=http://central.maven.org/maven2/com/google/guava/guava/11.0.2/guava-11.0.2.jar dest="{{ work_root }}/hadoop/lib/guava-11.0.2.jar"
 

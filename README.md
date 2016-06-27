@@ -18,4 +18,9 @@ $ ant
 
 All dependencies for this project are already in /libs/ directory.
 
+Ansible
+-------
 
+```
+ansible-playbook -i hosts.yml site.yml
+```

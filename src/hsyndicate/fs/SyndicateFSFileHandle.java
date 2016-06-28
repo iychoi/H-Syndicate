@@ -138,7 +138,7 @@ public class SyndicateFSFileHandle implements Closeable {
         // read from local if available
         if(this.localFileSystem && this.localCachedBlocks != null) {
             // check the cached file block is present
-            File cachedBlockFile = this.localCachedBlocks.get(blockID);
+            File cachedBlockFile = this.localCachedBlocks.get(UnsignedLong.asUnsigned(blockID));
             if(cachedBlockFile != null) {
                 // has cache
                 if(cachedBlockFile.exists()) {

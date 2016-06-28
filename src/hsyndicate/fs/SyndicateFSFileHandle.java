@@ -15,6 +15,7 @@
 */
 package hsyndicate.fs;
 
+import com.google.common.primitives.UnsignedLong;
 import com.sun.jersey.api.client.ClientResponse;
 import hsyndicate.rest.client.SyndicateUGHttpClient;
 import hsyndicate.rest.datatypes.FileDescriptor;
@@ -45,7 +46,7 @@ public class SyndicateFSFileHandle implements Closeable {
     private long blockSize;
     private int blockNum;
     private boolean localFileSystem;
-    private Map<Integer, File> localCachedBlocks;
+    private Map<UnsignedLong, File> localCachedBlocks;
     private Thread keepaliveThread;
     
     class KeepaliveWorker implements Runnable {
@@ -141,6 +142,7 @@ public class SyndicateFSFileHandle implements Closeable {
             if(cachedBlockFile != null) {
                 // has cache
                 if(cachedBlockFile.exists()) {
+                    LOG.info("read from local cache file");
                     return new FileInputStream(cachedBlockFile);
                 }
             }

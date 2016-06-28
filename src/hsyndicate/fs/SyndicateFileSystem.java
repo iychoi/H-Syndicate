@@ -15,6 +15,7 @@
 */
 package hsyndicate.fs;
 
+import com.google.common.primitives.UnsignedLong;
 import com.sun.jersey.api.client.ClientResponse;
 import hsyndicate.rest.client.SyndicateUGHttpClient;
 import hsyndicate.rest.common.RestfulException;
@@ -769,10 +770,10 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
     }
     
     @Override
-    public synchronized Map<Integer, File> listLocalCachedBlocks(SyndicateFSPath path) throws FileNotFoundException, IOException {
+    public synchronized Map<UnsignedLong, File> listLocalCachedBlocks(SyndicateFSPath path) throws FileNotFoundException, IOException {
         String localCachePath = getExtendedAttr(path, LOCAL_CACHED_FILE_PATH_XATTR_NAME);
     
-        Map<Integer, File> fileTable = new HashMap<Integer, File>();
+        Map<UnsignedLong, File> fileTable = new HashMap<UnsignedLong, File>();
         File dir = new File(localCachePath);
         if(dir.exists() && dir.isDirectory()) {
             File[] blockFilesList = dir.listFiles();
@@ -781,29 +782,29 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
                 String filename = file.getName();
                 int dotidx = filename.indexOf(".");
                 if(dotidx > 0) {
-                    String blockId = filename.substring(0, dotidx);
-                    String blockVer = filename.substring(dotidx+1);
+                    String blockIdStr = filename.substring(0, dotidx);
+                    String blockVerStr = filename.substring(dotidx+1);
 
-                    int blockId_int = Integer.parseInt(blockId);
-                    int blockVer_int = Integer.parseInt(blockVer);
+                    UnsignedLong blockId = UnsignedLong.valueOf(blockIdStr);
+                    long blockVer = Long.parseLong(blockVerStr);
 
-                    File existFile = fileTable.get(blockId_int);
+                    File existFile = fileTable.get(blockId);
                     if(existFile == null) {
-                        fileTable.put(blockId_int, file);
+                        fileTable.put(blockId, file);
                     } else {
                         String existFilename = existFile.getName();
-                        int existBlockVer_int = 0;
+                        long existBlockVer = 0;
                         int existDotidx = existFilename.indexOf(".");
                         if(existDotidx > 0) {
-                            String existBlockVer = existFilename.substring(existDotidx+1);
-                            existBlockVer_int = Integer.parseInt(existBlockVer);
+                            String existBlockVerStr = existFilename.substring(existDotidx+1);
+                            existBlockVer = Long.parseLong(existBlockVerStr);
                         }
 
-                        if(existBlockVer_int <= blockVer_int) {
+                        if(existBlockVer <= blockVer) {
                             // remove old
-                            fileTable.remove(blockId_int);
+                            fileTable.remove(blockId);
                             // add new
-                            fileTable.put(blockId_int, file);
+                            fileTable.put(blockId, file);
                         }
                     }
                 }

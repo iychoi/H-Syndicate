@@ -15,6 +15,7 @@
 */
 package hsyndicate.fs;
 
+import com.google.common.primitives.UnsignedLong;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -420,7 +421,7 @@ public abstract class AHSyndicateFileSystemBase implements Closeable {
     }
     
     public abstract byte[] getLocalCachedBlocks(SyndicateFSPath path) throws FileNotFoundException, IOException;
-    public abstract Map<Integer, File> listLocalCachedBlocks(SyndicateFSPath path) throws FileNotFoundException, IOException;
+    public abstract Map<UnsignedLong, File> listLocalCachedBlocks(SyndicateFSPath path) throws FileNotFoundException, IOException;
     
     @Override
     public synchronized String toString() {

@@ -19,6 +19,7 @@ import com.sun.jersey.api.client.ClientResponse;
 import hsyndicate.rest.client.SyndicateUGHttpClient;
 import hsyndicate.rest.datatypes.FileDescriptor;
 import hsyndicate.utils.BlockUtils;
+import hsyndicate.utils.IOUtils;
 import hsyndicate.utils.IPUtils;
 import java.io.ByteArrayInputStream;
 import java.io.Closeable;
@@ -28,7 +29,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.concurrent.Future;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

@@ -35,7 +35,7 @@ public class Statvfs {
     private long f_fsid; // Filesystem ID
     private long f_flag; // Mount flags
     private long f_namemax; // Maximum filename length
-    private char[] unused; // unused
+    private byte[] unused; // unused
     
     public Statvfs() {
         
@@ -152,12 +152,12 @@ public class Statvfs {
     }
     
     @JsonProperty("unused")
-    public char[] getUnused() {
+    public byte[] getUnused() {
         return unused;
     }
 
     @JsonProperty("unused")
-    public void setUnused(char[] unused) {
+    public void setUnused(byte[] unused) {
         this.unused = unused;
     }
 }

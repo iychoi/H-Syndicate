@@ -6,7 +6,7 @@
 <configuration>
 	<property>
 		<name>mapred.job.tracker</name>
-		<value>{{ master }}:8021</value>
+		<value>{{ groups['hadoop'][0] }}:8021</value>
 	</property>
 	<property>
 		<name>mapred.compress.map.output</name>

@@ -6,7 +6,7 @@
 <configuration>
 	<property>
 		<name>fs.default.name</name>
-		<value>hdfs://{{ master }}:8020</value>
+		<value>hdfs://{{ groups['hadoop'][0] }}:8020</value>
 	</property>
 	<property>
 		<name>hadoop.tmp.dir</name>
@@ -20,7 +20,7 @@
 	</property>
 	<property>
 		<name>fs.hsyndicate.hosts</name>
-		<value>{{ ughosts|join(', ') }}</value>
+		<value>{{ groups['hadoop']|join(',') }}</value>
 	</property>
 	<property>
 		<name>fs.hsyndicate.port</name>

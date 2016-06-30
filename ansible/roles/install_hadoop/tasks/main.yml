@@ -11,14 +11,6 @@
   apt: name=unzip state=present
   sudo: True
 
-# ADDING A NEW ACCOUNT
-#- name: Add group "syndicate"
-#  group: name=syndicate
-
-#- name: Add user "syndicate"
-#  user: name=syndicate group=syndicate home=/home/syndicate createhome=yes
-#  sudo: True
-
 - name: Download Hadoop CDH3U5
   get_url: url=http://archive.cloudera.com/cdh/3/hadoop-0.20.2-cdh3u5.tar.gz dest="{{ work_root }}/hadoop-0.20.2-cdh3u5.tar.gz"
 
@@ -38,7 +30,7 @@
   get_url: url=https://github.com/syndicate-storage/H-Syndicate/archive/master.zip dest="{{ work_root }}/h-syndicate.zip"
 
 - name: Uncompress H-Syndicate
-  unarchive: src="{{ work_root }}/h-syndicate.zip" dest=/home/iychoi/ copy=no
+  unarchive: src="{{ work_root }}/h-syndicate.zip" dest={{ work_root }}/ copy=no
 
 - name: Remove Hadoop if exists
   command: rm -rf "{{ work_root }}/h-syndicate"

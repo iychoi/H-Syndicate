@@ -1,9 +1,7 @@
 ---
 # This playbook deploys Hadoop and H-Syndicate along with Syndicate-UG-HTTP
 - hosts: hadoop
-  remote_user: USER_ID
-
   roles:
-    - install
-    - configure
+    - install_hadoop
+    - configure_hadoop
 

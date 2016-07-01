@@ -12,16 +12,16 @@
   sudo: True
 
 - name: Download Hadoop CDH3U5
-  get_url: url=http://archive.cloudera.com/cdh/3/hadoop-0.20.2-cdh3u5.tar.gz dest="{{ work_root }}/hadoop-0.20.2-cdh3u5.tar.gz"
-
-- name: Uncompress Hadoop
-  unarchive: src="{{ work_root }}/hadoop-0.20.2-cdh3u5.tar.gz" dest="{{ work_root }}/" copy=no
+  unarchive: src=http://archive.cloudera.com/cdh/3/hadoop-0.20.2-cdh3u5.tar.gz dest="{{ work_root }}/" copy=no
 
 - name: Remove Hadoop if exists
-  command: rm -rf "{{ work_root }}/hadoop"
+  file: path="{{ work_root }}/hadoop" state=absent
 
 - name: Rename Hadoop
   command: mv "{{ work_root }}/hadoop-0.20.2-cdh3u5" "{{ work_root }}/hadoop"
+
+- name: Remove Hadoop Data if exists
+  file: path="{{ work_root }}/hdfs_data" state=absent
 
 - name: Make Hadoop Data Dir
   file: path="{{ work_root }}/hdfs_data" state=directory

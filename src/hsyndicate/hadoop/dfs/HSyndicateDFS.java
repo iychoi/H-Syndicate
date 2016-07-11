@@ -325,10 +325,7 @@ public class HSyndicateDFS extends FileSystem {
         }
 
         private static long getFileLength(SyndicateFileSystem fs, SyndicateFSPath hpath) {
-            if (!fs.isDirectory(hpath)) {
-                return fs.getSize(hpath);
-            }
-            return 0;
+            return fs.getSize(hpath);
         }
     }
     

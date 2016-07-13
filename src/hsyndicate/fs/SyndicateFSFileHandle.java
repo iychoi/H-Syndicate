@@ -48,7 +48,7 @@ public class SyndicateFSFileHandle implements Closeable {
     private boolean localFileSystem;
     private Map<UnsignedLong, File> localCachedBlocks;
     private Thread keepaliveThread;
-    
+
     class KeepaliveWorker implements Runnable {
         private SyndicateFSFileHandle handle;
         private SyndicateFSPath path;
@@ -66,9 +66,7 @@ public class SyndicateFSFileHandle implements Closeable {
             try {
                 while(true) {
                     Thread.sleep(NOTIFY_PERIOD);
-                    if(this.handle.isOpen()) {
-                        this.handle.extendTTL();
-                    }
+                    this.handle.tryExtendTTL();
                 }
             } catch (InterruptedException ex) {
                 // silient ignore
@@ -135,6 +133,18 @@ public class SyndicateFSFileHandle implements Closeable {
             }
         } else {
             throw new IOException("Can not create a REST client");
+        }
+    }
+    
+    public synchronized void tryExtendTTL() {
+        if(!this.closed) {
+            try {
+                SyndicateUGHttpClient client = this.filesystem.getUGRestClient();
+                Future<ClientResponse> extendTtlFuture = client.extendTtl(this.status.getPath().getPath(), this.fileDescriptor);
+                if (extendTtlFuture != null) {
+                    client.processExtendTtl(extendTtlFuture);
+                }
+            } catch (Exception ex) {}
         }
     }
     

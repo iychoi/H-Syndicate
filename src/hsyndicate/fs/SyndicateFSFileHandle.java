@@ -50,16 +50,14 @@ public class SyndicateFSFileHandle implements Closeable {
     private Thread keepaliveThread;
     
     class KeepaliveWorker implements Runnable {
-        private SyndicateUGHttpClient client;
+        private SyndicateFSFileHandle handle;
         private SyndicateFSPath path;
         private FileDescriptor fd;
         
         private static final long NOTIFY_PERIOD = 60 * 1000;
 
-        private KeepaliveWorker(SyndicateUGHttpClient client, SyndicateFSPath path, FileDescriptor fd) {
-            this.client = client;
-            this.path = path;
-            this.fd = fd;
+        private KeepaliveWorker(SyndicateFSFileHandle handle) {
+            this.handle = handle;
         }
 
         @Override
@@ -68,17 +66,8 @@ public class SyndicateFSFileHandle implements Closeable {
             try {
                 while(true) {
                     Thread.sleep(NOTIFY_PERIOD);
-                    
-                    Future<ClientResponse> extendTtlFuture = this.client.extendTtl(this.path.getPath(), this.fd);
-                    if (extendTtlFuture != null) {
-                        try {
-                            this.client.processExtendTtl(extendTtlFuture);
-                        } catch (Exception ex) {
-                            LOG.error("exception occurred", ex);
-                            throw new IOException(ex);
-                        }
-                    } else {
-                        throw new IOException("Can not create a REST client");
+                    if(this.handle.isOpen()) {
+                        this.handle.extendTTL();
                     }
                 }
             } catch (InterruptedException ex) {
@@ -113,7 +102,7 @@ public class SyndicateFSFileHandle implements Closeable {
             this.localFileSystem = false;
         }
         
-        this.keepaliveThread = new Thread(new KeepaliveWorker(this.filesystem.getUGRestClient(), this.status.getPath(), this.fileDescriptor));
+        this.keepaliveThread = new Thread(new KeepaliveWorker(this));
         this.keepaliveThread.start();
         LOG.info("file opened - " + this.status.getPath().getPath());
     }
@@ -128,6 +117,25 @@ public class SyndicateFSFileHandle implements Closeable {
     
     public synchronized SyndicateFSFileStatus getStatus() {
         return this.status;
+    }
+    
+    public synchronized void extendTTL() throws IOException {
+        if(this.closed) {
+            throw new IOException("File handle is closed");
+        }
+        
+        SyndicateUGHttpClient client = this.filesystem.getUGRestClient();
+        Future<ClientResponse> extendTtlFuture = client.extendTtl(this.status.getPath().getPath(), this.fileDescriptor);
+        if (extendTtlFuture != null) {
+            try {
+                client.processExtendTtl(extendTtlFuture);
+            } catch (Exception ex) {
+                LOG.error("exception occurred", ex);
+                throw new IOException(ex);
+            }
+        } else {
+            throw new IOException("Can not create a REST client");
+        }
     }
     
     protected synchronized InputStream readFileDataBlockInputStream(int blockID) throws IOException {
@@ -172,6 +180,10 @@ public class SyndicateFSFileHandle implements Closeable {
     }
     
     public synchronized SyndicateFSReadBlockData readFileDataBlock(int blockID) throws IOException {
+        if(this.closed) {
+            throw new IOException("File handle is closed");
+        }
+        
         LOG.info("reading a block " + blockID);
         InputStream is = readFileDataBlockInputStream(blockID);
         
@@ -208,6 +220,10 @@ public class SyndicateFSFileHandle implements Closeable {
     }
     
     public synchronized void writeFileDataBlockByteArray(int blockID, byte[] buffer, int size) throws IOException {
+        if(this.closed) {
+            throw new IOException("File handle is closed");
+        }
+        
         LOG.info("writing a block " + blockID);
         InputStream is = new ByteArrayInputStream(buffer, 0, size);
         writeFileDataBlockInputStream(blockID, is, size);
@@ -226,6 +242,12 @@ public class SyndicateFSFileHandle implements Closeable {
     public synchronized void close() throws IOException {
         if(!this.closed) {
             LOG.info("closing a file");
+            
+            if(this.keepaliveThread != null && this.keepaliveThread.isAlive()) {
+                this.keepaliveThread.interrupt();
+            }
+            this.keepaliveThread = null;
+            
             Future<ClientResponse> closeFuture = this.filesystem.getUGRestClient().close(this.status.getPath().getPath(), this.fileDescriptor);
             if(closeFuture != null) {
                 try {
@@ -249,11 +271,6 @@ public class SyndicateFSFileHandle implements Closeable {
             if(this.localCachedBlocks != null) {
                 this.localCachedBlocks.clear();
             }
-
-            if(this.keepaliveThread != null && this.keepaliveThread.isAlive()) {
-                this.keepaliveThread.interrupt();
-            }
-            this.keepaliveThread = null;
         }
     }
 }

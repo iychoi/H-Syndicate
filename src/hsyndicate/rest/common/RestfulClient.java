@@ -22,6 +22,7 @@ import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import com.sun.jersey.api.json.JSONConfiguration;
 import com.sun.jersey.client.apache4.ApacheHttpClient4;
+import com.sun.jersey.client.apache4.config.ApacheHttpClient4Config;
 import hsyndicate.rest.datatypes.RestError;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -33,6 +34,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.NoHttpResponseException;
 import org.apache.http.client.HttpRequestRetryHandler;
+import org.apache.http.conn.scheme.PlainSocketFactory;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.protocol.HttpContext;
 import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
 
@@ -45,24 +50,9 @@ public class RestfulClient {
     private static final Log LOG = LogFactory.getLog(RestfulClient.class);
     
     private URI serviceURL;
+    private ThreadSafeClientConnManager connectionManager;
     private ClientConfig httpClientConfig;
     private ApacheHttpClient4 httpClient;
-    
-    private HttpRequestRetryHandler retryhandler = new HttpRequestRetryHandler() {
-        @Override
-        public boolean retryRequest(IOException ioe, int executionCount, HttpContext hc) {
-            if(executionCount >= 3) {
-                LOG.error("HTTP Retry exeeded max 3");
-                return false;
-            }
-            
-            if(ioe instanceof NoHttpResponseException) {
-                return true;
-            }
-            
-            return false;
-        }
-    };
     
     public RestfulClient(URI serviceURL, int threadPoolSize) {
         if(serviceURL == null) {
@@ -75,10 +65,15 @@ public class RestfulClient {
         
         this.serviceURL = serviceURL;
         
+        SchemeRegistry registry = new SchemeRegistry();
+        registry.register(new Scheme("http", this.serviceURL.getPort(), PlainSocketFactory.getSocketFactory()));
+        this.connectionManager = new ThreadSafeClientConnManager(registry);
+        
         this.httpClientConfig = new DefaultClientConfig();
         this.httpClientConfig.getClasses().add(JacksonJsonProvider.class);
         this.httpClientConfig.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING, Boolean.TRUE);
         this.httpClientConfig.getProperties().put(ClientConfig.PROPERTY_THREADPOOL_SIZE, threadPoolSize);
+        this.httpClientConfig.getProperties().put(ApacheHttpClient4Config.PROPERTY_CONNECTION_MANAGER, this.connectionManager);
 
         this.httpClient = ApacheHttpClient4.create(this.httpClientConfig);
     }

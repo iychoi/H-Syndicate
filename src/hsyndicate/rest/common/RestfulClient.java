@@ -16,12 +16,12 @@
 package hsyndicate.rest.common;
 
 import com.sun.jersey.api.client.AsyncWebResource;
-import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.GenericType;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import com.sun.jersey.api.json.JSONConfiguration;
+import com.sun.jersey.client.apache4.ApacheHttpClient4;
 import hsyndicate.rest.datatypes.RestError;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -31,6 +31,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.http.NoHttpResponseException;
+import org.apache.http.client.HttpRequestRetryHandler;
+import org.apache.http.protocol.HttpContext;
 import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
 
 /**
@@ -43,7 +46,23 @@ public class RestfulClient {
     
     private URI serviceURL;
     private ClientConfig httpClientConfig;
-    private Client httpClient;
+    private ApacheHttpClient4 httpClient;
+    
+    private HttpRequestRetryHandler retryhandler = new HttpRequestRetryHandler() {
+        @Override
+        public boolean retryRequest(IOException ioe, int executionCount, HttpContext hc) {
+            if(executionCount >= 3) {
+                LOG.error("HTTP Retry exeeded max 3");
+                return false;
+            }
+            
+            if(ioe instanceof NoHttpResponseException) {
+                return true;
+            }
+            
+            return false;
+        }
+    };
     
     public RestfulClient(URI serviceURL, int threadPoolSize) {
         if(serviceURL == null) {
@@ -61,7 +80,7 @@ public class RestfulClient {
         this.httpClientConfig.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING, Boolean.TRUE);
         this.httpClientConfig.getProperties().put(ClientConfig.PROPERTY_THREADPOOL_SIZE, threadPoolSize);
 
-        this.httpClient = Client.create(this.httpClientConfig);
+        this.httpClient = ApacheHttpClient4.create(this.httpClientConfig);
     }
     
     public void close() {

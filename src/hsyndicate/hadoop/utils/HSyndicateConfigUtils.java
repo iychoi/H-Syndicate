@@ -111,12 +111,22 @@ public class HSyndicateConfigUtils {
     
     public static SyndicateFSConfiguration createSyndicateConf(Configuration conf) throws IOException {
         String ug_address = pickClosestUGHostWithPort(conf);
-        
         return createSyndicateConf(conf, ug_address);
     }
     
     public static SyndicateFSConfiguration createSyndicateConf(Configuration conf, String ug_address) throws IOException {
         SyndicateFSConfiguration sconf = new SyndicateFSConfiguration();
+        
+        // default port
+        int default_port = HSyndicateConfigUtils.getSyndicateUGDefaultPort(conf);
+        if(default_port > 0) {
+            sconf.setPort(default_port);
+        }
+        
+        if(ug_address == null || ug_address.isEmpty()) {
+            // use default (local)   
+            return sconf;
+        }
 
         String hostname = ug_address;
         int pos = hostname.indexOf(":");
@@ -129,16 +139,6 @@ public class HSyndicateConfigUtils {
         
         if(pos > 0) {
             int port = Integer.parseInt(ug_address.substring(pos + 1));
-            if(port > 0) {
-                sconf.setPort(port);
-            } else {
-                port = HSyndicateConfigUtils.getSyndicateUGDefaultPort(conf);
-                if(port > 0) {
-                    sconf.setPort(port);
-                }
-            }
-        } else {
-            int port = HSyndicateConfigUtils.getSyndicateUGDefaultPort(conf);
             if(port > 0) {
                 sconf.setPort(port);
             }

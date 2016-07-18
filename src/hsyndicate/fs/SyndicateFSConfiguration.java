@@ -21,7 +21,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
 public class SyndicateFSConfiguration {
 
     private String host = "localhost";
-    private int port = 80;
+    private int port = 8888;
     
     public SyndicateFSConfiguration() {
         

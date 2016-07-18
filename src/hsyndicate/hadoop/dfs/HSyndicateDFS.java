@@ -63,7 +63,7 @@ public class HSyndicateDFS extends FileSystem {
         super.initialize(uri, conf);
         
         if (this.syndicateFS == null) {
-            this.syndicateFS = createHSyndicateFS(conf);
+            this.syndicateFS = createHSyndicateFS(uri, conf);
         }
         
         setConf(conf);
@@ -72,8 +72,25 @@ public class HSyndicateDFS extends FileSystem {
         this.workingDir = new Path("/").makeQualified(this);
     }
     
-    private static SyndicateFileSystem createHSyndicateFS(Configuration conf) throws IOException {
-        SyndicateFSConfiguration sconf = HSyndicateConfigUtils.createSyndicateConf(conf);
+    private static SyndicateFileSystem createHSyndicateFS(URI uri, Configuration conf) throws IOException {
+        if(uri == null) {
+            throw new IllegalArgumentException("uri is null");
+        }
+        
+        SyndicateFSConfiguration sconf = null;
+        String ug_host = "";
+        if(uri.getHost() != null && !uri.getHost().isEmpty()) {
+            ug_host = uri.getHost();
+            
+            if(uri.getPort() > 0) {
+                ug_host = ug_host + ":" + uri.getPort();
+            }
+            
+            sconf = HSyndicateConfigUtils.createSyndicateConf(conf, ug_host);
+        } else {
+            sconf = HSyndicateConfigUtils.createSyndicateConf(conf);
+        }
+        
         try {
             return SyndicateFileSystemFactory.getInstance(sconf);
         } catch (InstantiationException ex) {

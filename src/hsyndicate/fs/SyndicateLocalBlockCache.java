@@ -18,14 +18,19 @@ package hsyndicate.fs;
 import com.google.common.primitives.UnsignedLong;
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  *
  * @author iychoi
  */
 public class SyndicateLocalBlockCache {
+    private static final Log LOG = LogFactory.getLog(SyndicateLocalBlockCache.class);
+    
     public static final String LOCAL_BLOCK_CACHE_FILENAME_PATTERN_STRING = "(-?\\d+)\\.(-?\\d+)";
     public Pattern filenamePattern = Pattern.compile(LOCAL_BLOCK_CACHE_FILENAME_PATTERN_STRING);
     
@@ -37,16 +42,24 @@ public class SyndicateLocalBlockCache {
         }
     }
     
-    public UnsignedLong getBlockID(String filename) {
+    public UnsignedLong getBlockID(String filename) throws IOException {
         Matcher matcher = filenamePattern.matcher(filename);
-        String blockId = matcher.group(1);
-        return UnsignedLong.valueOf(blockId);
+        if(matcher.matches()) {
+            String blockId = matcher.group(1);
+            return UnsignedLong.valueOf(blockId);
+        } else {
+            throw new IOException("Unable to parse BlockID from " + filename);
+        }
     }
     
-    public long getBlockVersion(String filename) {
+    public long getBlockVersion(String filename) throws IOException {
         Matcher matcher = filenamePattern.matcher(filename);
-        String blockVer = matcher.group(2);
-        return Long.parseLong(blockVer);
+        if(matcher.matches()) {
+            String blockVer = matcher.group(2);
+            return Long.parseLong(blockVer);
+        } else {
+            throw new IOException("Unable to parse BlockID from " + filename);
+        }
     }
     
     public FilenameFilter getFilenameFilter() {

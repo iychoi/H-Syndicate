@@ -778,8 +778,10 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
         SyndicateLocalBlockCache localBlockCache = new SyndicateLocalBlockCache();
         if(dir.exists() && dir.isDirectory()) {
             File[] blockFilesList = dir.listFiles(localBlockCache.getFilenameFilter());
-
+            LOG.info("found local block-cache files : " + blockFilesList.length);
+            
             for(File file : blockFilesList) {
+                LOG.info("block-cache file : " + file.getPath());
                 UnsignedLong blockId = localBlockCache.getBlockID(file.getName());
                 long blockVer = localBlockCache.getBlockVersion(file.getName());
 

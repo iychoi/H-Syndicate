@@ -37,6 +37,16 @@ public class SyndicateFSReadBlockData implements Closeable {
     private int bufferredSize;
     private boolean fullyBufferred;
     
+    public SyndicateFSReadBlockData(long offset, byte[] buffer, int blockSize) {
+        this.offset = offset;
+        this.inputStream = null;
+        this.blockSize = blockSize;
+        this.bufferredData = new byte[blockSize];
+        System.arraycopy(buffer, 0, this.bufferredData, 0, Math.min(buffer.length, blockSize));
+        this.bufferredSize = buffer.length;
+        this.fullyBufferred = true;
+    }
+    
     public SyndicateFSReadBlockData(long offset, InputStream is, int blockSize) {
         this.offset = offset;
         this.inputStream = is;
@@ -60,17 +70,19 @@ public class SyndicateFSReadBlockData implements Closeable {
         } else if(this.bufferredSize >= destOffset) {
             return this.bufferredSize;
         } else {
-            int toRead = destOffset - this.bufferredSize;
-            int totalReadLen = 0;
-            while(totalReadLen < toRead) {
-                int readLen = IOUtils.read(this.inputStream, this.bufferredData, this.bufferredSize, destOffset - this.bufferredSize);
-                if(readLen > 0) {
-                    this.bufferredSize += readLen;
-                    totalReadLen += readLen;
-                } else {
-                    IOUtils.closeQuietly(this.inputStream);
-                    this.fullyBufferred = true;
-                    break;
+            if(this.inputStream != null) {
+                int toRead = destOffset - this.bufferredSize;
+                int totalReadLen = 0;
+                while(totalReadLen < toRead) {
+                    int readLen = IOUtils.read(this.inputStream, this.bufferredData, this.bufferredSize, destOffset - this.bufferredSize);
+                    if(readLen > 0) {
+                        this.bufferredSize += readLen;
+                        totalReadLen += readLen;
+                    } else {
+                        IOUtils.closeQuietly(this.inputStream);
+                        this.fullyBufferred = true;
+                        break;
+                    }
                 }
             }
             
@@ -117,7 +129,9 @@ public class SyndicateFSReadBlockData implements Closeable {
     @Override
     public synchronized void close() throws IOException {
         if(!this.fullyBufferred) {
-            IOUtils.closeQuietly(this.inputStream);
+            if(this.inputStream != null) {
+                IOUtils.closeQuietly(this.inputStream);
+            }
         }
     }
 }

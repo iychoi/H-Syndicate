@@ -15,6 +15,7 @@
 */
 package hsyndicate.utils;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -59,5 +60,22 @@ public class IOUtils {
             remaining -= count;
         }
         return length - remaining;
+    }
+    
+    public static byte[] toByteArray(InputStream input) throws IOException {
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        
+        byte[] buffer = new byte[1024*64];
+        
+        while (true) {
+            int count = input.read(buffer);
+            if (count == -1) {
+                //EOF
+                break;
+            }
+            output.write(buffer, 0, count);
+        }
+        
+        return output.toByteArray();
     }
 }

@@ -197,7 +197,9 @@ public class SyndicateFSFileHandle implements Closeable {
         LOG.info("reading a block " + blockID);
         InputStream is = readFileDataBlockInputStream(blockID);
         LOG.info("obtained an inputStream for the block " + blockID);
-        return new SyndicateFSReadBlockData(BlockUtils.getBlockStartOffset(blockID, this.blockSize), is, (int) this.blockSize);
+        byte[] buffer = IOUtils.toByteArray(is);
+        
+        return new SyndicateFSReadBlockData(BlockUtils.getBlockStartOffset(blockID, this.blockSize), buffer, (int) this.blockSize);
     }
     
     protected synchronized void writeFileDataBlockInputStream(int blockID, InputStream is, int size) throws IOException {

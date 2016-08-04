@@ -72,9 +72,9 @@ public class RestfulClient {
         this.httpClientConfig.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING, Boolean.TRUE);
         this.httpClientConfig.getProperties().put(ClientConfig.PROPERTY_THREADPOOL_SIZE, threadPoolSize);
         this.httpClientConfig.getProperties().put(ApacheHttpClient4Config.PROPERTY_CONNECTION_MANAGER, this.connectionManager);
-
+        
         this.httpClient = ApacheHttpClient4.create(this.httpClientConfig);
-        this.httpClient.addFilter(new LoggingFilter(System.out));
+        //this.httpClient.addFilter(new LoggingFilter());
     }
     
     public void close() {
@@ -117,18 +117,24 @@ public class RestfulClient {
             ClientResponse response = future.get();
             if(response.getStatus() >= 200 && response.getStatus() <= 299) {
                 if(generic == null) {
+                    response.close();
                     return true;
                 } else {
-                    return response.getEntity(generic);
+                    Object entity = response.getEntity(generic);
+                    response.close();
+                    return entity;
                 }
             } else if(response.getStatus() == 404) {
-                throw new FileNotFoundException(response.toString());
+                String message = response.toString();
+                response.close();
+                throw new FileNotFoundException(message);
             } else {
                 RestError err = response.getEntity(new GenericType<RestError>(){});
                 err.setHttpErrno(response.getStatus());
                 if(response.getLocation() != null) {
                     err.setPath(response.getLocation().toString());
                 }
+                response.close();
                 throw err.makeException();
             }
         } catch (InterruptedException ex) {
@@ -167,15 +173,20 @@ public class RestfulClient {
         try {
             ClientResponse response = future.get();
             if(response.getStatus() >= 200 && response.getStatus() <= 299) {
-                return response.getEntity(generic);
+                Object entity = response.getEntity(generic);
+                response.close();
+                return entity;
             } else if(response.getStatus() == 404) {
-                throw new FileNotFoundException(response.toString());
+                String message = response.toString();
+                response.close();
+                throw new FileNotFoundException(message);
             } else {
                 RestError err = response.getEntity(new GenericType<RestError>(){});
                 err.setHttpErrno(response.getStatus());
                 if(response.getLocation() != null) {
                     err.setPath(response.getLocation().toString());
                 }
+                response.close();
                 throw err.makeException();
             }
         } catch (InterruptedException ex) {
@@ -215,18 +226,24 @@ public class RestfulClient {
             ClientResponse response = future.get();
             if(response.getStatus() >= 200 && response.getStatus() <= 299) {
                 if(generic == null) {
+                    response.close();
                     return true;
                 } else {
-                    return response.getEntity(generic);
+                    Object entity = response.getEntity(generic);
+                    response.close();
+                    return entity;
                 }
             } else if(response.getStatus() == 404) {
-                throw new FileNotFoundException(response.toString());
+                String message = response.toString();
+                response.close();
+                throw new FileNotFoundException(message);
             } else {
                 RestError err = response.getEntity(new GenericType<RestError>(){});
                 err.setHttpErrno(response.getStatus());
                 if(response.getLocation() != null) {
                     err.setPath(response.getLocation().toString());
                 }
+                response.close();
                 throw err.makeException();
             }
         } catch (InterruptedException ex) {
@@ -261,15 +278,20 @@ public class RestfulClient {
         try {
             ClientResponse response = future.get();
             if(response.getStatus() >= 200 && response.getStatus() <= 299) {
-                return response.getEntityInputStream();
+                InputStream entityInputStream = response.getEntityInputStream();
+                //response.close();
+                return entityInputStream;
             } else if(response.getStatus() == 404) {
-                throw new FileNotFoundException(response.toString());
+                String message = response.toString();
+                response.close();
+                throw new FileNotFoundException(message);
             } else {
                 RestError err = response.getEntity(new GenericType<RestError>(){});
                 err.setHttpErrno(response.getStatus());
                 if(response.getLocation() != null) {
                     err.setPath(response.getLocation().toString());
                 }
+                response.close();
                 throw err.makeException();
             }
         } catch (InterruptedException ex) {

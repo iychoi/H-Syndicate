@@ -75,6 +75,7 @@ public class IOUtils {
             }
             output.write(buffer, 0, count);
         }
+        closeQuietly(input);
         
         return output.toByteArray();
     }

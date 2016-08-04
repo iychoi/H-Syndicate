@@ -78,6 +78,13 @@ public class SyndicateFSReadBlockData implements Closeable {
                     if(readLen > 0) {
                         this.bufferredSize += readLen;
                         totalReadLen += readLen;
+                        
+                        // Need to close inputstream when all data is consumed.
+                        if(this.bufferredSize >= this.blockSize) {
+                            IOUtils.closeQuietly(this.inputStream);
+                            this.fullyBufferred = true;
+                            break;
+                        }
                     } else {
                         IOUtils.closeQuietly(this.inputStream);
                         this.fullyBufferred = true;

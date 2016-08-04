@@ -20,6 +20,7 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.GenericType;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
+import com.sun.jersey.api.client.filter.LoggingFilter;
 import com.sun.jersey.api.json.JSONConfiguration;
 import com.sun.jersey.client.apache4.ApacheHttpClient4;
 import com.sun.jersey.client.apache4.config.ApacheHttpClient4Config;
@@ -32,13 +33,10 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.http.NoHttpResponseException;
-import org.apache.http.client.HttpRequestRetryHandler;
 import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
-import org.apache.http.protocol.HttpContext;
 import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
 
 /**
@@ -76,6 +74,7 @@ public class RestfulClient {
         this.httpClientConfig.getProperties().put(ApacheHttpClient4Config.PROPERTY_CONNECTION_MANAGER, this.connectionManager);
 
         this.httpClient = ApacheHttpClient4.create(this.httpClientConfig);
+        this.httpClient.addFilter(new LoggingFilter(System.out));
     }
     
     public void close() {
@@ -99,7 +98,7 @@ public class RestfulClient {
         //}
         
         URI requestURL = this.serviceURL.resolve(path);
-        
+        LOG.info("sending a post request - " + requestURL.toString());
         AsyncWebResource webResource = this.httpClient.asyncResource(requestURL);
         return (Future<ClientResponse>) webResource.accept("application/json").type("application/json").post(ClientResponse.class, request);
     }
@@ -150,7 +149,7 @@ public class RestfulClient {
         }
         
         URI requestURL = this.serviceURL.resolve(path);
-        
+        LOG.info("sending a get request - " + requestURL.toString());
         AsyncWebResource webResource = this.httpClient.asyncResource(requestURL);
         return (Future<ClientResponse>) webResource.accept("application/json").type("application/json").get(ClientResponse.class);
     }
@@ -197,7 +196,7 @@ public class RestfulClient {
         }
         
         URI requestURL = this.serviceURL.resolve(path);
-        
+        LOG.info("sending a delete request - " + requestURL.toString());
         AsyncWebResource webResource = this.httpClient.asyncResource(requestURL);
         return (Future<ClientResponse>) webResource.accept("application/json").type("application/json").delete(ClientResponse.class);
     }
@@ -248,7 +247,7 @@ public class RestfulClient {
         }
         
         URI requestURL = this.serviceURL.resolve(path);
-        
+        LOG.info("sending a download request - " + requestURL.toString());
         AsyncWebResource webResource = this.httpClient.asyncResource(requestURL);
         return (Future<ClientResponse>) webResource.accept("application/octet-stream").type("application/json").get(ClientResponse.class);
     }

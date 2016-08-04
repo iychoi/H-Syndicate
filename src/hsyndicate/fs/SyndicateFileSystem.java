@@ -775,37 +775,29 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
     
         Map<UnsignedLong, File> fileTable = new HashMap<UnsignedLong, File>();
         File dir = new File(localCachePath);
+        SyndicateLocalBlockCache localBlockCache = new SyndicateLocalBlockCache();
         if(dir.exists() && dir.isDirectory()) {
-            File[] blockFilesList = dir.listFiles();
+            File[] blockFilesList = dir.listFiles(localBlockCache.getFilenameFilter());
 
             for(File file : blockFilesList) {
-                String filename = file.getName();
-                int dotidx = filename.indexOf(".");
-                if(dotidx > 0) {
-                    String blockIdStr = filename.substring(0, dotidx);
-                    String blockVerStr = filename.substring(dotidx+1);
+                UnsignedLong blockId = localBlockCache.getBlockID(file.getName());
+                long blockVer = localBlockCache.getBlockVersion(file.getName());
 
-                    UnsignedLong blockId = UnsignedLong.valueOf(blockIdStr);
-                    long blockVer = Long.parseLong(blockVerStr);
-
-                    File existFile = fileTable.get(blockId);
-                    if(existFile == null) {
+                File existFile = fileTable.get(blockId);
+                if(existFile == null) {
+                    fileTable.put(blockId, file);
+                } else {
+                    String existFilename = existFile.getName();
+                    long existBlockVer = 0;
+                    if(localBlockCache.isValidFileName(existFilename)) {
+                        existBlockVer = localBlockCache.getBlockVersion(existFilename);
+                    }
+                    
+                    if(existBlockVer <= blockVer) {
+                        // remove old
+                        fileTable.remove(blockId);
+                        // add new
                         fileTable.put(blockId, file);
-                    } else {
-                        String existFilename = existFile.getName();
-                        long existBlockVer = 0;
-                        int existDotidx = existFilename.indexOf(".");
-                        if(existDotidx > 0) {
-                            String existBlockVerStr = existFilename.substring(existDotidx+1);
-                            existBlockVer = Long.parseLong(existBlockVerStr);
-                        }
-
-                        if(existBlockVer <= blockVer) {
-                            // remove old
-                            fileTable.remove(blockId);
-                            // add new
-                            fileTable.put(blockId, file);
-                        }
                     }
                 }
             }

@@ -196,7 +196,7 @@ public class SyndicateFSFileHandle implements Closeable {
         
         LOG.info("reading a block " + blockID);
         InputStream is = readFileDataBlockInputStream(blockID);
-        
+        LOG.info("obtained an inputStream for the block " + blockID);
         return new SyndicateFSReadBlockData(BlockUtils.getBlockStartOffset(blockID, this.blockSize), is, (int) this.blockSize);
     }
     

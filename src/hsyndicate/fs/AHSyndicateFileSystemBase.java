@@ -181,12 +181,13 @@ public abstract class AHSyndicateFileSystemBase implements Closeable {
             throw new IllegalArgumentException("Can not create a new directory from null path");
         }
         
+        LOG.info("mkdirs - " + path.toString());
+        
         SyndicateFSPath absPath = getAbsolutePath(path);
         
         SyndicateFSPath[] ancestors = absPath.getAncestors();
         if(ancestors != null) {
             for(SyndicateFSPath ancestor : ancestors) {
-                LOG.info("mkdir - " + ancestor.toString());
                 if(!exists(ancestor)) {
                     mkdir(ancestor);
                 }
@@ -198,7 +199,7 @@ public abstract class AHSyndicateFileSystemBase implements Closeable {
             return true;
         }
         
-        return false;
+        return true;
     }
     
     public abstract SyndicateFSInputStream getFileInputStream(SyndicateFSPath path) throws FileNotFoundException, IOException;

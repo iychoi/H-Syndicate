@@ -603,7 +603,7 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
             throw new IOException("parent directory does not exist : " + absPath.getPath());
         }
         
-        Future<ClientResponse> makeDirFuture = this.client.makeDir(absPath.getPath(), 0x700);
+        Future<ClientResponse> makeDirFuture = this.client.makeDir(absPath.getPath(), 0744);
         if(makeDirFuture != null) {
             try {
                 this.client.processMakeDir(makeDirFuture);
@@ -704,10 +704,11 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
                 Map<String, StatRaw> entryTable = new HashMap<String, StatRaw>();
                 
                 // need to remove duplicates
+                int entry_cnt = 0;
                 for(StatRaw statRaw : processReadDir.getEntries()) {
-                    if(statRaw.getName().startsWith("/")) {
-                        // current directory?
-                        // ignore
+                    entry_cnt++;
+                    if(entry_cnt <= 2) {
+                        // ignore . and ..
                         continue;
                     }
 

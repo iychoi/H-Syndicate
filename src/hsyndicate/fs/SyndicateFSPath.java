@@ -19,9 +19,13 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class SyndicateFSPath implements Comparable {
 
+    private static final Log LOG = LogFactory.getLog(SyndicateFSPath.class);
+    
     // stores path hierarchy
     private URI uri;
     
@@ -65,6 +69,7 @@ public class SyndicateFSPath implements Comparable {
         
         // assign resolved uri to member field
         this.uri = createPathUri(resolved.getScheme(), resolved.getAuthority(), normalizePath(resolved.getPath()));
+        LOG.info("path - " + uri.toString());
     }
     
     /*
@@ -110,6 +115,7 @@ public class SyndicateFSPath implements Comparable {
 
         // assign resolved uri to member field
         this.uri = createPathUri(uriScheme, uriAuthority, uriPath);
+        LOG.info("path - " + uri.toString());
     }
     
     /*
@@ -117,6 +123,7 @@ public class SyndicateFSPath implements Comparable {
      */
     public SyndicateFSPath(URI uri) {
         this.uri = uri;
+        LOG.info("path - " + uri.toString());
     }
     
     private URI createPathUri(String scheme, String authority, String path) {

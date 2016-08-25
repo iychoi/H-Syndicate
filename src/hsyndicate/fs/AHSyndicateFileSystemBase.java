@@ -186,6 +186,7 @@ public abstract class AHSyndicateFileSystemBase implements Closeable {
         SyndicateFSPath[] ancestors = absPath.getAncestors();
         if(ancestors != null) {
             for(SyndicateFSPath ancestor : ancestors) {
+                LOG.info("mkdir - " + ancestor.toString());
                 if(!exists(ancestor)) {
                     mkdir(ancestor);
                 }

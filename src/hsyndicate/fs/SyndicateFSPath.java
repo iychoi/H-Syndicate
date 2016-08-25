@@ -69,7 +69,7 @@ public class SyndicateFSPath implements Comparable {
         
         // assign resolved uri to member field
         this.uri = createPathUri(resolved.getScheme(), resolved.getAuthority(), normalizePath(resolved.getPath()));
-        LOG.info("path - " + uri.toString());
+        //LOG.info("path - " + uri.toString());
     }
     
     /*
@@ -115,7 +115,7 @@ public class SyndicateFSPath implements Comparable {
 
         // assign resolved uri to member field
         this.uri = createPathUri(uriScheme, uriAuthority, uriPath);
-        LOG.info("path - " + uri.toString());
+        //LOG.info("path - " + uri.toString());
     }
     
     /*
@@ -123,7 +123,7 @@ public class SyndicateFSPath implements Comparable {
      */
     public SyndicateFSPath(URI uri) {
         this.uri = uri;
-        LOG.info("path - " + uri.toString());
+        //LOG.info("path - " + uri.toString());
     }
     
     private URI createPathUri(String scheme, String authority, String path) {

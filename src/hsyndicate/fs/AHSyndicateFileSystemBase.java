@@ -181,7 +181,7 @@ public abstract class AHSyndicateFileSystemBase implements Closeable {
             throw new IllegalArgumentException("Can not create a new directory from null path");
         }
         
-        LOG.info("mkdirs - " + path.toString());
+        //LOG.info("mkdirs - " + path.toString());
         
         SyndicateFSPath absPath = getAbsolutePath(path);
         

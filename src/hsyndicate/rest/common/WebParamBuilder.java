@@ -15,6 +15,8 @@
 */
 package hsyndicate.rest.common;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -31,8 +33,9 @@ public class WebParamBuilder {
         this.resourceURL = contentURL;
     }
     
-    public void addParam(String key, String value) {
-        this.params.put(key, value);
+    public void addParam(String key, String value) throws UnsupportedEncodingException {
+        String escapedValue = URLEncoder.encode(value, "UTF-8");
+        this.params.put(key, escapedValue);
     }
     
     public void addParam(String key, int value) {

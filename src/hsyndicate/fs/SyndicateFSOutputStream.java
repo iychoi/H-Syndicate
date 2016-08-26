@@ -123,9 +123,10 @@ public class SyndicateFSOutputStream extends OutputStream {
         if(this.bufferredSize > 0) {
             // flush stale data
             this.handle.writeFileDataBlockByteArray(BlockUtils.getBlockID(this.blockOffset, this.blockSize), this.bufferredData, this.bufferredSize);
-            if(this.bufferredSize == this.blockSize) {
-                this.bufferredSize = 0;
+            
+            if(this.bufferredSize >= this.blockSize) {
                 this.blockOffset += this.bufferredSize;
+                this.bufferredSize = 0;
             }
         }
     }

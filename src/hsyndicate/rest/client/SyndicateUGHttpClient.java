@@ -262,13 +262,13 @@ public class SyndicateUGHttpClient implements Closeable {
         this.client.processPost(future, null);
     }
     
-    public Future<ClientResponse> write(String path, FileDescriptor fi, long offset, int len, InputStream is) throws IOException {
+    public Future<ClientResponse> write(String path, FileDescriptor fi, long offset, int len, byte[] buffer) throws IOException {
         WebParamBuilder builder = new WebParamBuilder(path);
         builder.addParam(getAPI(WRITE), null);
         builder.addParam(WRITE_FD, fi.getFd());
         builder.addParam(WRITE_OFFSET, offset);
         builder.addParam(WRITE_LENGTH, len);
-        return this.client.postAsync(builder.build(), is);
+        return this.client.postAsync(builder.build(), buffer);
     }
     
     public void processWrite(Future<ClientResponse> future) throws IOException, FileNotFoundException, RestfulException {

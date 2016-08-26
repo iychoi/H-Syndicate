@@ -202,7 +202,7 @@ public class SyndicateFSFileHandle implements Closeable {
         return new SyndicateFSReadBlockData(BlockUtils.getBlockStartOffset(blockID, this.blockSize), buffer, (int) this.blockSize);
     }
     
-    protected synchronized void writeFileDataBlockInputStream(int blockID, InputStream is, int size) throws IOException {
+    protected synchronized void _writeFileDataBlock(int blockID, byte[] buffer, int size) throws IOException {
         if(blockID < 0) {
             throw new IllegalArgumentException("blockID must be positive");
         }
@@ -212,7 +212,7 @@ public class SyndicateFSFileHandle implements Closeable {
         }
         
         SyndicateUGHttpClient client = this.filesystem.getUGRestClient();
-        Future<ClientResponse> writeFuture = client.write(this.status.getPath().getPath(), this.fileDescriptor, BlockUtils.getBlockStartOffset(blockID, this.blockSize), size, is);
+        Future<ClientResponse> writeFuture = client.write(this.status.getPath().getPath(), this.fileDescriptor, BlockUtils.getBlockStartOffset(blockID, this.blockSize), size, buffer);
         if(writeFuture != null) {
             try {
                 client.processWrite(writeFuture);
@@ -237,9 +237,9 @@ public class SyndicateFSFileHandle implements Closeable {
         }
         
         LOG.info("writing a block " + blockID);
-        InputStream is = new ByteArrayInputStream(buffer, 0, size);
-        writeFileDataBlockInputStream(blockID, is, size);
-        IOUtils.closeQuietly(is);
+        byte[] buffer_cpy = new byte[size];
+        System.arraycopy(buffer, 0, buffer_cpy, 0, size);
+        _writeFileDataBlock(blockID, buffer_cpy, size);
     }
     
     public synchronized boolean isOpen() {

@@ -33,9 +33,18 @@ public class WebParamBuilder {
         this.resourceURL = contentURL;
     }
     
+    public void addParam(String key) {
+        this.params.put(key, null);
+    }
+    
     public void addParam(String key, String value) throws UnsupportedEncodingException {
-        String escapedValue = URLEncoder.encode(value, "UTF-8");
-        this.params.put(key, escapedValue);
+        if(value != null) {
+            String escapedValue = URLEncoder.encode(value, "UTF-8");
+            this.params.put(key, escapedValue);
+        } else {
+            // no value
+            this.params.put(key, null);
+        }
     }
     
     public void addParam(String key, int value) {

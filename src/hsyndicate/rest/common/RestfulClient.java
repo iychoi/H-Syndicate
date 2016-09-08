@@ -20,7 +20,6 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.GenericType;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
-import com.sun.jersey.api.client.filter.LoggingFilter;
 import com.sun.jersey.api.json.JSONConfiguration;
 import com.sun.jersey.client.apache4.ApacheHttpClient4;
 import com.sun.jersey.client.apache4.config.ApacheHttpClient4Config;
@@ -31,8 +30,11 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
@@ -48,9 +50,10 @@ public class RestfulClient {
     private static final Log LOG = LogFactory.getLog(RestfulClient.class);
     
     private URI serviceURL;
-    private ThreadSafeClientConnManager connectionManager;
+    private ClientConnectionManager connectionManager;
     private ClientConfig httpClientConfig;
     private ApacheHttpClient4 httpClient;
+    private Thread killme;
     
     public RestfulClient(URI serviceURL, int threadPoolSize) {
         if(serviceURL == null) {
@@ -70,16 +73,29 @@ public class RestfulClient {
         this.httpClientConfig = new DefaultClientConfig();
         this.httpClientConfig.getClasses().add(JacksonJsonProvider.class);
         this.httpClientConfig.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING, Boolean.TRUE);
-        this.httpClientConfig.getProperties().put(ClientConfig.PROPERTY_THREADPOOL_SIZE, threadPoolSize);
+        //this.httpClientConfig.getProperties().put(ClientConfig.PROPERTY_THREADPOOL_SIZE, threadPoolSize);
         this.httpClientConfig.getProperties().put(ApacheHttpClient4Config.PROPERTY_CONNECTION_MANAGER, this.connectionManager);
         
         this.httpClient = ApacheHttpClient4.create(this.httpClientConfig);
-        //this.httpClient.addFilter(new LoggingFilter());
+        
+        LOG.info("RestfulClient for " + this.serviceURL.toString() + " is created");
     }
     
     public void close() {
-        this.httpClient.getExecutorService().shutdownNow();
-        this.httpClient.destroy();
+        LOG.info("Destroying RestfulClient for " + this.serviceURL.toString());
+        
+        //this.httpClient.getExecutorService().shutdownNow();
+        if(this.httpClient != null) {
+            this.httpClient.destroy();
+            this.httpClient = null;
+        }
+        
+        if(this.connectionManager != null) {
+            this.connectionManager.shutdown();
+            this.connectionManager = null;
+        }
+        
+        LOG.info("RestfulClient for " + this.serviceURL.toString() + " is destroyed");
     }
     
     public Object post(String path, Object request, GenericType<?> generic) throws IOException, FileNotFoundException, RestfulException {

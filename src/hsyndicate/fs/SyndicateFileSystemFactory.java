@@ -15,25 +15,8 @@
 */
 package hsyndicate.fs;
 
-import java.util.Map;
-import org.apache.commons.collections4.map.PassiveExpiringMap;
-
 public class SyndicateFileSystemFactory {
-    private static final int DEFAULT_FILESYSTEM_TIMETOLIVE = 600000; // 600 sec
-    private static Map<String, SyndicateFileSystem> fsCache = new PassiveExpiringMap<String, SyndicateFileSystem>(DEFAULT_FILESYSTEM_TIMETOLIVE);
-    
     public static synchronized SyndicateFileSystem getInstance(SyndicateFSConfiguration sconf) throws InstantiationException {
-        SyndicateFileSystem cachedFS = fsCache.get(sconf.getAddress());
-        if(cachedFS != null && cachedFS.isClosed()) {
-            fsCache.remove(sconf.getAddress());
-            cachedFS = null;
-        }
-        
-        if(cachedFS == null) {
-            cachedFS = new SyndicateFileSystem(sconf);
-            fsCache.put(sconf.getAddress(), cachedFS);
-        }
-        
-        return cachedFS;
+        return new SyndicateFileSystem(sconf);
     }
 }

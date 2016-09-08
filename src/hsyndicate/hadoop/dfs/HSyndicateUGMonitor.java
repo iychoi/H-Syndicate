@@ -15,7 +15,6 @@
 */
 package hsyndicate.hadoop.dfs;
 
-import hsyndicate.fs.SyndicateFileSystemFactory;
 import hsyndicate.fs.SyndicateFSConfiguration;
 import hsyndicate.fs.SyndicateFSPath;
 import hsyndicate.fs.SyndicateFileSystem;
@@ -26,14 +25,15 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import hsyndicate.hadoop.utils.HSyndicateConfigUtils;
+import java.io.Closeable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class HSyndicateUGMonitor {
+public class HSyndicateUGMonitor implements Closeable {
     private static final Log LOG = LogFactory.getLog(HSyndicateUGMonitor.class);
     
-    private static List<String> usergateway_hostnames = new ArrayList<String>();
-    private static Map<String, SyndicateFileSystem> syndicateFSs = new HashMap<String, SyndicateFileSystem>();
+    private List<String> usergateway_hostnames = new ArrayList<String>();
+    private Map<String, SyndicateFileSystem> syndicateFSs = new HashMap<String, SyndicateFileSystem>();
     
     public HSyndicateUGMonitor(Configuration conf) throws IOException {
         String[] gateway_hostnames = HSyndicateConfigUtils.listSyndicateUGHostsWithPort(conf);
@@ -48,10 +48,19 @@ public class HSyndicateUGMonitor {
         }
     }
     
+    @Override
+    public synchronized void close() throws IOException {
+        this.usergateway_hostnames.clear();
+        for(SyndicateFileSystem fs : this.syndicateFSs.values()) {
+            fs.close();
+        }
+        this.syndicateFSs.clear();
+    }
+    
     private static SyndicateFileSystem createHSyndicateFS(Configuration conf, String address) throws IOException {
         SyndicateFSConfiguration sconf = HSyndicateConfigUtils.createSyndicateConf(conf, address);
         try {
-            return SyndicateFileSystemFactory.getInstance(sconf);
+            return new SyndicateFileSystem(sconf);
         } catch (InstantiationException ex) {
             throw new IOException(ex.getCause());
         }

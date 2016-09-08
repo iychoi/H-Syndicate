@@ -277,8 +277,9 @@ public class HSyndicateDFS extends FileSystem {
     
     @Override
     public synchronized BlockLocation[] getFileBlockLocations(FileStatus file, long start, long len) {
+        HSyndicateUGMonitor monitor = null;
         try {
-            HSyndicateUGMonitor monitor = new HSyndicateUGMonitor(this.getConf());
+            monitor = new HSyndicateUGMonitor(this.getConf());
             SyndicateFSPath hpath = makeSyndicateFSPath(file.getPath());
 
             long filesize = file.getLen();
@@ -319,9 +320,15 @@ public class HSyndicateDFS extends FileSystem {
                 locations[i].setNames(null);
             }
             
+            monitor.close();
             return locations;
         } catch (Exception ex) {
             LOG.info(ex);
+            if(monitor != null) {
+                try {
+                    monitor.close();
+                } catch (IOException ex1) {}
+            }
         }
         return null;
     }

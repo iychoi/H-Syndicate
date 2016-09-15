@@ -273,7 +273,7 @@ public class HSyndicateDFS extends FileSystem {
     
     @Override
     public synchronized long getDefaultBlockSize() {
-        return this.syndicateFS.getBlockSize();
+        return this.syndicateFS.getBlockSize() * 64;
     }
     
     @Override
@@ -284,37 +284,70 @@ public class HSyndicateDFS extends FileSystem {
             SyndicateFSPath hpath = makeSyndicateFSPath(file.getPath());
 
             long filesize = file.getLen();
-            long blocksize = getDefaultBlockSize();
+            long pblocksize = this.syndicateFS.getBlockSize();
+            long lblocksize = getDefaultBlockSize();
+            int groupof = 64;
             
-            int startblockID = BlockUtils.getBlockID(start, blocksize);
-            int endblockID = BlockUtils.getBlockID(start + len, blocksize);
-            int effectiveblocklen = endblockID - startblockID + 1;
+            int pstartblockID = BlockUtils.getBlockID(start, pblocksize);
+            int pendblockID = BlockUtils.getBlockID(start + len, pblocksize);
+            int peffectiveblocklen = pendblockID - pstartblockID + 1;
+            
+            int lstartblockID = BlockUtils.getBlockID(start, lblocksize);
+            int lendblockID = BlockUtils.getBlockID(start + len, lblocksize);
+            int leffectiveblocklen = lendblockID - lstartblockID + 1;
 
-            BlockLocation[] locations = new BlockLocation[effectiveblocklen];
+            BlockLocation[] locations = new BlockLocation[leffectiveblocklen];
             List<HSyndicateUGMonitorResults<byte[]>> localCachedBlockInfo = monitor.getLocalCachedBlockInfo(hpath);
             
-            for(int i=0;i<effectiveblocklen;i++) {
+            for(int i=0;i<leffectiveblocklen;i++) {
                 locations[i] = new BlockLocation();
-                locations[i].setOffset(BlockUtils.getBlockStartOffset(startblockID + i, blocksize));
-                locations[i].setLength(BlockUtils.getBlockLength(filesize, blocksize, startblockID + i));
+                locations[i].setOffset(BlockUtils.getBlockStartOffset(lstartblockID + i, lblocksize));
+                locations[i].setLength(BlockUtils.getBlockLength(filesize, lblocksize, lstartblockID + i));
                 
                 List<String> gateway_hosts = new ArrayList<String>();
                 List<String> gateway_names = new ArrayList<String>();
                 List<String> gateway_topology = new ArrayList<String>();
                 
-                for(HSyndicateUGMonitorResults<byte[]> info : localCachedBlockInfo) {
+                int[] lcachedcnt = new int[localCachedBlockInfo.size()];
+                for(int k=0;k<lcachedcnt.length;k++) {
+                    lcachedcnt[k] = 0;
+                }
+                
+                for(int k=0;k<lcachedcnt.length;k++) {
+                    HSyndicateUGMonitorResults<byte[]> info = localCachedBlockInfo.get(k);
                     if(info.getResult() != null) {
-                        boolean hasCache = BlockUtils.checkBlockPresence(startblockID + i, info.getResult());
-                        if(hasCache) {
+                        for(int j=0;j<groupof;j++) {
+                            int pcurblockID = pstartblockID + (i * groupof) + j;
+                            if(pcurblockID >= peffectiveblocklen) {
+                                break;
+                            }
+                            
+                            boolean hasCache = BlockUtils.checkBlockPresence(pcurblockID, info.getResult());
+                            if(hasCache) {
+                                lcachedcnt[k]++;
+                            }
+                        }
+                    }    
+                }
+                
+                int maxCnt = 0;
+                for(int k=0;k<lcachedcnt.length;k++) {
+                    if(maxCnt < lcachedcnt[k]) {
+                        maxCnt = lcachedcnt[k];
+                    }
+                }
+                
+                if(maxCnt > 0) {
+                    for(int k=0;k<lcachedcnt.length;k++) {
+                        if(lcachedcnt[k] == maxCnt) {
+                            HSyndicateUGMonitorResults<byte[]> info = localCachedBlockInfo.get(k);
                             gateway_names.add(info.getHostname());
                         }
                     }
                 }
                 
-                List<String> userGatewayHosts = monitor.getUserGatewayHosts();
-                
                 if(gateway_names.isEmpty()) {
-                    gateway_names.addAll(userGatewayHosts);
+                    gateway_names.addAll(monitor.getUserGatewayHosts());
                 }
                 
                 for(String name : gateway_names) {

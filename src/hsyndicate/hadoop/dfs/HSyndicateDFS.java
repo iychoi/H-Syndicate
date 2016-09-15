@@ -35,6 +35,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import hsyndicate.utils.BlockUtils;
 import hsyndicate.hadoop.utils.HSyndicateConfigUtils;
+import hsyndicate.utils.IPUtils;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.util.Progressable;
 
@@ -297,27 +298,33 @@ public class HSyndicateDFS extends FileSystem {
                 locations[i].setOffset(BlockUtils.getBlockStartOffset(startblockID + i, blocksize));
                 locations[i].setLength(BlockUtils.getBlockLength(filesize, blocksize, startblockID + i));
                 
-                List<String> gateway_hostnames = new ArrayList<String>();
+                List<String> gateway_hosts = new ArrayList<String>();
+                List<String> gateway_names = new ArrayList<String>();
+                List<String> gateway_topology = new ArrayList<String>();
                 
                 for(HSyndicateUGMonitorResults<byte[]> info : localCachedBlockInfo) {
                     if(info.getResult() != null) {
                         boolean hasCache = BlockUtils.checkBlockPresence(startblockID + i, info.getResult());
                         if(hasCache) {
-                            gateway_hostnames.add(info.getHostname());
+                            gateway_names.add(info.getHostname());
                         }
                     }
                 }
                 
                 List<String> userGatewayHosts = monitor.getUserGatewayHosts();
                 
-                if(gateway_hostnames.isEmpty()) {
-                    gateway_hostnames.addAll(userGatewayHosts);
-                    //gateway_hostnames.add("localhost");
+                if(gateway_names.isEmpty()) {
+                    gateway_names.addAll(userGatewayHosts);
                 }
                 
-                locations[i].setHosts(gateway_hostnames.toArray(new String[0]));
-                LOG.info("block " + i + " : " + locations[i].getHosts()[0]);
-                locations[i].setNames(null);
+                for(String name : gateway_names) {
+                    gateway_hosts.add(IPUtils.parseHost(name));
+                    gateway_topology.add("/default-rack/" + name);
+                }
+                
+                locations[i].setHosts(gateway_hosts.toArray(new String[0]));
+                locations[i].setNames(gateway_names.toArray(new String[0]));
+                locations[i].setTopologyPaths(gateway_topology.toArray(new String[0]));
             }
             
             monitor.close();

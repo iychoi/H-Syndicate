@@ -263,4 +263,13 @@ public class IPUtils {
         
         return null;
     }
+
+    public static String parseHost(String address) {
+        int pos = address.indexOf(":");
+        if(pos > 0) {
+            return address.substring(0, pos);
+        } else {
+            return address;
+        }
+    }
 }

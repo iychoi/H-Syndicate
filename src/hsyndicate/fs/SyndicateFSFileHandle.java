@@ -44,7 +44,6 @@ public class SyndicateFSFileHandle implements Closeable {
     private boolean closed = true;
     private boolean modified = false;
     private long blockSize;
-    private int blockNum;
     private boolean localFileSystem;
     private Map<UnsignedLong, File> localCachedBlocks;
     private Thread keepaliveThread;
@@ -85,7 +84,6 @@ public class SyndicateFSFileHandle implements Closeable {
         this.modified = false;
 
         this.blockSize = status.getBlockSize();
-        this.blockNum = BlockUtils.getBlocks(status.getSize(), this.blockSize);
         
         String host = this.filesystem.getConfiguration().getHost();
         if(IPUtils.isLocalIPAddress(host)) {

@@ -30,6 +30,15 @@ public class SyndicateFSFileStatus {
     private boolean sizeModified;
     private long localFileSize;
 
+    public SyndicateFSFileStatus(SyndicateFileSystem fs, SyndicateFSPath path) {
+        this.filesystem = fs;
+        this.path = path;
+        this.statRaw = null;
+        this.dirty = true;
+        this.sizeModified = false;
+        this.localFileSize = 0;
+    }
+    
     public SyndicateFSFileStatus(SyndicateFileSystem fs, SyndicateFSPath path, StatRaw statRaw) {
         this.filesystem = fs;
         this.path = path;
@@ -48,18 +57,28 @@ public class SyndicateFSFileStatus {
     }
     
     public synchronized boolean isDirectory() {
+        if(this.statRaw == null) {
+            return false;
+        }
         return this.statRaw.isDirectory();
     }
 
     public synchronized boolean isFile() {
+        if(this.statRaw == null) {
+            return true;
+        }
         return this.statRaw.isFile();
     }
 
     public synchronized long getSize() {
-        if(this.sizeModified)
+        if(this.sizeModified) {
             return this.localFileSize;
-        else
+        } else {
+            if(this.statRaw == null) {
+                return 0;
+            }
             return this.statRaw.getSize();
+        }
     }
 
     public synchronized long getBlockSize() {
@@ -78,26 +97,44 @@ public class SyndicateFSFileStatus {
     }
 
     public synchronized long getLastAccess() {
+        if(this.statRaw == null) {
+            return 0;
+        }
         return this.statRaw.getMtime();
     }
 
     public synchronized long getLastModification() {
+        if(this.statRaw == null) {
+            return 0;
+        }
         return this.statRaw.getMtime();
     }
     
     public synchronized int getMode() {
+        if(this.statRaw == null) {
+            return 0;
+        }
         return this.statRaw.getMode();
     }
     
     public synchronized int getUserMode() {
+        if(this.statRaw == null) {
+            return 0;
+        }
         return this.statRaw.getUserMode();
     }
     
     public synchronized int getGroupMode() {
+        if(this.statRaw == null) {
+            return 0;
+        }
         return this.statRaw.getGroupMode();
     }
     
     public synchronized int getOthersMode() {
+        if(this.statRaw == null) {
+            return 0;
+        }
         return this.statRaw.getOthersMode();
     }
 

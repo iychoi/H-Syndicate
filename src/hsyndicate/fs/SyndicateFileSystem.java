@@ -176,12 +176,8 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
         if(openFuture != null) {
             try {
                 FileDescriptor fi = this.client.processOpen(openFuture);
-                Future<ClientResponse> closeFuture = this.client.close(abspath.getPath(), fi);
-                if(closeFuture != null) {
-                    this.client.processClose(closeFuture);
-                } else {
-                    throw new IOException("Can not create a REST client");
-                }
+                SyndicateFSFileStatus status = new SyndicateFSFileStatus(this, abspath);
+                return new SyndicateFSFileHandle(this, status, fi, false);
             } catch (Exception ex) {
                 LOG.error("exception occurred", ex);
                 throw new IOException(ex);
@@ -189,9 +185,6 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
         } else {
             throw new IOException("Can not create a REST client");
         }
-        
-        SyndicateFSFileStatus status = getFileStatus(abspath);
-        return getFileHandle(status, false);
     }
     
     @Override

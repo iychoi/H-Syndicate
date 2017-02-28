@@ -98,6 +98,11 @@ public class RestfulClient {
         LOG.info("RestfulClient for " + this.serviceURL.toString() + " is destroyed");
     }
     
+    private URI makeRequestURL(String path) {
+        URI requestURL = this.serviceURL.resolve(path);
+        return requestURL;
+    }
+    
     public Object post(String path, Object request, GenericType<?> generic) throws IOException, FileNotFoundException, RestfulException {
         Future<ClientResponse> future = postAsync(path, request);
         return processPost(future, generic);
@@ -113,7 +118,7 @@ public class RestfulClient {
         //    throw new IllegalArgumentException("request is null");
         //}
         
-        URI requestURL = this.serviceURL.resolve(path);
+        URI requestURL = makeRequestURL(path);
         LOG.info("sending a post request - " + requestURL.toString());
         AsyncWebResource webResource = this.httpClient.asyncResource(requestURL);
         return (Future<ClientResponse>) webResource.accept("application/json").type("application/json").post(ClientResponse.class, request);
@@ -170,7 +175,7 @@ public class RestfulClient {
             throw new IllegalArgumentException("path is null or empty");
         }
         
-        URI requestURL = this.serviceURL.resolve(path);
+        URI requestURL = makeRequestURL(path);
         LOG.info("sending a get request - " + requestURL.toString());
         AsyncWebResource webResource = this.httpClient.asyncResource(requestURL);
         return (Future<ClientResponse>) webResource.accept("application/json").type("application/json").get(ClientResponse.class);
@@ -222,7 +227,7 @@ public class RestfulClient {
             throw new IllegalArgumentException("path is null or empty");
         }
         
-        URI requestURL = this.serviceURL.resolve(path);
+        URI requestURL = makeRequestURL(path);
         LOG.info("sending a delete request - " + requestURL.toString());
         AsyncWebResource webResource = this.httpClient.asyncResource(requestURL);
         return (Future<ClientResponse>) webResource.accept("application/json").type("application/json").delete(ClientResponse.class);
@@ -279,7 +284,7 @@ public class RestfulClient {
             throw new IllegalArgumentException("path is null or empty");
         }
         
-        URI requestURL = this.serviceURL.resolve(path);
+        URI requestURL = makeRequestURL(path);
         LOG.info("sending a download request - " + requestURL.toString());
         AsyncWebResource webResource = this.httpClient.asyncResource(requestURL);
         return (Future<ClientResponse>) webResource.accept("application/octet-stream").type("application/json").get(ClientResponse.class);

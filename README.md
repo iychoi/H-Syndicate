@@ -18,8 +18,8 @@ $ ant
 
 All dependencies for this project are already in /libs/ directory.
 
-Configuring
------------
+Configuration
+-------------
 
 First, set `classpath` of Java/Hadoop to make Hadoop be able to find the H-Syndicate package. The easiest way of doing this is copying the H-Syndicate jar package (including its dependencies) into Hadoop's library path (under `$HADOOP_HOME/lib/`).
 
@@ -55,9 +55,23 @@ Next, configure `core-site.xml` file to plug the H-Syndicate module into the Had
 </configuration>
 ```
 
+Configure a session key for Syndicate.
+```
+hadoop credential create fs.hsyndicate.session.key -value <SESSION_KEY> -provider jceks://hdfs/user/<username>/hsyndicate.jceks
+
+```
+
 Ansible
 -------
 
 ```
 ansible-playbook -i hosts.yml site.yml
+```
+
+
+Usage
+-----
+
+```
+hadoop dfs -D hadoop.security.credential.provider.path=jceks://hdfs/user/<username>/hsyndicate.jceks -ls hsyn:///
 ```

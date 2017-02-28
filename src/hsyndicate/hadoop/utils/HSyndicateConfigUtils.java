@@ -31,7 +31,7 @@ public class HSyndicateConfigUtils {
     
     public static final String CONFIG_SYNDICATE_USER_GATEWAY_HOSTS = "fs.hsyndicate.hosts";
     public static final String CONFIG_SYNDICATE_USER_GATEWAY_DEFAULT_PORT = "fs.hsyndicate.port";
-
+    
     private static String autoDetectedDataNodes = null;
     
     public static String getSyndicateUGHosts(Configuration conf) {

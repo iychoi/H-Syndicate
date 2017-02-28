@@ -22,9 +22,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hdfs.DFSClient;
-import org.apache.hadoop.hdfs.protocol.ClientProtocol;
 import org.apache.hadoop.hdfs.protocol.DatanodeInfo;
-import org.apache.hadoop.hdfs.protocol.FSConstants;
+import org.apache.hadoop.hdfs.protocol.HdfsConstants;
+import org.apache.hadoop.hdfs.server.namenode.NameNode;
 
 public class DFSNodeInfoUtils {
     
@@ -32,8 +32,8 @@ public class DFSNodeInfoUtils {
     
     public static String[] getDataNodes(Configuration conf) throws IOException {
         List<String> datanodes = new ArrayList<String>();
-        ClientProtocol client = DFSClient.createNamenode(conf);
-        DatanodeInfo[] datanodeReport = client.getDatanodeReport(FSConstants.DatanodeReportType.LIVE);
+        DFSClient client = new DFSClient(NameNode.getAddress(conf), conf);
+        DatanodeInfo[] datanodeReport = client.datanodeReport(HdfsConstants.DatanodeReportType.LIVE);
         for(DatanodeInfo nodeinfo : datanodeReport) {
             datanodes.add(nodeinfo.getHostName().trim());
         }
@@ -43,8 +43,8 @@ public class DFSNodeInfoUtils {
     
     public static String getDataNodesCommaSeparated(Configuration conf) throws IOException {
         StringBuilder sb = new StringBuilder();
-        ClientProtocol client = DFSClient.createNamenode(conf);
-        DatanodeInfo[] datanodeReport = client.getDatanodeReport(FSConstants.DatanodeReportType.LIVE);
+        DFSClient client = new DFSClient(NameNode.getAddress(conf), conf);
+        DatanodeInfo[] datanodeReport = client.datanodeReport(HdfsConstants.DatanodeReportType.LIVE);
         for(DatanodeInfo nodeinfo : datanodeReport) {
             if(sb.length() != 0) {
                 sb.append(",");

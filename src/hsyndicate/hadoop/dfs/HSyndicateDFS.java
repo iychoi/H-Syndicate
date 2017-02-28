@@ -15,7 +15,6 @@
 */
 package hsyndicate.hadoop.dfs;
 
-import hsyndicate.fs.SyndicateFileSystemFactory;
 import hsyndicate.fs.SyndicateFSPath;
 import hsyndicate.fs.SyndicateFSConfiguration;
 import hsyndicate.fs.SyndicateFileSystem;
@@ -63,9 +62,7 @@ public class HSyndicateDFS extends FileSystem {
         
         super.initialize(uri, conf);
         
-        if (this.syndicateFS == null) {
-            this.syndicateFS = createHSyndicateFS(uri, conf);
-        }
+        this.syndicateFS = createHSyndicateFS(uri, conf);
         
         setConf(conf);
         
@@ -93,7 +90,7 @@ public class HSyndicateDFS extends FileSystem {
         }
         
         try {
-            return SyndicateFileSystemFactory.getInstance(sconf);
+            return new SyndicateFileSystem(sconf);
         } catch (InstantiationException ex) {
             throw new IOException(ex.getCause());
         }

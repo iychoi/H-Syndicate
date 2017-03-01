@@ -85,10 +85,38 @@ public class SyndicateUGHttpClient implements Closeable {
     public static final int DEFAULT_THREAD_POOL_SIZE = 10;
     
     private URI serviceURI;
+    private String sessionName;
+    private String sessionKey;
     private RestfulClient client;
     private API_CALL api_call;
     
-    public SyndicateUGHttpClient(String host, int port) throws InstantiationException {
+    public SyndicateUGHttpClient(String host, int port, String sessionName, String sessionKey) throws InstantiationException {
+        if(host == null) {
+            throw new IllegalArgumentException("host is null");
+        }
+        
+        if(port <= 0) {
+            throw new IllegalArgumentException("port is illegal");
+        }
+        
+        if(sessionName == null || sessionName.isEmpty()) {
+            throw new IllegalArgumentException("sessionName is null or empty");
+        }
+        
+        if(sessionKey == null || sessionKey.isEmpty()) {
+            throw new IllegalArgumentException("sessionKey is null or empty");
+        }
+        
+        try {
+            URI serviceURI = new URI(String.format("http://%s:%d/", host, port));
+            initialize(serviceURI, sessionName, sessionKey, API_CALL_DEFAULT);
+        } catch (URISyntaxException ex) {
+            LOG.error("exception occurred", ex);
+            throw new InstantiationException(ex.getMessage());
+        }
+    }
+    
+    public SyndicateUGHttpClient(String host, int port, String sessionName, String sessionKey, API_CALL api_call) throws InstantiationException {
         if(host == null) {
             throw new IllegalArgumentException("host is null");
         }
@@ -98,33 +126,15 @@ public class SyndicateUGHttpClient implements Closeable {
         }
         
         try {
-            URI serviceURI = new URI("http://" + host + ":" + port);
-            initialize(serviceURI, API_CALL_DEFAULT);
+            URI serviceURI = new URI(String.format("http://%s:%d/", host, port));
+            initialize(serviceURI, sessionName, sessionKey, api_call);
         } catch (URISyntaxException ex) {
             LOG.error("exception occurred", ex);
             throw new InstantiationException(ex.getMessage());
         }
     }
     
-    public SyndicateUGHttpClient(String host, int port, API_CALL api_call) throws InstantiationException {
-        if(host == null) {
-            throw new IllegalArgumentException("host is null");
-        }
-        
-        if(port <= 0) {
-            throw new IllegalArgumentException("port is illegal");
-        }
-        
-        try {
-            URI serviceURI = new URI("http://" + host + ":" + port);
-            initialize(serviceURI, api_call);
-        } catch (URISyntaxException ex) {
-            LOG.error("exception occurred", ex);
-            throw new InstantiationException(ex.getMessage());
-        }
-    }
-    
-    private void initialize(URI serviceURI, API_CALL api_call) {
+    private void initialize(URI serviceURI, String sessionName, String sessionKey, API_CALL api_call) {
         if(serviceURI == null) {
             throw new IllegalArgumentException("serviceURI is null");
         }
@@ -132,6 +142,8 @@ public class SyndicateUGHttpClient implements Closeable {
         LOG.info("connect to " + serviceURI.toASCIIString());
         
         this.serviceURI = serviceURI;
+        this.sessionName = sessionName;
+        this.sessionKey = sessionKey;
         this.client = new RestfulClient(serviceURI, DEFAULT_THREAD_POOL_SIZE);
         this.api_call = api_call;
     }
@@ -146,6 +158,14 @@ public class SyndicateUGHttpClient implements Closeable {
     
     public int getServicePort() {
         return this.serviceURI.getPort();
+    }
+    
+    public String getSessionName() {
+        return this.sessionName;
+    }
+    
+    public String getSessionKey() {
+        return this.sessionKey;
     }
     
     @Override

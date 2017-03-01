@@ -31,6 +31,7 @@ public class HSyndicateConfigUtils {
     
     public static final String CONFIG_SYNDICATE_USER_GATEWAY_HOSTS = "fs.hsyndicate.hosts";
     public static final String CONFIG_SYNDICATE_USER_GATEWAY_DEFAULT_PORT = "fs.hsyndicate.port";
+    public static final String CONFIG_SYNDICATE_USER_GATEWAY_SESSION_PREFIX = "fs.hsyndicate.session";
     
     private static String autoDetectedDataNodes = null;
     
@@ -76,7 +77,7 @@ public class HSyndicateConfigUtils {
                     hostList.add(host);
                 } else {
                     if(port > 0) {
-                        hostList.add(host + ":" + port);
+                        hostList.add(String.format("%s:%d", host, port));
                     } else {
                         hostList.add(host);
                     }
@@ -109,38 +110,45 @@ public class HSyndicateConfigUtils {
         return contactPoints.get(0);
     }
     
-    public static SyndicateFSConfiguration createSyndicateConf(Configuration conf) throws IOException {
-        String ug_address = pickClosestUGHostWithPort(conf);
-        return createSyndicateConf(conf, ug_address);
+    public static String getSyndicateUGSessionKey(Configuration conf, String sessionName) {
+        try {
+            char[] sessionKey = conf.getPassword(String.format("%s.%s.key", CONFIG_SYNDICATE_USER_GATEWAY_SESSION_PREFIX, sessionName));
+            return new String(sessionKey);
+        } catch (IOException ex) {
+            LOG.error("failed to read a session key of " + sessionName, ex);
+            return null;
+        }
     }
     
-    public static SyndicateFSConfiguration createSyndicateConf(Configuration conf, String ug_address) throws IOException {
+    public static SyndicateFSConfiguration createSyndicateConf(Configuration conf) throws IOException {
+        String ugAddress = pickClosestUGHostWithPort(conf);
+        return createSyndicateConf(conf, ugAddress);
+    }
+    
+    public static SyndicateFSConfiguration createSyndicateConf(Configuration conf, String ugAddress) throws IOException {
         SyndicateFSConfiguration sconf = new SyndicateFSConfiguration();
         
         // default port
-        int default_port = HSyndicateConfigUtils.getSyndicateUGDefaultPort(conf);
-        if(default_port > 0) {
-            sconf.setPort(default_port);
+        int defaultPort = HSyndicateConfigUtils.getSyndicateUGDefaultPort(conf);
+        if(defaultPort > 0) {
+            sconf.setPort(defaultPort);
         }
         
-        if(ug_address == null || ug_address.isEmpty()) {
-            // use default (local)   
-            return sconf;
-        }
+        if(ugAddress != null && !ugAddress.isEmpty()) {
+            String hostname = ugAddress;
+            int pos = hostname.indexOf(":");
+            if(pos > 0) {
+                hostname = hostname.substring(0, pos);
+            }
 
-        String hostname = ug_address;
-        int pos = hostname.indexOf(":");
-        if(pos > 0) {
-            hostname = hostname.substring(0, pos);
-        }
-        
-        // host
-        sconf.setHost(hostname);
-        
-        if(pos > 0) {
-            int port = Integer.parseInt(ug_address.substring(pos + 1));
-            if(port > 0) {
-                sconf.setPort(port);
+            // host
+            sconf.setHost(hostname);
+
+            if(pos > 0) {
+                int port = Integer.parseInt(ugAddress.substring(pos + 1));
+                if(port > 0) {
+                    sconf.setPort(port);
+                }
             }
         }
         

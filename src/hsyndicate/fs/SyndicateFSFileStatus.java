@@ -82,7 +82,7 @@ public class SyndicateFSFileStatus {
     }
 
     public synchronized long getBlockSize() {
-        return this.filesystem.getBlockSize();
+        return this.filesystem.getBlockSize(this.path);
     }
 
     public synchronized long getBlocks() {

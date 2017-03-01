@@ -20,9 +20,9 @@ public class DateTimeUtils {
         return System.currentTimeMillis();
     }
     
-    public static boolean timeElapsedSecond(long prev_time, long cur_time, long period_second) {
-        long gap = period_second * 1000;
-        if(cur_time - prev_time >= gap) {
+    public static boolean timeElapsedSecond(long prevTime, long curTime, long periodSecond) {
+        long gap = periodSecond * 1000;
+        if(curTime - prevTime >= gap) {
             return true;
         }
         return false;

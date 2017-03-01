@@ -34,9 +34,9 @@ public class JsonSerializer {
         this.mapper = new ObjectMapper();
     }
 
-    public JsonSerializer(boolean prettyformat) {
+    public JsonSerializer(boolean prettyFormat) {
         this.mapper = new ObjectMapper();
-        this.mapper.configure(SerializationConfig.Feature.INDENT_OUTPUT, prettyformat);
+        this.mapper.configure(SerializationConfig.Feature.INDENT_OUTPUT, prettyFormat);
     }
 
     public String toJson(Object obj) throws IOException {

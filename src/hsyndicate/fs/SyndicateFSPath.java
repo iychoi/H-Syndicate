@@ -171,6 +171,30 @@ public class SyndicateFSPath implements Comparable {
         return path.substring(slash + 1, path.length());
     }
     
+    public String getSessionName() {
+        String path = this.uri.getPath();
+        // empty
+        if (path.length() == 0) {
+            return null;
+        }
+        
+        // root
+        if (path.length() == 1 && path.equals("/")) {
+            return null;
+        }
+        
+        if (path.startsWith("/")) {
+            int secondSlash = path.indexOf('/', 1);
+            if(secondSlash == -1) {
+                return path.substring(1);
+            } else {
+                return path.substring(1, secondSlash);
+            }
+        } else {
+            return null;
+        }
+    }
+    
     /*
      * Return the parent path, Null if parent is root
      */
@@ -178,11 +202,13 @@ public class SyndicateFSPath implements Comparable {
         String path = this.uri.getPath();
         int lastSlash = path.lastIndexOf('/');
         // empty
-        if (path.length() == 0)
+        if (path.length() == 0) {
             return null;
+        }
         // root
-        if (path.length() == 1 && lastSlash == 0)
+        if (path.length() == 1 && lastSlash == 0) {
             return null;
+        }
         
         if (lastSlash == -1) {
             return new SyndicateFSPath(createPathUri(this.uri.getScheme(), this.uri.getAuthority(), "."));
@@ -259,8 +285,8 @@ public class SyndicateFSPath implements Comparable {
             parent = parent.getParent();
         }
         
-        SyndicateFSPath[] ancestors_array = ancestors.toArray(new SyndicateFSPath[0]);
-        return ancestors_array;
+        SyndicateFSPath[] ancestorsArray = ancestors.toArray(new SyndicateFSPath[0]);
+        return ancestorsArray;
     }
     
     public SyndicateFSPath suffix(String suffix) {

@@ -22,7 +22,6 @@ import hsyndicate.rest.datatypes.FileDescriptor;
 import hsyndicate.utils.BlockUtils;
 import hsyndicate.utils.IOUtils;
 import hsyndicate.utils.IPUtils;
-import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
@@ -85,7 +84,7 @@ public class SyndicateFSFileHandle implements Closeable {
 
         this.blockSize = status.getBlockSize();
         
-        String host = this.filesystem.getConfiguration().getHost();
+        String host = this.filesystem.getSyndicateFsConfiguration().getHost();
         if(IPUtils.isLocalIPAddress(host)) {
             this.localFileSystem = true;
             try {
@@ -120,24 +119,24 @@ public class SyndicateFSFileHandle implements Closeable {
             throw new IOException("File handle is closed");
         }
         
-        SyndicateUGHttpClient client = this.filesystem.getUGRestClient();
-        Future<ClientResponse> extendTtlFuture = client.extendTtl(this.status.getPath().getPath(), this.fileDescriptor);
-        if (extendTtlFuture != null) {
-            try {
+        try {
+            SyndicateUGHttpClient client = this.filesystem.getUGRestClient(this.status.getPath().getSessionName());
+            Future<ClientResponse> extendTtlFuture = client.extendTtl(this.status.getPath().getPath(), this.fileDescriptor);
+            if (extendTtlFuture != null) {
                 client.processExtendTtl(extendTtlFuture);
-            } catch (Exception ex) {
-                LOG.error("exception occurred", ex);
-                throw new IOException(ex);
+            } else {
+                throw new IOException("Can not process REST operations");
             }
-        } else {
-            throw new IOException("Can not create a REST client");
+        } catch (Exception ex) {
+            LOG.error("exception occurred", ex);
+            throw new IOException(ex);
         }
     }
     
     public synchronized void tryExtendTTL() {
         if(!this.closed) {
             try {
-                SyndicateUGHttpClient client = this.filesystem.getUGRestClient();
+                SyndicateUGHttpClient client = this.filesystem.getUGRestClient(this.status.getPath().getSessionName());
                 Future<ClientResponse> extendTtlFuture = client.extendTtl(this.status.getPath().getPath(), this.fileDescriptor);
                 if (extendTtlFuture != null) {
                     client.processExtendTtl(extendTtlFuture);
@@ -165,25 +164,23 @@ public class SyndicateFSFileHandle implements Closeable {
         }
         
         // otherwise
-        SyndicateUGHttpClient client = this.filesystem.getUGRestClient();
-        Future<ClientResponse> readFuture = client.read(this.status.getPath().getPath(), this.fileDescriptor, BlockUtils.getBlockStartOffset(blockID, this.blockSize), (int) this.blockSize);
-        if(readFuture != null) {
-            InputStream readIS;
-            try {
-                readIS = client.processRead(readFuture);
-            } catch (Exception ex) {
-                LOG.error("exception occurred", ex);
-                throw new IOException(ex);
+        try {
+            SyndicateUGHttpClient client = this.filesystem.getUGRestClient(this.status.getPath().getSessionName());
+            Future<ClientResponse> readFuture = client.read(this.status.getPath().getPath(), this.fileDescriptor, BlockUtils.getBlockStartOffset(blockID, this.blockSize), (int) this.blockSize);
+            if(readFuture != null) {
+                InputStream readIS = client.processRead(readFuture);
+                if(readIS == null) {
+                    LOG.error("failed to read file - " + this.status.getPath().getPath());
+                    throw new IOException("failed to read file - " + this.status.getPath().getPath());
+                }
+
+                return readIS;
+            } else {
+                throw new IOException("Can not process REST operations");
             }
-            
-            if(readIS == null) {
-                LOG.error("failed to read file - " + this.status.getPath().getPath());
-                throw new IOException("failed to read file - " + this.status.getPath().getPath());
-            }
-            
-            return readIS;
-        } else {
-            throw new IOException("Can not create a REST client");
+        } catch (Exception ex) {
+            LOG.error("exception occurred", ex);
+            throw new IOException(ex);
         }
     }
     
@@ -200,7 +197,7 @@ public class SyndicateFSFileHandle implements Closeable {
         return new SyndicateFSReadBlockData(BlockUtils.getBlockStartOffset(blockID, this.blockSize), buffer, (int) this.blockSize);
     }
     
-    protected synchronized void _writeFileDataBlock(int blockID, byte[] buffer, int size) throws IOException {
+    protected synchronized void writeFileDataBlock(int blockID, byte[] buffer, int size) throws IOException {
         if(blockID < 0) {
             throw new IllegalArgumentException("blockID must be positive");
         }
@@ -209,24 +206,23 @@ public class SyndicateFSFileHandle implements Closeable {
             throw new IOException("Can not write data to readonly handle");
         }
         
-        SyndicateUGHttpClient client = this.filesystem.getUGRestClient();
-        Future<ClientResponse> writeFuture = client.write(this.status.getPath().getPath(), this.fileDescriptor, BlockUtils.getBlockStartOffset(blockID, this.blockSize), size, buffer);
-        if(writeFuture != null) {
-            try {
+        try {
+            SyndicateUGHttpClient client = this.filesystem.getUGRestClient(this.status.getPath().getSessionName());
+            Future<ClientResponse> writeFuture = client.write(this.status.getPath().getPath(), this.fileDescriptor, BlockUtils.getBlockStartOffset(blockID, this.blockSize), size, buffer);
+            if(writeFuture != null) {
                 client.processWrite(writeFuture);
-            } catch (Exception ex) {
-                LOG.error("exception occurred", ex);
-                throw new IOException(ex);
+                if(this.status.getSize() <= BlockUtils.getBlockStartOffset(blockID, this.blockSize) + size) {
+                    this.status.notifySizeChanged(BlockUtils.getBlockStartOffset(blockID, this.blockSize) + size);
+                }
+
+                this.modified = true;
+            } else {
+                throw new IOException("Can not process REST operations");
             }
-        } else {
-            throw new IOException("Can not create a REST client");
+        } catch (Exception ex) {
+            LOG.error("exception occurred", ex);
+            throw new IOException(ex);
         }
-        
-        if(this.status.getSize() <= BlockUtils.getBlockStartOffset(blockID, this.blockSize) + size) {
-            this.status.notifySizeChanged(BlockUtils.getBlockStartOffset(blockID, this.blockSize) + size);
-        }
-        
-        this.modified = true;
     }
     
     public synchronized void writeFileDataBlockByteArray(int blockID, byte[] buffer, int size) throws IOException {
@@ -235,9 +231,9 @@ public class SyndicateFSFileHandle implements Closeable {
         }
         
         LOG.info("writing a block " + blockID);
-        byte[] buffer_cpy = new byte[size];
-        System.arraycopy(buffer, 0, buffer_cpy, 0, size);
-        _writeFileDataBlock(blockID, buffer_cpy, size);
+        byte[] bufferCpy = new byte[size];
+        System.arraycopy(buffer, 0, bufferCpy, 0, size);
+        writeFileDataBlock(blockID, bufferCpy, size);
     }
     
     public synchronized boolean isOpen() {
@@ -253,33 +249,33 @@ public class SyndicateFSFileHandle implements Closeable {
         if(!this.closed) {
             LOG.info("closing a file");
             
-            if(this.keepaliveThread != null && this.keepaliveThread.isAlive()) {
-                this.keepaliveThread.interrupt();
-            }
-            this.keepaliveThread = null;
-            
-            Future<ClientResponse> closeFuture = this.filesystem.getUGRestClient().close(this.status.getPath().getPath(), this.fileDescriptor);
-            if(closeFuture != null) {
-                try {
-                    this.filesystem.getUGRestClient().processClose(closeFuture);
-                } catch (Exception ex) {
-                    LOG.error("exception occurred", ex);
-                    throw new IOException(ex);
+            try {
+                SyndicateUGHttpClient client = this.filesystem.getUGRestClient(this.status.getPath().getSessionName());
+                Future<ClientResponse> closeFuture = client.close(this.status.getPath().getPath(), this.fileDescriptor);
+                if(closeFuture != null) {
+                    client.processClose(closeFuture);
+                    this.closed = true;
+                    
+                    if(this.keepaliveThread != null && this.keepaliveThread.isAlive()) {
+                        this.keepaliveThread.interrupt();
+                    }
+                    this.keepaliveThread = null;
+                    
+                    if(!this.readonly) {
+                        if(this.modified) {
+                            this.status.setDirty();
+                        }
+                    }
+
+                    if(this.localCachedBlocks != null) {
+                        this.localCachedBlocks.clear();
+                    }
+                } else {
+                    throw new IOException("Can not process REST operations");
                 }
-            } else {
-                throw new IOException("Can not create a REST client");
-            }
-
-            this.closed = true;
-
-            if(!this.readonly) {
-                if(this.modified) {
-                    this.status.setDirty();
-                }
-            }
-
-            if(this.localCachedBlocks != null) {
-                this.localCachedBlocks.clear();
+            } catch (Exception ex) {
+                LOG.error("exception occurred", ex);
+                throw new IOException(ex);
             }
         }
     }

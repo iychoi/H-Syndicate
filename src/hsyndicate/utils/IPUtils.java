@@ -43,9 +43,9 @@ public class IPUtils {
     
     private static final Log LOG = LogFactory.getLog(IPUtils.class);
     
-    private static String cached_public_ip;
-    private static List<String> cached_host_addr = new ArrayList<String>();
-    private static List<String> cached_ip_addr = new ArrayList<String>();
+    private static String cachedPublicIP;
+    private static List<String> cachedHostAddr = new ArrayList<String>();
+    private static List<String> cachedIPAddr = new ArrayList<String>();
     
     
     private static final String IPADDRESS_PATTERN = "^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
@@ -55,8 +55,8 @@ public class IPUtils {
     
     private static final String DOMAINNAME_PATTERN = "^((?!-)[A-Za-z0-9-]{1,63}(?<!-)\\.)+[A-Za-z]{2,6}$";
     
-    private static Pattern IP_pattern = Pattern.compile(IPADDRESS_PATTERN);
-    private static Pattern Domain_pattern = Pattern.compile(DOMAINNAME_PATTERN);
+    private static Pattern ipPattern = Pattern.compile(IPADDRESS_PATTERN);
+    private static Pattern domainPattern = Pattern.compile(DOMAINNAME_PATTERN);
     
     private static boolean isProperHostAddress(String addr) {
         if(addr == null || addr.isEmpty()) {
@@ -76,8 +76,8 @@ public class IPUtils {
     }
     
     public static Collection<String> getHostAddress() {
-        if(!cached_host_addr.isEmpty()) {
-            return Collections.unmodifiableCollection(cached_host_addr);
+        if(!cachedHostAddr.isEmpty()) {
+            return Collections.unmodifiableCollection(cachedHostAddr);
         } else {
             try {
                 Enumeration e = NetworkInterface.getNetworkInterfaces();
@@ -89,22 +89,22 @@ public class IPUtils {
 
                         String hostAddress = i.getHostAddress();
                         if(isProperHostAddress(hostAddress)) {
-                            if(!cached_host_addr.contains(hostAddress)) {
-                                cached_host_addr.add(hostAddress);
+                            if(!cachedHostAddr.contains(hostAddress)) {
+                                cachedHostAddr.add(hostAddress);
                             }
                         }
 
                         String hostName = i.getHostName();
                         if(isProperHostAddress(hostName)) {
-                            if(!cached_host_addr.contains(hostName)) {
-                                cached_host_addr.add(hostName);
+                            if(!cachedHostAddr.contains(hostName)) {
+                                cachedHostAddr.add(hostName);
                             }
                         }
 
                         String canonicalHostName = i.getCanonicalHostName();
                         if(isProperHostAddress(canonicalHostName)) {
-                            if(!cached_host_addr.contains(canonicalHostName)) {
-                                cached_host_addr.add(canonicalHostName);
+                            if(!cachedHostAddr.contains(canonicalHostName)) {
+                                cachedHostAddr.add(canonicalHostName);
                             }
                         }
                     }
@@ -113,13 +113,13 @@ public class IPUtils {
                 LOG.error("Exception occurred while scanning local interfaces", ex);
             }
             
-            return Collections.unmodifiableCollection(cached_host_addr);
+            return Collections.unmodifiableCollection(cachedHostAddr);
         }
     }
     
     public static Collection<String> getIPAddress() {
-        if(!cached_ip_addr.isEmpty()) {
-            return Collections.unmodifiableCollection(cached_ip_addr);
+        if(!cachedIPAddr.isEmpty()) {
+            return Collections.unmodifiableCollection(cachedIPAddr);
         } else {
             try {
                 Enumeration e = NetworkInterface.getNetworkInterfaces();
@@ -130,7 +130,7 @@ public class IPUtils {
                         InetAddress i = (InetAddress) ee.nextElement();
                         if(!i.isLoopbackAddress()) {
                             String hostAddress = i.getHostAddress();
-                            cached_ip_addr.add(hostAddress);
+                            cachedIPAddr.add(hostAddress);
                         }
                     }
                 }
@@ -138,13 +138,13 @@ public class IPUtils {
                 LOG.error("Exception occurred while scanning local interfaces", ex);
             }
 
-            return Collections.unmodifiableCollection(cached_ip_addr);
+            return Collections.unmodifiableCollection(cachedIPAddr);
         }
     }
     
     public static String getPublicIPAddress() {
-        if(cached_public_ip != null && !cached_public_ip.isEmpty()) {
-            return cached_public_ip;
+        if(cachedPublicIP != null && !cachedPublicIP.isEmpty()) {
+            return cachedPublicIP;
         } else {
             try {
                 URL whatismyip = new URL("http://checkip.amazonaws.com");
@@ -154,7 +154,7 @@ public class IPUtils {
                     String ip = in.readLine();
                     
                     // cache
-                    cached_public_ip = ip;
+                    cachedPublicIP = ip;
 
                     return ip;
                 } catch (IOException ex) {
@@ -176,17 +176,17 @@ public class IPUtils {
     }
     
     public static boolean isIPAddress(String address) {
-        Matcher matcher = IP_pattern.matcher(address);
+        Matcher matcher = ipPattern.matcher(address);
         return matcher.matches();
     }
     
     public static boolean isDomainName(String address) {
-        Matcher matcher = Domain_pattern.matcher(address);
+        Matcher matcher = domainPattern.matcher(address);
         return matcher.matches();
     }
 
     public static boolean isPublicIPAddress(String address) {
-        Matcher matcher = IP_pattern.matcher(address);
+        Matcher matcher = ipPattern.matcher(address);
         if(matcher.matches()) {
             String first = matcher.group(1);
             String second = matcher.group(2);

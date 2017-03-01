@@ -67,7 +67,7 @@ public class RestError {
     
     @Override
     public String toString() {
-        return this.message + "(name: " + this.name + ")";
+        return String.format("%s (name:%s)", this.message, this.name);
     }
     
     public RestfulException makeException() {

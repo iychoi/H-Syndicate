@@ -22,6 +22,8 @@ public class SyndicateFSConfiguration {
 
     private String host = "localhost";
     private int port = 8888;
+    private String sessionName;
+    private String sessionKey;
     
     public SyndicateFSConfiguration() {
         

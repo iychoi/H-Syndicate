@@ -30,8 +30,6 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.conn.ClientConnectionManager;
@@ -99,7 +97,13 @@ public class RestfulClient {
     }
     
     private URI makeRequestURL(String path) {
-        URI requestURL = this.serviceURL.resolve(path);
+        URI requestURL;
+        if(path.startsWith("/")) {
+            requestURL = this.serviceURL.resolve(path.substring(1));
+        } else {
+            requestURL = this.serviceURL.resolve(path);
+        }
+        
         return requestURL;
     }
     

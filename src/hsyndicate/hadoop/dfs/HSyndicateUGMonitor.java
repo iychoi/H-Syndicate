@@ -32,25 +32,25 @@ import java.util.Map;
 public class HSyndicateUGMonitor implements Closeable {
     private static final Log LOG = LogFactory.getLog(HSyndicateUGMonitor.class);
     
-    private List<String> usergateway_hostnames = new ArrayList<String>();
+    private List<String> usergatewayHostnames = new ArrayList<String>();
     private Map<String, SyndicateFileSystem> syndicateFSs = new HashMap<String, SyndicateFileSystem>();
     
     public HSyndicateUGMonitor(Configuration conf) throws IOException {
-        String[] gateway_hostnames = HSyndicateConfigUtils.listSyndicateUGHostsWithPort(conf);
+        String[] gatewayHostnames = HSyndicateConfigUtils.listSyndicateUGHostsWithPort(conf);
         
-        for (String gateway_hostname : gateway_hostnames) {
-            if(!syndicateFSs.containsKey(gateway_hostname)) {
-                usergateway_hostnames.add(gateway_hostname);
+        for (String gatewayHostname : gatewayHostnames) {
+            if(!syndicateFSs.containsKey(gatewayHostname)) {
+                usergatewayHostnames.add(gatewayHostname);
                 
-                SyndicateFileSystem fs = createHSyndicateFS(conf, gateway_hostname);
-                syndicateFSs.put(gateway_hostname, fs);
+                SyndicateFileSystem fs = createHSyndicateFS(conf, gatewayHostname);
+                syndicateFSs.put(gatewayHostname, fs);
             }
         }
     }
     
     @Override
     public synchronized void close() throws IOException {
-        this.usergateway_hostnames.clear();
+        this.usergatewayHostnames.clear();
         for(SyndicateFileSystem fs : this.syndicateFSs.values()) {
             fs.close();
         }
@@ -60,36 +60,36 @@ public class HSyndicateUGMonitor implements Closeable {
     private static SyndicateFileSystem createHSyndicateFS(Configuration conf, String address) throws IOException {
         SyndicateFSConfiguration sconf = HSyndicateConfigUtils.createSyndicateConf(conf, address);
         try {
-            return new SyndicateFileSystem(sconf);
+            return new SyndicateFileSystem(sconf, conf);
         } catch (InstantiationException ex) {
             throw new IOException(ex.getCause());
         }
     }
     
     public synchronized List<String> getUserGatewayHosts() {
-        return usergateway_hostnames;
+        return usergatewayHostnames;
     }
     
     public synchronized List<HSyndicateUGMonitorResults<byte[]>> getLocalCachedBlockInfo(SyndicateFSPath path) throws IOException {
         List<HSyndicateUGMonitorResults<byte[]>> bitmaps = new ArrayList<HSyndicateUGMonitorResults<byte[]>>();
         
-        for(String gateway_hostname : usergateway_hostnames) {
-            SyndicateFileSystem fs = syndicateFSs.get(gateway_hostname);
+        for(String gatewayHostname : usergatewayHostnames) {
+            SyndicateFileSystem fs = syndicateFSs.get(gatewayHostname);
             if(fs != null) {
                 byte[] bitmap = fs.getLocalCachedBlocks(path);
-                int sum_caches = 0;
+                int sumCaches = 0;
                 
                 if(bitmap != null) {
                     for(int i=0;i<bitmap.length;i++) {
                         if(bitmap[i] == 1) {
-                            sum_caches++;
+                            sumCaches++;
                         }
                     }
                 }
                 
-                LOG.info("UserGateway : " + gateway_hostname + " has " + sum_caches + " caches of " + path);
+                LOG.info(String.format("UserGateway %s has %d cache blocks of %s", gatewayHostname, sumCaches, path));
                 
-                HSyndicateUGMonitorResults<byte[]> result = new HSyndicateUGMonitorResults<byte[]>(gateway_hostname);
+                HSyndicateUGMonitorResults<byte[]> result = new HSyndicateUGMonitorResults<byte[]>(gatewayHostname);
                 result.setResult(bitmap);
 
                 bitmaps.add(result);

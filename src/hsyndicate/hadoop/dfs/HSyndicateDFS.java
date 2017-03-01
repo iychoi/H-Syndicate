@@ -76,21 +76,21 @@ public class HSyndicateDFS extends FileSystem {
         }
         
         SyndicateFSConfiguration sconf = null;
-        String ug_host = "";
+        String ugHost = "";
         if(uri.getHost() != null && !uri.getHost().isEmpty()) {
-            ug_host = uri.getHost();
+            ugHost = uri.getHost();
             
             if(uri.getPort() > 0) {
-                ug_host = ug_host + ":" + uri.getPort();
+                ugHost = ugHost + ":" + uri.getPort();
             }
             
-            sconf = HSyndicateConfigUtils.createSyndicateConf(conf, ug_host);
+            sconf = HSyndicateConfigUtils.createSyndicateConf(conf, ugHost);
         } else {
             sconf = HSyndicateConfigUtils.createSyndicateConf(conf);
         }
         
         try {
-            return new SyndicateFileSystem(sconf);
+            return new SyndicateFileSystem(sconf, conf);
         } catch (InstantiationException ex) {
             throw new IOException(ex.getCause());
         }
@@ -281,7 +281,7 @@ public class HSyndicateDFS extends FileSystem {
             SyndicateFSPath hpath = makeSyndicateFSPath(file.getPath());
 
             long filesize = file.getLen();
-            long pblocksize = this.syndicateFS.getBlockSize();
+            long pblocksize = this.syndicateFS.getBlockSize(hpath);
             long lblocksize = getDefaultBlockSize();
             int groupof = 64;
             
@@ -376,7 +376,7 @@ public class HSyndicateDFS extends FileSystem {
             super(getFileLength(fs, hpath), 
                     fs.isDirectory(hpath), 
                     fs.getReplication(hpath), 
-                    fs.getBlockSize(), 
+                    fs.getBlockSize(hpath), 
                     fs.getLastModifiedTime(hpath), 
                     fs.getLastAccessTime(hpath), 
                     fs.getPermission(hpath), 

@@ -24,17 +24,17 @@ import org.codehaus.jackson.annotate.JsonProperty;
 public class Statvfs {
 
     
-    private long f_bsize; // Filesystem block size
-    private long f_frsize; // Fragment size
-    private long f_blocks; // Size of fs in f_frsize units
-    private long f_bfree; // Number of free blocks
-    private long f_bavail; // Number of free blocks for unprivileged users
-    private long f_files; // Number of inodes
-    private long f_ffree; // Number of free inodes
-    private long f_favail; // Number of free inodes for unprivileged users
-    private long f_fsid; // Filesystem ID
-    private long f_flag; // Mount flags
-    private long f_namemax; // Maximum filename length
+    private long bsize; // Filesystem block size
+    private long frsize; // Fragment size
+    private long blocks; // Size of fs in f_frsize units
+    private long bfree; // Number of free blocks
+    private long bavail; // Number of free blocks for unprivileged users
+    private long files; // Number of inodes
+    private long ffree; // Number of free inodes
+    private long favail; // Number of free inodes for unprivileged users
+    private long fsid; // Filesystem ID
+    private long flag; // Mount flags
+    private long namemax; // Maximum filename length
     private byte[] unused; // unused
     
     public Statvfs() {
@@ -43,112 +43,112 @@ public class Statvfs {
     
     @JsonProperty("f_bsize")
     public long getBsize() {
-        return f_bsize;
+        return bsize;
     }
 
     @JsonProperty("f_bsize")
-    public void setBsize(long f_bsize) {
-        this.f_bsize = f_bsize;
+    public void setBsize(long bsize) {
+        this.bsize = bsize;
     }
 
     @JsonProperty("f_frsize")
     public long getFrsize() {
-        return f_frsize;
+        return frsize;
     }
 
     @JsonProperty("f_frsize")
-    public void setFrsize(long f_frsize) {
-        this.f_frsize = f_frsize;
+    public void setFrsize(long frsize) {
+        this.frsize = frsize;
     }
 
     @JsonProperty("f_blocks")
     public long getBlocks() {
-        return f_blocks;
+        return blocks;
     }
 
     @JsonProperty("f_blocks")
-    public void setBlocks(long f_blocks) {
-        this.f_blocks = f_blocks;
+    public void setBlocks(long blocks) {
+        this.blocks = blocks;
     }
 
     @JsonProperty("f_bfree")
     public long getBfree() {
-        return f_bfree;
+        return bfree;
     }
 
     @JsonProperty("f_bfree")
-    public void setBfree(long f_bfree) {
-        this.f_bfree = f_bfree;
+    public void setBfree(long bfree) {
+        this.bfree = bfree;
     }
 
     @JsonProperty("f_bavail")
     public long getBavail() {
-        return f_bavail;
+        return bavail;
     }
 
     @JsonProperty("f_bavail")
-    public void setBavail(long f_bavail) {
-        this.f_bavail = f_bavail;
+    public void setBavail(long bavail) {
+        this.bavail = bavail;
     }
 
     @JsonProperty("f_files")
     public long getFiles() {
-        return f_files;
+        return files;
     }
 
     @JsonProperty("f_files")
-    public void setFiles(long f_files) {
-        this.f_files = f_files;
+    public void setFiles(long files) {
+        this.files = files;
     }
 
     @JsonProperty("f_ffree")
     public long getFfree() {
-        return f_ffree;
+        return ffree;
     }
 
     @JsonProperty("f_ffree")
-    public void setFfree(long f_ffree) {
-        this.f_ffree = f_ffree;
+    public void setFfree(long ffree) {
+        this.ffree = ffree;
     }
 
     @JsonProperty("f_favail")
     public long getFavail() {
-        return f_favail;
+        return favail;
     }
 
     @JsonProperty("f_favail")
-    public void setFavail(long f_favail) {
-        this.f_favail = f_favail;
+    public void setFavail(long favail) {
+        this.favail = favail;
     }
 
     @JsonProperty("f_fsid")
     public long getFsid() {
-        return f_fsid;
+        return fsid;
     }
 
     @JsonProperty("f_fsid")
-    public void setFsid(long f_fsid) {
-        this.f_fsid = f_fsid;
+    public void setFsid(long fsid) {
+        this.fsid = fsid;
     }
 
     @JsonProperty("f_flag")
     public long getFlag() {
-        return f_flag;
+        return flag;
     }
 
     @JsonProperty("f_flag")
-    public void setFlag(long f_flag) {
-        this.f_flag = f_flag;
+    public void setFlag(long flag) {
+        this.flag = flag;
     }
 
     @JsonProperty("f_namemax")
     public long getNamemax() {
-        return f_namemax;
+        return namemax;
     }
 
     @JsonProperty("f_namemax")
-    public void setNamemax(long f_namemax) {
-        this.f_namemax = f_namemax;
+    public void setNamemax(long namemax) {
+        this.namemax = namemax;
     }
     
     @JsonProperty("unused")

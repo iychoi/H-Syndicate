@@ -17,6 +17,7 @@ package hsyndicate.fs;
 
 import com.google.common.primitives.UnsignedLong;
 import com.sun.jersey.api.client.ClientResponse;
+import hsyndicate.hadoop.utils.HSyndicateConfigUtils;
 import hsyndicate.rest.client.SyndicateUGHttpClient;
 import hsyndicate.rest.common.RestfulException;
 import hsyndicate.rest.datatypes.DirectoryEntries;
@@ -26,6 +27,7 @@ import hsyndicate.rest.datatypes.Statvfs;
 import hsyndicate.rest.datatypes.Xattr;
 import hsyndicate.rest.datatypes.XattrKeyList;
 import hsyndicate.utils.BlockUtils;
+import hsyndicate.utils.DateTimeUtils;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -38,6 +40,7 @@ import java.util.concurrent.Future;
 import org.apache.commons.collections4.map.PassiveExpiringMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.permission.FsAction;
 import org.apache.hadoop.fs.permission.FsPermission;
 
@@ -46,74 +49,107 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
     private static final Log LOG = LogFactory.getLog(SyndicateFileSystem.class);
 
     private static final int DEFAULT_FILESTATUS_TIMETOLIVE = 60000; // 60 sec
+    private static final int DEFAULT_STATVFS_TIMETOLIVE = 60000; // 60 sec
+    private static final int DEFAULT_UGRESTCLIENT_TIMETOLIVE = 600000; // 600 sec
+    private static final long DEFAULT_BLOCK_SIZE = 1024*1024; // 1MB
     private static final String LOCAL_CACHED_BLOCKS_XATTR_NAME = "user.syndicate_cached_blocks";
     private static final String LOCAL_CACHED_FILE_PATH_XATTR_NAME = "user.syndicate_cached_file_path";
     
-    
-    private SyndicateUGHttpClient client;
+    private Map<String, SyndicateUGHttpClient> ugRestClients = new PassiveExpiringMap<String, SyndicateUGHttpClient>(DEFAULT_UGRESTCLIENT_TIMETOLIVE);
     
     private List<SyndicateFSInputStream> openInputStream = new ArrayList<SyndicateFSInputStream>();
     private List<SyndicateFSOutputStream> openOutputStream = new ArrayList<SyndicateFSOutputStream>();
     
-    private Map<SyndicateFSPath, SyndicateFSFileStatus> filestatusCache = new PassiveExpiringMap<SyndicateFSPath, SyndicateFSFileStatus>(DEFAULT_FILESTATUS_TIMETOLIVE);
-    private long fsBlockSize = 0;
+    private Map<SyndicateFSPath, SyndicateFSFileStatus> fileStatusCache = new PassiveExpiringMap<SyndicateFSPath, SyndicateFSFileStatus>(DEFAULT_FILESTATUS_TIMETOLIVE);
+    private Map<SyndicateFSPath, Statvfs> statVfsCache = new PassiveExpiringMap<SyndicateFSPath, Statvfs>(DEFAULT_STATVFS_TIMETOLIVE);
     
-    public SyndicateFileSystem(SyndicateFSConfiguration configuration) throws InstantiationException {
-        initialize(configuration);
+    public SyndicateFileSystem(SyndicateFSConfiguration syndicateFsConf, Configuration hadoopConf) throws InstantiationException {
+        initialize(syndicateFsConf, hadoopConf);
     }
     
     @Override
-    protected void initialize(SyndicateFSConfiguration conf) throws InstantiationException {
-        if(conf == null) {
-            LOG.error("FileSystem Initialize failed : configuration is null");
+    protected void initialize(SyndicateFSConfiguration syndicateFsConf, Configuration hadoopConf) throws InstantiationException {
+        if(syndicateFsConf == null) {
+            LOG.error("FileSystem Initialize failed : syndicateFsConf is null");
+            throw new IllegalArgumentException("Can not initialize the filesystem from null configuration");
+        }
+        
+        if(hadoopConf == null) {
+            LOG.error("FileSystem Initialize failed : hadoopConf is null");
             throw new IllegalArgumentException("Can not initialize the filesystem from null configuration");
         }
         
         super.raiseOnBeforeCreateEvent();
 
-        super.initialize(conf);
+        super.initialize(syndicateFsConf, hadoopConf);
         
-        this.client = new SyndicateUGHttpClient(conf.getHost(), conf.getPort());
-
         super.raiseOnAfterCreateEvent();
     }
     
-    public synchronized SyndicateUGHttpClient getUGRestClient() {
-        return this.client;
+    public synchronized SyndicateUGHttpClient getUGRestClient(String sessionName) throws InstantiationException {
+        if(sessionName == null || sessionName.isEmpty()) {
+            LOG.error("Can not get UG Rest Client from null session name");
+            throw new IllegalArgumentException("Can not get UG Rest Client from null session name");
+        }
+        
+        SyndicateUGHttpClient client = this.ugRestClients.get(sessionName);
+        
+        if(client == null) {
+            String sessionKey = HSyndicateConfigUtils.getSyndicateUGSessionKey(this.hadoopConf, sessionName);
+            client = new SyndicateUGHttpClient(this.syndicateFsConf.getHost(), this.syndicateFsConf.getPort(), sessionName, sessionKey);
+            
+            this.ugRestClients.put(sessionName, client);
+        }
+        return client;
     }
     
-    private SyndicateFSFileStatus getFileStatus(SyndicateFSPath abspath) throws IOException {
-        if(abspath == null) {
+    private StatRaw makeRootStat() {
+        StatRaw rootStat = new StatRaw();
+        rootStat.setType(2); // dir
+        rootStat.setSize(4096); // root dir size
+        rootStat.setMtimeSec(DateTimeUtils.getCurrentTime() / 1000);
+        rootStat.setMode((4 << 6 | 4 << 3 | 4)); // r--r--r--
+        return rootStat;
+    }
+    
+    private SyndicateFSFileStatus getFileStatus(SyndicateFSPath absPath) throws IOException {
+        if(absPath == null) {
             LOG.error("Can not get FileStatus from null abspath");
             throw new IllegalArgumentException("Can not get FileStatus from null abspath");
         }
         
         // check memory cache
-        SyndicateFSFileStatus cached_status = this.filestatusCache.get(abspath);
-        
-        if(cached_status != null && !cached_status.isDirty()) {
-            return cached_status;
+        SyndicateFSFileStatus cachedStatus = this.fileStatusCache.get(absPath);
+        if(cachedStatus != null && !cachedStatus.isDirty()) {
+            return cachedStatus;
         }
         
         // not in memory cache
         StatRaw statRaw = null;
-        try {
-            Future<ClientResponse> statFuture = this.client.getStat(abspath.getPath());
-            if(statFuture != null) {
-                statRaw = this.client.processGetStat(statFuture);
-            } else {
-                throw new IOException("Can not create a REST client");
+        
+        if(absPath.getParent() == null) {
+            // root
+            statRaw = makeRootStat();
+        } else {
+            try {
+                SyndicateUGHttpClient client = getUGRestClient(absPath.getSessionName());
+                Future<ClientResponse> statFuture = client.getStat(absPath.getPath());
+                if(statFuture != null) {
+                    statRaw = client.processGetStat(statFuture);
+                } else {
+                    throw new IOException("Can not process REST operations");
+                }
+            } catch (FileNotFoundException ex) {
+                // silent
+                return null;
+            } catch (Exception ex) {
+                LOG.error("exception occurred", ex);
+                throw new IOException(ex);
             }
-        } catch (FileNotFoundException ex) {
-            // silent
-            return null;
-        } catch (Exception ex) {
-            LOG.error("exception occurred", ex);
-            throw new IOException(ex);
         }
         
-        SyndicateFSFileStatus status = new SyndicateFSFileStatus(this, abspath, statRaw);
-        this.filestatusCache.put(abspath, status);
+        SyndicateFSFileStatus status = new SyndicateFSFileStatus(this, absPath, statRaw);
+        this.fileStatusCache.put(absPath, status);
         
         return status;
     }
@@ -130,60 +166,71 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
         
         LOG.info("opening a file - " + status.getPath().getPath());
         
-        FileDescriptor fi = null;
-        Future<ClientResponse> openFuture = null;
-        if(readonly) {
-            openFuture = this.client.open(status.getPath().getPath(), "r");
-        } else {
-            openFuture = this.client.open(status.getPath().getPath(), "w");
-        }
+        try {
+            SyndicateUGHttpClient client = getUGRestClient(status.getPath().getSessionName());
         
-        if(openFuture != null) {
-            try {
-                fi = this.client.processOpen(openFuture);
-                return new SyndicateFSFileHandle(this, status, fi, readonly);
-            } catch (Exception ex) {
-                LOG.error("exception occurred", ex);
-                throw new IOException(ex);
+            FileDescriptor fi = null;
+            Future<ClientResponse> openFuture = null;
+            if(readonly) {
+                openFuture = client.open(status.getPath().getPath(), "r");
+            } else {
+                openFuture = client.open(status.getPath().getPath(), "w");
             }
-        } else {
-            throw new IOException("Can not create a REST client");
+        
+            if(openFuture != null) {
+                fi = client.processOpen(openFuture);
+                return new SyndicateFSFileHandle(this, status, fi, readonly);
+            } else {
+                throw new IOException("Can not process REST operations");
+            }
+        } catch (Exception ex) {
+            LOG.error("exception occurred", ex);
+            throw new IOException(ex);
         }
     }
     
-    private synchronized SyndicateFSFileHandle createNewFile(SyndicateFSPath abspath) throws IOException {
-        if(abspath == null) {
+    private synchronized SyndicateFSFileHandle createNewFile(SyndicateFSPath absPath) throws IOException {
+        if(absPath == null) {
             LOG.error("abspath is null");
             throw new IllegalArgumentException("abspath is null");
         }
         
-        if(abspath.getParent() != null) {
-            SyndicateFSFileStatus parent = getFileStatus(abspath.getParent());
-            if(parent == null) {
-                LOG.error("Parent directory does not exist");
-                throw new IOException("Parent directory does not exist");
-            }
-            
-            if(!parent.isDirectory()) {
-                LOG.error("Parent directory does not exist");
-                throw new IOException("Parent directory does not exist");
-            }
+        if(absPath.getParent() == null) {
+            LOG.error("Cannot create a root");
+            throw new IOException("Cannot create a root");
         }
         
-        LOG.info("creating a file - " + abspath.getPath());
+        if(absPath.depth() < 1) {
+            LOG.error("Cannot create a file at root");
+            throw new IOException("Cannot create a file at root");
+        }
         
-        Future<ClientResponse> openFuture = this.client.open(abspath.getPath(), "w");
-        if(openFuture != null) {
-            try {
-                FileDescriptor fi = this.client.processOpen(openFuture);
-                SyndicateFSFileStatus status = new SyndicateFSFileStatus(this, abspath);
+        SyndicateFSFileStatus parent = getFileStatus(absPath.getParent());
+        if(parent == null) {
+            LOG.error("Parent directory does not exist");
+            throw new IOException("Parent directory does not exist");
+        }
+
+        if(!parent.isDirectory()) {
+            LOG.error("Parent directory does not exist");
+            throw new IOException("Parent directory does not exist");
+        }
+        
+        LOG.info("creating a file - " + absPath.getPath());
+        
+        try {
+            SyndicateUGHttpClient client = getUGRestClient(absPath.getSessionName());
+            Future<ClientResponse> openFuture = client.open(absPath.getPath(), "w");
+            if(openFuture != null) {
+                FileDescriptor fi = client.processOpen(openFuture);
+                SyndicateFSFileStatus status = new SyndicateFSFileStatus(this, absPath);
                 return new SyndicateFSFileHandle(this, status, fi, false);
-            } catch (Exception ex) {
-                LOG.error("exception occurred", ex);
-                throw new IOException(ex);
+            } else {
+                throw new IOException("Can not process REST operations");
             }
-        } else {
-            throw new IOException("Can not create a REST client");
+        } catch (Exception ex) {
+            LOG.error("exception occurred", ex);
+            throw new IOException(ex);
         }
     }
     
@@ -408,27 +455,54 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
     
     @Override
     public synchronized long getBlockSize() {
-        // check memory cache
-        if(this.fsBlockSize > 0) {
-            return this.fsBlockSize;
+        return DEFAULT_BLOCK_SIZE;
+    }
+    
+    @Override
+    public long getBlockSize(SyndicateFSPath path) {
+        if(path == null) {
+            LOG.error("path is null");
+            throw new IllegalArgumentException("path is null");
         }
         
+        SyndicateFSPath absPath = getAbsolutePath(path);
+        
+        // check memory cache
+        Statvfs cachedStatVfs = this.statVfsCache.get(absPath);
+        if(cachedStatVfs != null) {
+            long bsize = cachedStatVfs.getBsize();
+            if(bsize > 0) {
+                return bsize;
+            }
+        }
+        
+        if(absPath.getParent() == null) {
+            // root
+            return getBlockSize();
+        }
+        
+        // not in memory cache
         // query
         Statvfs statvfs = null;
         try {
-            Future<ClientResponse> statvfsFuture = this.client.getStatvfs();
+            SyndicateUGHttpClient client = getUGRestClient(absPath.getSessionName());
+            Future<ClientResponse> statvfsFuture = client.getStatvfs();
             if(statvfsFuture != null) {
-                statvfs = this.client.processGetStatvfs(statvfsFuture);
+                statvfs = client.processGetStatvfs(statvfsFuture);
+                this.statVfsCache.put(absPath, statvfs);
+                long bsize = statvfs.getBsize();
+                if(bsize > 0) {
+                    return bsize;
+                }
             } else {
-                LOG.error("Can not create a REST client");
+                LOG.error("Can not process REST operations");
             }
         } catch (Exception ex) {
             LOG.error("exception occurred", ex);
-            this.fsBlockSize = 0;
         }
         
-        this.fsBlockSize = statvfs.getBsize();
-        return this.fsBlockSize;
+        // use default
+        return getBlockSize();
     }
     
     @Override
@@ -439,23 +513,29 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
         }
         
         SyndicateFSPath absPath = getAbsolutePath(path);
+        if(absPath.getParent() == null) {
+            // root
+            return new String[0];
+        }
+        
         SyndicateFSFileStatus status = getFileStatus(absPath);
         if(status == null) {
             LOG.error("file not exist");
             throw new IOException("file not exist : " + path.getPath());
         }
         
-        Future<ClientResponse> listXattrFuture = this.client.listXattr(absPath.getPath());
-        if(listXattrFuture != null) {
-            try {
-                XattrKeyList processListXattr = this.client.processListXattr(listXattrFuture);
+        try {
+            SyndicateUGHttpClient client = getUGRestClient(absPath.getSessionName());
+            Future<ClientResponse> listXattrFuture = client.listXattr(absPath.getPath());
+            if(listXattrFuture != null) {
+                XattrKeyList processListXattr = client.processListXattr(listXattrFuture);
                 return processListXattr.getKeys().toArray(new String[0]);
-            } catch (Exception ex) {
-                LOG.error("exception occurred", ex);
-                throw new IOException(ex);
+            } else {
+                throw new IOException("Can not process REST operations");
             }
-        } else {
-            throw new IOException("Can not create a REST client");
+        } catch (Exception ex) {
+            LOG.error("exception occurred", ex);
+            throw new IOException(ex);
         }
     }
 
@@ -467,23 +547,29 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
         }
         
         SyndicateFSPath absPath = getAbsolutePath(path);
+        if(absPath.getParent() == null) {
+            // root
+            throw new IOException(String.format("Attribute not exist : %s - %s", absPath.getPath(), name));
+        }
+        
         SyndicateFSFileStatus status = getFileStatus(absPath);
         if(status == null) {
             LOG.error("file not exist");
             throw new IOException("file not exist : " + path.getPath());
         }
         
-        Future<ClientResponse> getXattrFuture = this.client.getXattr(absPath.getPath(), name);
-        if(getXattrFuture != null) {
-            try {
-                Xattr processGetXattr = this.client.processGetXattr(getXattrFuture);
+        try {
+            SyndicateUGHttpClient client = getUGRestClient(absPath.getSessionName());
+            Future<ClientResponse> getXattrFuture = client.getXattr(absPath.getPath(), name);
+            if(getXattrFuture != null) {
+                Xattr processGetXattr = client.processGetXattr(getXattrFuture);
                 return processGetXattr.getValue();
-            } catch (Exception ex) {
-                LOG.error("exception occurred", ex);
-                throw new IOException(ex);
+            } else {
+                throw new IOException("Can not process REST operations");
             }
-        } else {
-            throw new IOException("Can not create a REST client");
+        } catch (Exception ex) {
+            LOG.error("exception occurred", ex);
+            throw new IOException(ex);
         }
     }
 
@@ -495,42 +581,46 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
         }
         
         SyndicateFSPath absPath = getAbsolutePath(path);
+        if(absPath.getParent() == null) {
+            // root
+            throw new IOException("Can not delete root directory");
+        }
+        
         SyndicateFSFileStatus status = getFileStatus(absPath);
         if(status == null) {
             LOG.error("file not exist");
             throw new FileNotFoundException("file not exist : " + path.getPath());
         }
         
-        if(status.isFile()) {
-            Future<ClientResponse> unlinkFuture = this.client.unlink(absPath.getPath());
-            if(unlinkFuture != null) {
-                try {
-                    this.client.processUnlink(unlinkFuture);
-                } catch (RestfulException ex) {
-                    LOG.error("exception occurred", ex);
-                    throw new IOException(ex);
-                }
-            } else {
-                throw new IOException("Can not create a REST client");
-            }
-        } else if(status.isDirectory()) {
-            Future<ClientResponse> removeDirFuture = this.client.removeDir(absPath.getPath());
-            if(removeDirFuture != null) {
-                try {
-                    this.client.processRemoveDir(removeDirFuture);
-                } catch (RestfulException ex) {
-                    LOG.error("exception occurred", ex);
-                    throw new IOException(ex);
-                }
-            } else {
-                throw new IOException("Can not create a REST client");
-            }
-        } else {
-            LOG.error("Can not delete from unknown status");
-            throw new IOException("Can not delete from unknown status");
+        if(absPath.depth() < 1) {
+            throw new IOException("Can not delete top-level directories");
         }
         
-        this.filestatusCache.remove(absPath);
+        try {
+            SyndicateUGHttpClient client = getUGRestClient(absPath.getSessionName());
+            if(status.isFile()) {
+                Future<ClientResponse> unlinkFuture = client.unlink(absPath.getPath());
+                if(unlinkFuture != null) {
+                    client.processUnlink(unlinkFuture);
+                } else {
+                    throw new IOException("Can not process REST operations");
+                }
+            } else if(status.isDirectory()) {
+                Future<ClientResponse> removeDirFuture = client.removeDir(absPath.getPath());
+                if(removeDirFuture != null) {
+                    client.processRemoveDir(removeDirFuture);
+                } else {
+                    throw new IOException("Can not process REST operations");
+                }
+            } else {
+                LOG.error("Can not delete from unknown status");
+                throw new IOException("Can not delete from unknown status");
+            }
+        } catch (Exception ex) {
+            LOG.error("exception occurred", ex);
+            throw new IOException(ex);
+        }
+        this.fileStatusCache.remove(absPath);
         return true;
     }
 
@@ -547,6 +637,16 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
         
         SyndicateFSPath absPath = getAbsolutePath(path);
         SyndicateFSPath absNewPath = getAbsolutePath(newpath);
+        
+        if(absPath.depth() < 1) {
+            LOG.error("source path is unmodifiable : " + absPath.getPath());
+            throw new IOException("source path is unmodifiable : " + absPath.getPath());
+        }
+        
+        if(absNewPath.depth() < 1) {
+            LOG.error("dest path is not writable : " + absNewPath.getPath());
+            throw new IOException("dest path is not writable : " + absNewPath.getPath());
+        }
         
         SyndicateFSFileStatus status = getFileStatus(absPath);
         SyndicateFSFileStatus newStatus = getFileStatus(absNewPath);
@@ -567,19 +667,20 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
             throw new IOException("parent directory of target file does not exist : " + newpath.getPath());
         }
         
-        Future<ClientResponse> renameFuture = this.client.rename(absPath.getPath(), absNewPath.getPath());
-        if(renameFuture != null) {
-            try {
-                this.client.processRename(renameFuture);
-            } catch (Exception ex) {
-                LOG.error("exception occurred", ex);
-                throw new IOException(ex);
+        try {
+            SyndicateUGHttpClient client = getUGRestClient(absPath.getSessionName());
+            Future<ClientResponse> renameFuture = client.rename(absPath.getPath(), absNewPath.getPath());
+            if(renameFuture != null) {
+                client.processRename(renameFuture);
+            } else {
+                throw new IOException("Can not process REST operations");
             }
-        } else {
-            throw new IOException("Can not create a REST client");
+        } catch (Exception ex) {
+            LOG.error("exception occurred", ex);
+            throw new IOException(ex);
         }
         
-        this.filestatusCache.remove(absPath);
+        this.fileStatusCache.remove(absPath);
     }
 
     @Override
@@ -590,22 +691,29 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
         }
         
         SyndicateFSPath absPath = getAbsolutePath(path);
+        
+        if(absPath.depth() < 1) {
+            LOG.error("dest path is not writable : " + absPath.getPath());
+            throw new IOException("dest path is not writable : " + absPath.getPath());
+        }
+        
         SyndicateFSFileStatus status = getFileStatus(absPath.getParent());
         if(status == null) {
             LOG.error("parent directory does not exist : " + absPath.getPath());
             throw new IOException("parent directory does not exist : " + absPath.getPath());
         }
         
-        Future<ClientResponse> makeDirFuture = this.client.makeDir(absPath.getPath(), 0744);
-        if(makeDirFuture != null) {
-            try {
-                this.client.processMakeDir(makeDirFuture);
-            } catch (Exception ex) {
-                LOG.error("exception occurred", ex);
-                throw new IOException(ex);
+        try {
+            SyndicateUGHttpClient client = getUGRestClient(absPath.getSessionName());
+            Future<ClientResponse> makeDirFuture = client.makeDir(absPath.getPath(), 0744);
+            if(makeDirFuture != null) {
+                client.processMakeDir(makeDirFuture);
+            } else {
+                throw new IOException("Can not process REST operations");
             }
-        } else {
-            throw new IOException("Can not create a REST client");
+        } catch (Exception ex) {
+            LOG.error("exception occurred", ex);
+            throw new IOException(ex);
         }
     }
     
@@ -688,19 +796,21 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
         }
         
         List<String> entries = new ArrayList<String>();
-        Future<ClientResponse> readDirFuture = this.client.listDir(absPath.getPath());
-        if(readDirFuture != null) {
-            try {
-                DirectoryEntries processReadDir = this.client.processListDir(readDirFuture);
+        
+        try {
+            SyndicateUGHttpClient client = getUGRestClient(absPath.getSessionName());
+            Future<ClientResponse> readDirFuture = client.listDir(absPath.getPath());
+            if(readDirFuture != null) {
+                DirectoryEntries processReadDir = client.processListDir(readDirFuture);
 
                 // remove duplicates
                 Map<String, StatRaw> entryTable = new HashMap<String, StatRaw>();
                 
                 // need to remove duplicates
-                int entry_cnt = 0;
+                int entryCnt = 0;
                 for(StatRaw statRaw : processReadDir.getEntries()) {
-                    entry_cnt++;
-                    if(entry_cnt <= 2) {
+                    entryCnt++;
+                    if(entryCnt <= 2) {
                         // ignore . and ..
                         continue;
                     }
@@ -723,16 +833,16 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
                 // put to memory cache
                 for(StatRaw statRaw : entryTable.values()) {
                     SyndicateFSPath entryPath = new SyndicateFSPath(absPath, statRaw.getName());
-                    this.filestatusCache.remove(entryPath);
+                    this.fileStatusCache.remove(entryPath);
                     SyndicateFSFileStatus entryStatus = new SyndicateFSFileStatus(this, absPath, statRaw);
-                    this.filestatusCache.put(entryPath, entryStatus);
+                    this.fileStatusCache.put(entryPath, entryStatus);
                 }
-            } catch (Exception ex) {
-                LOG.error("exception occurred", ex);
-                throw new IOException(ex);
+            } else {
+                throw new IOException("Can not process REST operations");
             }
-        } else {
-            throw new IOException("Can not create a REST client");
+        } catch (Exception ex) {
+            LOG.error("exception occurred", ex);
+            throw new IOException(ex);
         }
         
         return entries.toArray(new String[0]);
@@ -740,7 +850,7 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
 
     @Override
     public synchronized byte[] getLocalCachedBlocks(SyndicateFSPath path) throws FileNotFoundException, IOException {
-        long blocksize = getBlockSize();
+        long blocksize = getBlockSize(path);
         long filesize = this.getSize(path);
         
         int blocknum = BlockUtils.getBlocks(filesize, blocksize);
@@ -846,9 +956,13 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
             }
         }
         
-        this.filestatusCache.clear();
-        
-        this.client.close();
+        this.fileStatusCache.clear();
+
+        for(String key : this.ugRestClients.keySet()) {
+            SyndicateUGHttpClient client = this.ugRestClients.get(key);
+            client.close();
+        }
+        this.ugRestClients.clear();
         
         super.close();
         

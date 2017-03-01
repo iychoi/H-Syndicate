@@ -47,8 +47,8 @@ public class HSyndicateConfiguration {
     }
     
     @JsonProperty("default_port")
-    public synchronized void setDefaultPort(int default_port) {
-        this.defaultPort = default_port;
+    public synchronized void setDefaultPort(int defaultPort) {
+        this.defaultPort = defaultPort;
     }
     
     @JsonProperty("default_port")

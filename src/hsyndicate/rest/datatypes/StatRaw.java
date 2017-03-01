@@ -26,18 +26,18 @@ import org.codehaus.jackson.annotate.JsonProperty;
 public class StatRaw {
     private int type;
     private String name;
-    private UnsignedLong file_id;
-    private long ctime_sec;
-    private int ctime_nsec;
-    private long mtime_sec;
-    private int mtime_nsec;
-    private long manifest_mtime_sec;
-    private int manifest_mtime_nsec;
-    private long write_nonce;
-    private long xattr_nonce;
+    private UnsignedLong fileID;
+    private long ctimeSec;
+    private int ctimeNsec;
+    private long mtimeSec;
+    private int mtimeNsec;
+    private long manifestMtimeSec;
+    private int manifestMtimeNsec;
+    private long writeNonce;
+    private long xattrNonce;
     private long version;
-    private int max_read_freshness;
-    private int max_write_freshness;
+    private int maxReadFreshness;
+    private int maxWriteFreshness;
     private UnsignedLong owner;
     private UnsignedLong coordinator;
     private UnsignedLong volume;
@@ -45,12 +45,12 @@ public class StatRaw {
     private long size;
     private int error;
     private long generation;
-    private long num_children;
+    private long numChildren;
     private long capacity;
-    private String ent_sig;
-    private long ent_sig_len;
-    private UnsignedLong parent_id;
-    private String xattr_hash;
+    private String entSig;
+    private long entSigLen;
+    private UnsignedLong parentID;
+    private String xattrHash;
 
     public StatRaw() {
         
@@ -87,103 +87,103 @@ public class StatRaw {
     }
 
     @JsonProperty("file_id")
-    public UnsignedLong getFile_id() {
-        return file_id;
+    public UnsignedLong getFileID() {
+        return fileID;
     }
 
     @JsonProperty("file_id")
-    public void setFile_id(UnsignedLong file_id) {
-        this.file_id = file_id;
+    public void setFileID(UnsignedLong fileID) {
+        this.fileID = fileID;
     }
 
     @JsonProperty("ctime_sec")
-    public long getCtime_sec() {
-        return ctime_sec;
+    public long getCtimeSec() {
+        return ctimeSec;
     }
 
     @JsonProperty("ctime_sec")
-    public void setCtime_sec(long ctime_sec) {
-        this.ctime_sec = ctime_sec;
+    public void setCtimeSec(long ctimeSec) {
+        this.ctimeSec = ctimeSec;
     }
 
     @JsonProperty("ctime_nsec")
-    public int getCtime_nsec() {
-        return ctime_nsec;
+    public int getCtimeNsec() {
+        return ctimeNsec;
     }
 
     @JsonProperty("ctime_nsec")
-    public void setCtime_nsec(int ctime_nsec) {
-        this.ctime_nsec = ctime_nsec;
+    public void setCtimeNsec(int ctimeNsec) {
+        this.ctimeNsec = ctimeNsec;
     }
     
     @JsonIgnore
     public long getCtime() {
-        return this.ctime_sec * 1000 + this.ctime_nsec;
+        return this.ctimeSec * 1000 + this.ctimeNsec;
     }
 
     @JsonProperty("mtime_sec")
-    public long getMtime_sec() {
-        return mtime_sec;
+    public long getMtimeSec() {
+        return mtimeSec;
     }
 
     @JsonProperty("mtime_sec")
-    public void setMtime_sec(long mtime_sec) {
-        this.mtime_sec = mtime_sec;
+    public void setMtimeSec(long mtimeSec) {
+        this.mtimeSec = mtimeSec;
     }
 
     @JsonProperty("mtime_nsec")
-    public int getMtime_nsec() {
-        return mtime_nsec;
+    public int getMtimeNsec() {
+        return mtimeNsec;
     }
 
     @JsonProperty("mtime_nsec")
-    public void setMtime_nsec(int mtime_nsec) {
-        this.mtime_nsec = mtime_nsec;
+    public void setMtimeNsec(int mtimeNsec) {
+        this.mtimeNsec = mtimeNsec;
     }
     
     @JsonIgnore
     public long getMtime() {
-        return this.mtime_sec * 1000 + this.mtime_nsec;
+        return this.mtimeSec * 1000 + this.mtimeNsec;
     }
 
     @JsonProperty("manifest_mtime_sec")
-    public long getManifest_mtime_sec() {
-        return manifest_mtime_sec;
+    public long getManifestMtimeSec() {
+        return manifestMtimeSec;
     }
 
     @JsonProperty("manifest_mtime_sec")
-    public void setManifest_mtime_sec(long manifest_mtime_sec) {
-        this.manifest_mtime_sec = manifest_mtime_sec;
+    public void setManifestMtimeSec(long manifestMtimeSec) {
+        this.manifestMtimeSec = manifestMtimeSec;
     }
 
     @JsonProperty("manifest_mtime_nsec")
-    public int getManifest_mtime_nsec() {
-        return manifest_mtime_nsec;
+    public int getManifestMtimeNsec() {
+        return manifestMtimeNsec;
     }
 
     @JsonProperty("manifest_mtime_nsec")
-    public void setManifest_mtime_nsec(int manifest_mtime_nsec) {
-        this.manifest_mtime_nsec = manifest_mtime_nsec;
+    public void setManifestMtimeNsec(int manifestMtimeNsec) {
+        this.manifestMtimeNsec = manifestMtimeNsec;
     }
 
     @JsonProperty("write_nonce")
-    public long getWrite_nonce() {
-        return write_nonce;
+    public long getWriteNonce() {
+        return writeNonce;
     }
 
     @JsonProperty("write_nonce")
-    public void setWrite_nonce(long write_nonce) {
-        this.write_nonce = write_nonce;
+    public void setWriteNonce(long writeNonce) {
+        this.writeNonce = writeNonce;
     }
 
     @JsonProperty("xattr_nonce")
-    public long getXattr_nonce() {
-        return xattr_nonce;
+    public long getXattrNonce() {
+        return xattrNonce;
     }
 
     @JsonProperty("xattr_nonce")
-    public void setXattr_nonce(long xattr_nonce) {
-        this.xattr_nonce = xattr_nonce;
+    public void setXattrNonce(long xattrNonce) {
+        this.xattrNonce = xattrNonce;
     }
 
     @JsonProperty("version")
@@ -197,23 +197,23 @@ public class StatRaw {
     }
 
     @JsonProperty("max_read_freshness")
-    public int getMax_read_freshness() {
-        return max_read_freshness;
+    public int getMaxReadFreshness() {
+        return maxReadFreshness;
     }
 
     @JsonProperty("max_read_freshness")
-    public void setMax_read_freshness(int max_read_freshness) {
-        this.max_read_freshness = max_read_freshness;
+    public void setMaxReadFreshness(int maxReadFreshness) {
+        this.maxReadFreshness = maxReadFreshness;
     }
 
     @JsonProperty("max_write_freshness")
-    public int getMax_write_freshness() {
-        return max_write_freshness;
+    public int getMaxWriteFreshness() {
+        return maxWriteFreshness;
     }
 
     @JsonProperty("max_write_freshness")
-    public void setMax_write_freshness(int max_write_freshness) {
-        this.max_write_freshness = max_write_freshness;
+    public void setMaxWriteFreshness(int maxWriteFreshness) {
+        this.maxWriteFreshness = maxWriteFreshness;
     }
 
     @JsonProperty("owner")
@@ -302,13 +302,13 @@ public class StatRaw {
     }
 
     @JsonProperty("num_children")
-    public long getNum_children() {
-        return num_children;
+    public long getNumChildren() {
+        return numChildren;
     }
 
     @JsonProperty("num_children")
-    public void setNum_children(long num_children) {
-        this.num_children = num_children;
+    public void setNumChildren(long numChildren) {
+        this.numChildren = numChildren;
     }
 
     @JsonProperty("capacity")
@@ -322,42 +322,42 @@ public class StatRaw {
     }
 
     @JsonProperty("ent_sig")
-    public String getEnt_sig() {
-        return ent_sig;
+    public String getEntSig() {
+        return entSig;
     }
 
     @JsonProperty("ent_sig")
-    public void setEnt_sig(String ent_sig) {
-        this.ent_sig = ent_sig;
+    public void setEntSig(String entSig) {
+        this.entSig = entSig;
     }
 
     @JsonProperty("ent_sig_len")
-    public long getEnt_sig_len() {
-        return ent_sig_len;
+    public long getEntSigLen() {
+        return entSigLen;
     }
 
     @JsonProperty("ent_sig_len")
-    public void setEnt_sig_len(long ent_sig_len) {
-        this.ent_sig_len = ent_sig_len;
+    public void setEntSigLen(long entSigLen) {
+        this.entSigLen = entSigLen;
     }
 
     @JsonProperty("parent_id")
-    public UnsignedLong getParent_id() {
-        return parent_id;
+    public UnsignedLong getParentID() {
+        return parentID;
     }
 
     @JsonProperty("parent_id")
-    public void setParent_id(UnsignedLong parent_id) {
-        this.parent_id = parent_id;
+    public void setParentID(UnsignedLong parentID) {
+        this.parentID = parentID;
     }
 
     @JsonProperty("xattr_hash")
-    public String getXattr_hash() {
-        return xattr_hash;
+    public String getXattrHash() {
+        return xattrHash;
     }
 
     @JsonProperty("xattr_hash")
-    public void setXattr_hash(String xattr_hash) {
-        this.xattr_hash = xattr_hash;
+    public void setXattrHash(String xattrHash) {
+        this.xattrHash = xattrHash;
     }
 }

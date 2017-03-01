@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.permission.FsPermission;
 
 public abstract class AHSyndicateFileSystemBase implements Closeable {
@@ -36,7 +37,8 @@ public abstract class AHSyndicateFileSystemBase implements Closeable {
     
     protected static List<ISyndicateFSEventHandler> eventHandlers = new ArrayList<ISyndicateFSEventHandler>();
     
-    protected SyndicateFSConfiguration conf;
+    protected SyndicateFSConfiguration syndicateFsConf;
+    protected Configuration hadoopConf;
     protected SyndicateFSPath workingDir;
     
     protected boolean closed = true;
@@ -59,7 +61,7 @@ public abstract class AHSyndicateFileSystemBase implements Closeable {
     
     protected synchronized void raiseOnBeforeCreateEvent() {
         for(ISyndicateFSEventHandler handler : eventHandlers) {
-            handler.onBeforeCreate(this.conf);
+            handler.onBeforeCreate(this.syndicateFsConf);
         }
     }
     
@@ -77,12 +79,13 @@ public abstract class AHSyndicateFileSystemBase implements Closeable {
     
     protected synchronized void raiseOnAfterDestroyEvent() {
         for(ISyndicateFSEventHandler handler : eventHandlers) {
-            handler.onBeforeCreate(this.conf);
+            handler.onBeforeCreate(this.syndicateFsConf);
         }
     }
     
-    protected void initialize(SyndicateFSConfiguration conf) throws InstantiationException {
-        this.conf = conf;
+    protected void initialize(SyndicateFSConfiguration syndicateFsConf, Configuration hadoopConf) throws InstantiationException {
+        this.syndicateFsConf = syndicateFsConf;
+        this.hadoopConf = hadoopConf;
         this.workingDir = getRootPath();
         this.closed = false;
     }
@@ -91,8 +94,12 @@ public abstract class AHSyndicateFileSystemBase implements Closeable {
         return this.closed;
     }
     
-    public synchronized SyndicateFSConfiguration getConfiguration() {
-        return this.conf;
+    public SyndicateFSConfiguration getSyndicateFsConfiguration() {
+        return this.syndicateFsConf;
+    }
+    
+    public Configuration getHadoopConfiguration() {
+        return this.hadoopConf;
     }
     
     public synchronized SyndicateFSPath getRootPath() {
@@ -165,6 +172,8 @@ public abstract class AHSyndicateFileSystemBase implements Closeable {
     public abstract int getReplication(SyndicateFSPath path);
     
     public abstract long getBlockSize();
+    
+    public abstract long getBlockSize(SyndicateFSPath path);
     
     public abstract String[] listExtendedAttrs(SyndicateFSPath path) throws FileNotFoundException, IOException;
     
@@ -322,12 +331,12 @@ public abstract class AHSyndicateFileSystemBase implements Closeable {
                     
                     if(filter != null) {
                         if(filter.accept(path, entry)) {
-                            List<SyndicateFSPath> rec_result = listAllFilesRecursive(newEntryPath, filter);
-                            result.addAll(rec_result);
+                            List<SyndicateFSPath> recResult = listAllFilesRecursive(newEntryPath, filter);
+                            result.addAll(recResult);
                         }
                     } else {
-                        List<SyndicateFSPath> rec_result = listAllFilesRecursive(newEntryPath, filter);
-                        result.addAll(rec_result);
+                        List<SyndicateFSPath> recResult = listAllFilesRecursive(newEntryPath, filter);
+                        result.addAll(recResult);
                     }
                 }
             }
@@ -361,12 +370,12 @@ public abstract class AHSyndicateFileSystemBase implements Closeable {
                     
                     if(filter != null) {
                         if(filter.accept(newEntryPath)) {
-                            List<SyndicateFSPath> rec_result = listAllFilesRecursive(newEntryPath, filter);
-                            result.addAll(rec_result);
+                            List<SyndicateFSPath> recResult = listAllFilesRecursive(newEntryPath, filter);
+                            result.addAll(recResult);
                         }
                     } else {
-                        List<SyndicateFSPath> rec_result = listAllFilesRecursive(newEntryPath, filter);
-                        result.addAll(rec_result);
+                        List<SyndicateFSPath> recResult = listAllFilesRecursive(newEntryPath, filter);
+                        result.addAll(recResult);
                     }
                 }
             }
@@ -427,6 +436,6 @@ public abstract class AHSyndicateFileSystemBase implements Closeable {
     
     @Override
     public synchronized String toString() {
-        return "Syndicate - " + this.conf.getAddress();
+        return "Syndicate - " + this.syndicateFsConf.getAddress();
     }
 }

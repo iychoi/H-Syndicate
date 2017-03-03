@@ -99,7 +99,7 @@ public class SyndicateFSFileHandle implements Closeable {
         
         this.keepaliveThread = new Thread(new KeepaliveWorker(this));
         this.keepaliveThread.start();
-        LOG.info("file opened - " + this.status.getPath().getPath());
+        LOG.info("file opened - " + this.status.getPath().toString());
     }
     
     public synchronized SyndicateFileSystem getFileSystem() {
@@ -121,7 +121,7 @@ public class SyndicateFSFileHandle implements Closeable {
         
         try {
             SyndicateUGHttpClient client = this.filesystem.getUGRestClient(this.status.getPath().getSessionName());
-            Future<ClientResponse> extendTtlFuture = client.extendTtl(this.status.getPath().getPath(), this.fileDescriptor);
+            Future<ClientResponse> extendTtlFuture = client.extendTtl(this.status.getPath().getPathWithoutSession(), this.fileDescriptor);
             if (extendTtlFuture != null) {
                 client.processExtendTtl(extendTtlFuture);
             } else {
@@ -137,7 +137,7 @@ public class SyndicateFSFileHandle implements Closeable {
         if(!this.closed) {
             try {
                 SyndicateUGHttpClient client = this.filesystem.getUGRestClient(this.status.getPath().getSessionName());
-                Future<ClientResponse> extendTtlFuture = client.extendTtl(this.status.getPath().getPath(), this.fileDescriptor);
+                Future<ClientResponse> extendTtlFuture = client.extendTtl(this.status.getPath().getPathWithoutSession(), this.fileDescriptor);
                 if (extendTtlFuture != null) {
                     client.processExtendTtl(extendTtlFuture);
                 }
@@ -166,12 +166,12 @@ public class SyndicateFSFileHandle implements Closeable {
         // otherwise
         try {
             SyndicateUGHttpClient client = this.filesystem.getUGRestClient(this.status.getPath().getSessionName());
-            Future<ClientResponse> readFuture = client.read(this.status.getPath().getPath(), this.fileDescriptor, BlockUtils.getBlockStartOffset(blockID, this.blockSize), (int) this.blockSize);
+            Future<ClientResponse> readFuture = client.read(this.status.getPath().getPathWithoutSession(), this.fileDescriptor, BlockUtils.getBlockStartOffset(blockID, this.blockSize), (int) this.blockSize);
             if(readFuture != null) {
                 InputStream readIS = client.processRead(readFuture);
                 if(readIS == null) {
-                    LOG.error("failed to read file - " + this.status.getPath().getPath());
-                    throw new IOException("failed to read file - " + this.status.getPath().getPath());
+                    LOG.error("failed to read file - " + this.status.getPath().toString());
+                    throw new IOException("failed to read file - " + this.status.getPath().toString());
                 }
 
                 return readIS;
@@ -208,7 +208,7 @@ public class SyndicateFSFileHandle implements Closeable {
         
         try {
             SyndicateUGHttpClient client = this.filesystem.getUGRestClient(this.status.getPath().getSessionName());
-            Future<ClientResponse> writeFuture = client.write(this.status.getPath().getPath(), this.fileDescriptor, BlockUtils.getBlockStartOffset(blockID, this.blockSize), size, buffer);
+            Future<ClientResponse> writeFuture = client.write(this.status.getPath().getPathWithoutSession(), this.fileDescriptor, BlockUtils.getBlockStartOffset(blockID, this.blockSize), size, buffer);
             if(writeFuture != null) {
                 client.processWrite(writeFuture);
                 if(this.status.getSize() <= BlockUtils.getBlockStartOffset(blockID, this.blockSize) + size) {
@@ -251,7 +251,7 @@ public class SyndicateFSFileHandle implements Closeable {
             
             try {
                 SyndicateUGHttpClient client = this.filesystem.getUGRestClient(this.status.getPath().getSessionName());
-                Future<ClientResponse> closeFuture = client.close(this.status.getPath().getPath(), this.fileDescriptor);
+                Future<ClientResponse> closeFuture = client.close(this.status.getPath().getPathWithoutSession(), this.fileDescriptor);
                 if(closeFuture != null) {
                     client.processClose(closeFuture);
                     this.closed = true;

@@ -82,8 +82,6 @@ public class SyndicateUGHttpClient implements Closeable {
     private static final String CLOSE = "close";
     private static final String CLOSE_FD = "fd";
     
-    public static final int DEFAULT_THREAD_POOL_SIZE = 10;
-    
     private URI serviceURI;
     private String sessionName;
     private String sessionKey;
@@ -144,7 +142,7 @@ public class SyndicateUGHttpClient implements Closeable {
         this.serviceURI = serviceURI;
         this.sessionName = sessionName;
         this.sessionKey = sessionKey;
-        this.client = new RestfulClient(serviceURI, DEFAULT_THREAD_POOL_SIZE);
+        this.client = new RestfulClient(serviceURI, sessionName, sessionKey);
         this.api_call = api_call;
     }
 

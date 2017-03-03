@@ -195,6 +195,30 @@ public class SyndicateFSPath implements Comparable {
         }
     }
     
+    public String getPathWithoutSession() {
+        String path = this.uri.getPath();
+        // empty
+        if (path.length() == 0) {
+            return null;
+        }
+        
+        // root
+        if (path.length() == 1 && path.equals("/")) {
+            return null;
+        }
+        
+        if (path.startsWith("/")) {
+            int secondSlash = path.indexOf('/', 1);
+            if(secondSlash == -1) {
+                return new String();
+            } else {
+                return path.substring(secondSlash);
+            }
+        } else {
+            return null;
+        }
+    }
+    
     /*
      * Return the parent path, Null if parent is root
      */
@@ -227,16 +251,16 @@ public class SyndicateFSPath implements Comparable {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         
-        if (uri.getScheme() != null) {
-            sb.append(uri.getScheme());
+        if (this.uri.getScheme() != null) {
+            sb.append(this.uri.getScheme());
             sb.append(":");
         }
-        if (uri.getAuthority() != null) {
+        if (this.uri.getAuthority() != null) {
             sb.append("//");
-            sb.append(uri.getAuthority());
+            sb.append(this.uri.getAuthority());
         }
-        if (uri.getPath() != null) {
-            String path = uri.getPath();
+        if (this.uri.getPath() != null) {
+            String path = this.uri.getPath();
             sb.append(path);
         }
         
@@ -247,18 +271,15 @@ public class SyndicateFSPath implements Comparable {
      * Return the stringfied path that does not contains scheme and authority
      */
     public String getPath() {
-        StringBuilder sb = new StringBuilder();
-        
-        if (uri.getPath() != null) {
-            String path = uri.getPath();
-            sb.append(path);
+        if (this.uri.getPath() != null) {
+            return uri.getPath();
         }
         
-        return sb.toString();
+        return new String();
     }
     
     public int depth() {
-        String path = uri.getPath();
+        String path = this.uri.getPath();
         
         if(path.length() == 1 && path.startsWith("/"))
             return 0;

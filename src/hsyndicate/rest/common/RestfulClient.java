@@ -20,6 +20,7 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.GenericType;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
+import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 import com.sun.jersey.api.json.JSONConfiguration;
 import com.sun.jersey.client.apache4.ApacheHttpClient4;
 import com.sun.jersey.client.apache4.config.ApacheHttpClient4Config;
@@ -53,13 +54,9 @@ public class RestfulClient {
     private ApacheHttpClient4 httpClient;
     private Thread killme;
     
-    public RestfulClient(URI serviceURL, int threadPoolSize) {
+    public RestfulClient(URI serviceURL, String username, String password) {
         if(serviceURL == null) {
             throw new IllegalArgumentException("serviceURL is null");
-        }
-        
-        if(threadPoolSize <= 0) {
-            throw new IllegalArgumentException("threadPoolSize is invalid");
         }
         
         this.serviceURL = serviceURL;
@@ -71,10 +68,11 @@ public class RestfulClient {
         this.httpClientConfig = new DefaultClientConfig();
         this.httpClientConfig.getClasses().add(JacksonJsonProvider.class);
         this.httpClientConfig.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING, Boolean.TRUE);
-        //this.httpClientConfig.getProperties().put(ClientConfig.PROPERTY_THREADPOOL_SIZE, threadPoolSize);
         this.httpClientConfig.getProperties().put(ApacheHttpClient4Config.PROPERTY_CONNECTION_MANAGER, this.connectionManager);
+        this.httpClientConfig.getProperties().put(ApacheHttpClient4Config.PROPERTY_DISABLE_COOKIES, Boolean.FALSE);
         
         this.httpClient = ApacheHttpClient4.create(this.httpClientConfig);
+        this.httpClient.addFilter(new HTTPBasicAuthFilter(username, password));
         
         LOG.info("RestfulClient for " + this.serviceURL.toString() + " is created");
     }

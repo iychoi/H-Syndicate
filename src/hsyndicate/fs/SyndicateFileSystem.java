@@ -60,7 +60,7 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
     private List<SyndicateFSOutputStream> openOutputStream = new ArrayList<SyndicateFSOutputStream>();
     
     private Map<SyndicateFSPath, SyndicateFSFileStatus> fileStatusCache = new PassiveExpiringMap<SyndicateFSPath, SyndicateFSFileStatus>(DEFAULT_FILESTATUS_TIMETOLIVE);
-    private Map<SyndicateFSPath, Statvfs> statVfsCache = new PassiveExpiringMap<SyndicateFSPath, Statvfs>(DEFAULT_STATVFS_TIMETOLIVE);
+    private Map<String, Statvfs> statVfsCache = new PassiveExpiringMap<String, Statvfs>(DEFAULT_STATVFS_TIMETOLIVE);
     
     public SyndicateFileSystem(SyndicateFSConfiguration syndicateFsConf, Configuration hadoopConf) throws InstantiationException {
         initialize(syndicateFsConf, hadoopConf);
@@ -467,13 +467,10 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
         SyndicateFSPath absPath = getAbsolutePath(path);
         
         // check memory cache
-        LOG.info("Check vfs cache - " + absPath.toString());
-        Statvfs cachedStatVfs = this.statVfsCache.get(absPath);
+        Statvfs cachedStatVfs = this.statVfsCache.get(absPath.getSessionName());
         if(cachedStatVfs != null) {
-            LOG.info("Has vfs cache - " + absPath.toString());
             long bsize = cachedStatVfs.getBsize();
             if(bsize > 0) {
-                LOG.info("vfs cache bsize = " + bsize);
                 return bsize;
             }
         }
@@ -491,8 +488,7 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
             Future<ClientResponse> statvfsFuture = client.getStatvfs();
             if(statvfsFuture != null) {
                 statvfs = client.processGetStatvfs(statvfsFuture);
-                LOG.info("Put vfs cache - " + absPath.toString());
-                this.statVfsCache.put(absPath, statvfs);
+                this.statVfsCache.put(absPath.getSessionName(), statvfs);
                 long bsize = statvfs.getBsize();
                 if(bsize > 0) {
                     return bsize;

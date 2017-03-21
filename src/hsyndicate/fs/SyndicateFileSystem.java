@@ -95,6 +95,9 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
         
         if(client == null) {
             String sessionKey = HSyndicateConfigUtils.getSyndicateUGSessionKey(this.hadoopConf, sessionName);
+            if(sessionKey == null) {
+                sessionKey = new String("");
+            }
             client = new SyndicateUGHttpClient(this.syndicateFsConf.getHost(), this.syndicateFsConf.getPort(), sessionName, sessionKey);
             
             this.ugRestClients.put(sessionName, client);

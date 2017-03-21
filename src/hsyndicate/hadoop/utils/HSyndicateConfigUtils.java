@@ -113,7 +113,11 @@ public class HSyndicateConfigUtils {
     public static String getSyndicateUGSessionKey(Configuration conf, String sessionName) {
         try {
             char[] sessionKey = conf.getPassword(String.format("%s.%s.key", CONFIG_SYNDICATE_USER_GATEWAY_SESSION_PREFIX, sessionName));
-            return new String(sessionKey);
+            if(sessionKey != null) {
+                return new String(sessionKey);
+            }
+            LOG.error("failed to read a session key of " + sessionName);
+            return null;
         } catch (IOException ex) {
             LOG.error("failed to read a session key of " + sessionName, ex);
             return null;

@@ -20,6 +20,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
 
 public class RestError {
 
+    private boolean result;
     private String name;
     private String message;
     
@@ -27,6 +28,16 @@ public class RestError {
     private String path;
     
     public RestError() {
+    }
+    
+    @JsonProperty("result")
+    public boolean getResult() {
+        return result;
+    }
+
+    @JsonProperty("result")
+    public void setResult(boolean result) {
+        this.result = result;
     }
     
     @JsonProperty("name")
@@ -67,7 +78,7 @@ public class RestError {
     
     @Override
     public String toString() {
-        return String.format("%s (name:%s)", this.message, this.name);
+        return String.format("%s (result:%s, name:%s)", this.message, String.valueOf(this.result), this.name);
     }
     
     public RestfulException makeException() {

@@ -467,10 +467,13 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
         SyndicateFSPath absPath = getAbsolutePath(path);
         
         // check memory cache
+        LOG.info("Check vfs cache - " + absPath.toString());
         Statvfs cachedStatVfs = this.statVfsCache.get(absPath);
         if(cachedStatVfs != null) {
+            LOG.info("Has vfs cache - " + absPath.toString());
             long bsize = cachedStatVfs.getBsize();
             if(bsize > 0) {
+                LOG.info("vfs cache bsize = " + bsize);
                 return bsize;
             }
         }
@@ -488,6 +491,7 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
             Future<ClientResponse> statvfsFuture = client.getStatvfs();
             if(statvfsFuture != null) {
                 statvfs = client.processGetStatvfs(statvfsFuture);
+                LOG.info("Put vfs cache - " + absPath.toString());
                 this.statVfsCache.put(absPath, statvfs);
                 long bsize = statvfs.getBsize();
                 if(bsize > 0) {

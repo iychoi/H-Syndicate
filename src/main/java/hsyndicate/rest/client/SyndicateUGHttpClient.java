@@ -22,6 +22,7 @@ import com.sun.jersey.api.client.GenericType;
 import hsyndicate.rest.common.RestfulException;
 import hsyndicate.rest.datatypes.DirectoryEntries;
 import hsyndicate.rest.datatypes.FileDescriptor;
+import hsyndicate.rest.datatypes.SessionList;
 import hsyndicate.rest.datatypes.StatRaw;
 import hsyndicate.rest.datatypes.Statvfs;
 import hsyndicate.rest.datatypes.Xattr;
@@ -47,6 +48,8 @@ public class SyndicateUGHttpClient implements Closeable {
     
     private static final API_CALL API_CALL_DEFAULT = API_CALL.API_ASYNC;
     private static final String ASYNC_API_SUFFIX = "_async";
+    
+    private static final String LIST_SESSIONS = "list";
     
     private static final String GET_STATVFS = "statvfs";
     private static final String GET_STAT = "stat";
@@ -180,6 +183,16 @@ public class SyndicateUGHttpClient implements Closeable {
             default:
                 throw new IOException("unknown api_call mode : " + this.api_call.toString());
         }
+    }
+    
+    public Future<ClientResponse> listSessions() throws IOException {
+        WebParamBuilder builder = new WebParamBuilder("/sessions");
+        builder.addParam(getAPI(LIST_SESSIONS));
+        return this.client.getAsync(builder.build());
+    }
+    
+    public SessionList processListSessions(Future<ClientResponse> future) throws IOException, RestfulException {
+        return (SessionList)this.client.processGet(future, new GenericType<SessionList>(){});
     }
     
     public Future<ClientResponse> getStatvfs() throws IOException {

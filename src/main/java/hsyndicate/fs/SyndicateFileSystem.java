@@ -21,6 +21,8 @@ import hsyndicate.hadoop.utils.HSyndicateConfigUtils;
 import hsyndicate.rest.client.SyndicateUGHttpClient;
 import hsyndicate.rest.datatypes.DirectoryEntries;
 import hsyndicate.rest.datatypes.FileDescriptor;
+import hsyndicate.rest.datatypes.SessionInfo;
+import hsyndicate.rest.datatypes.SessionList;
 import hsyndicate.rest.datatypes.StatRaw;
 import hsyndicate.rest.datatypes.Statvfs;
 import hsyndicate.rest.datatypes.Xattr;
@@ -107,11 +109,22 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
     
     private StatRaw makeRootStat() {
         StatRaw rootStat = new StatRaw();
+        rootStat.setName("/");
         rootStat.setType(2); // dir
         rootStat.setSize(4096); // root dir size
         rootStat.setMtimeSec(DateTimeUtils.getCurrentTime() / 1000);
         rootStat.setMode((4 << 6 | 4 << 3 | 4)); // r--r--r--
         return rootStat;
+    }
+    
+    private StatRaw makeSessionStat(String name) {
+        StatRaw sessionStat = new StatRaw();
+        sessionStat.setName(name);
+        sessionStat.setType(2); // dir
+        sessionStat.setSize(4096); // session dir size
+        sessionStat.setMtimeSec(DateTimeUtils.getCurrentTime() / 1000);
+        sessionStat.setMode((6 << 6 | 4 << 3 | 4)); // rw-r--r--
+        return sessionStat; 
     }
     
     private SyndicateFSFileStatus getFileStatus(SyndicateFSPath absPath) throws IOException {
@@ -134,12 +147,18 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
             statRaw = makeRootStat();
         } else {
             try {
-                SyndicateUGHttpClient client = getUGRestClient(absPath.getSessionName());
-                Future<ClientResponse> statFuture = client.getStat(absPath.getPathWithoutSession());
-                if(statFuture != null) {
-                    statRaw = client.processGetStat(statFuture);
+                if(absPath.getSessionName() == null || absPath.getSessionName().isEmpty()) {
+                    throw new IOException("Cannot get stat from null session name");
+                } else if(absPath.getPathWithoutSession() == null || absPath.getPathWithoutSession().isEmpty()) {
+                    statRaw = makeSessionStat(absPath.getSessionName());
                 } else {
-                    throw new IOException("Can not process REST operations");
+                    SyndicateUGHttpClient client = getUGRestClient(absPath.getSessionName());
+                    Future<ClientResponse> statFuture = client.getStat(absPath.getPathWithoutSession());
+                    if(statFuture != null) {
+                        statRaw = client.processGetStat(statFuture);
+                    } else {
+                        throw new IOException("Can not process REST operations");
+                    }
                 }
             } catch (FileNotFoundException ex) {
                 // silent
@@ -800,47 +819,67 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
         List<String> entries = new ArrayList<String>();
         
         try {
-            SyndicateUGHttpClient client = getUGRestClient(absPath.getSessionName());
-            Future<ClientResponse> readDirFuture = client.listDir(absPath.getPathWithoutSession());
-            if(readDirFuture != null) {
-                DirectoryEntries processReadDir = client.processListDir(readDirFuture);
+            if(absPath.getSessionName() == null || absPath.getSessionName().isEmpty()) {
+                SyndicateUGHttpClient client = getUGRestClient("");
+                Future<ClientResponse> listSessionsFuture = client.listSessions();
+                if(listSessionsFuture != null) {
+                    SessionList processListSessions = client.processListSessions(listSessionsFuture);
 
-                // remove duplicates
-                Map<String, StatRaw> entryTable = new HashMap<String, StatRaw>();
-                
-                // need to remove duplicates
-                int entryCnt = 0;
-                for(StatRaw statRaw : processReadDir.getEntries()) {
-                    entryCnt++;
-                    if(entryCnt <= 2) {
-                        // ignore . and ..
-                        continue;
+                    for(SessionInfo session : processListSessions.getSessions()) {
+                        entries.add(session.getName());
+                        
+                        // put to memory cache
+                        SyndicateFSPath entryPath = new SyndicateFSPath(absPath, session.getName());
+                        this.fileStatusCache.remove(entryPath);
+                        SyndicateFSFileStatus entryStatus = new SyndicateFSFileStatus(this, entryPath, makeSessionStat(session.getName()));
+                        this.fileStatusCache.put(entryPath, entryStatus);
                     }
-
-                    StatRaw eStatRaw = entryTable.get(statRaw.getName());
-                    if(eStatRaw == null) {
-                        // first
-                        entryTable.put(statRaw.getName(), statRaw);
-                    } else {
-                        if(eStatRaw.getVersion() <= statRaw.getVersion()) {
-                            // replace
-                            entryTable.remove(statRaw.getName());
-                            entryTable.put(statRaw.getName(), statRaw);
-                        }
-                    }
-                }
-                
-                entries.addAll(entryTable.keySet());
-
-                // put to memory cache
-                for(StatRaw statRaw : entryTable.values()) {
-                    SyndicateFSPath entryPath = new SyndicateFSPath(absPath, statRaw.getName());
-                    this.fileStatusCache.remove(entryPath);
-                    SyndicateFSFileStatus entryStatus = new SyndicateFSFileStatus(this, absPath, statRaw);
-                    this.fileStatusCache.put(entryPath, entryStatus);
+                } else {
+                    throw new IOException("Can not process REST operations");
                 }
             } else {
-                throw new IOException("Can not process REST operations");
+                SyndicateUGHttpClient client = getUGRestClient(absPath.getSessionName());
+                Future<ClientResponse> readDirFuture = client.listDir(absPath.getPathWithoutSession());
+                if(readDirFuture != null) {
+                    DirectoryEntries processReadDir = client.processListDir(readDirFuture);
+
+                    // remove duplicates
+                    Map<String, StatRaw> entryTable = new HashMap<String, StatRaw>();
+
+                    // need to remove duplicates
+                    int entryCnt = 0;
+                    for(StatRaw statRaw : processReadDir.getEntries()) {
+                        entryCnt++;
+                        if(entryCnt <= 2) {
+                            // ignore . and ..
+                            continue;
+                        }
+
+                        StatRaw eStatRaw = entryTable.get(statRaw.getName());
+                        if(eStatRaw == null) {
+                            // first
+                            entryTable.put(statRaw.getName(), statRaw);
+                        } else {
+                            if(eStatRaw.getVersion() <= statRaw.getVersion()) {
+                                // replace
+                                entryTable.remove(statRaw.getName());
+                                entryTable.put(statRaw.getName(), statRaw);
+                            }
+                        }
+                    }
+
+                    entries.addAll(entryTable.keySet());
+
+                    // put to memory cache
+                    for(StatRaw statRaw : entryTable.values()) {
+                        SyndicateFSPath entryPath = new SyndicateFSPath(absPath, statRaw.getName());
+                        this.fileStatusCache.remove(entryPath);
+                        SyndicateFSFileStatus entryStatus = new SyndicateFSFileStatus(this, entryPath, statRaw);
+                        this.fileStatusCache.put(entryPath, entryStatus);
+                    }
+                } else {
+                    throw new IOException("Can not process REST operations");
+                }
             }
         } catch (Exception ex) {
             LOG.error("exception occurred", ex);

@@ -88,21 +88,31 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
     }
     
     public synchronized SyndicateUGHttpClient getUGRestClient(String sessionName) throws InstantiationException {
+        boolean anonymous = false;
+        SyndicateUGHttpClient client;
+        
         if(sessionName == null || sessionName.isEmpty()) {
-            LOG.error("Can not get UG Rest Client from null session name");
-            throw new IllegalArgumentException("Can not get UG Rest Client from null session name");
+            // no session
+            anonymous = true;
+            client = this.ugRestClients.get("$$_ANONYMOUS_$$");
+        } else {
+            client = this.ugRestClients.get(sessionName);
         }
         
-        SyndicateUGHttpClient client = this.ugRestClients.get(sessionName);
-        
         if(client == null) {
-            String sessionKey = HSyndicateConfigUtils.getSyndicateUGSessionKey(this.hadoopConf, sessionName);
-            if(sessionKey == null) {
-                sessionKey = new String("");
+            String sessionKey = null;
+            if(anonymous) {
+                client = new SyndicateUGHttpClient(this.syndicateFsConf.getHost(), this.syndicateFsConf.getPort(), null, null);
+                this.ugRestClients.put("$$_ANONYMOUS_$$", client);
+            } else {
+                sessionKey = HSyndicateConfigUtils.getSyndicateUGSessionKey(this.hadoopConf, sessionName);
+                if(sessionKey == null) {
+                    sessionKey = new String("");
+                }
+                
+                client = new SyndicateUGHttpClient(this.syndicateFsConf.getHost(), this.syndicateFsConf.getPort(), sessionName, sessionKey);
+                this.ugRestClients.put(sessionName, client);
             }
-            client = new SyndicateUGHttpClient(this.syndicateFsConf.getHost(), this.syndicateFsConf.getPort(), sessionName, sessionKey);
-            
-            this.ugRestClients.put(sessionName, client);
         }
         return client;
     }
@@ -820,7 +830,7 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
         
         try {
             if(absPath.getSessionName() == null || absPath.getSessionName().isEmpty()) {
-                SyndicateUGHttpClient client = getUGRestClient("");
+                SyndicateUGHttpClient client = getUGRestClient(null);
                 Future<ClientResponse> listSessionsFuture = client.listSessions();
                 if(listSessionsFuture != null) {
                     SessionList processListSessions = client.processListSessions(listSessionsFuture);

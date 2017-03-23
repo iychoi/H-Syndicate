@@ -100,14 +100,6 @@ public class SyndicateUGHttpClient implements Closeable {
             throw new IllegalArgumentException("port is illegal");
         }
         
-        if(sessionName == null || sessionName.isEmpty()) {
-            throw new IllegalArgumentException("sessionName is null or empty");
-        }
-        
-        if(sessionKey == null || sessionKey.isEmpty()) {
-            throw new IllegalArgumentException("sessionKey is null or empty");
-        }
-        
         try {
             URI serviceURI = new URI(String.format("http://%s:%d/", host, port));
             initialize(serviceURI, sessionName, sessionKey, API_CALL_DEFAULT);

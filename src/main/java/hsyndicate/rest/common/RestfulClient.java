@@ -72,7 +72,13 @@ public class RestfulClient {
         this.httpClientConfig.getProperties().put(ApacheHttpClient4Config.PROPERTY_DISABLE_COOKIES, Boolean.FALSE);
         
         this.httpClient = ApacheHttpClient4.create(this.httpClientConfig);
-        this.httpClient.addFilter(new HTTPBasicAuthFilter(username, password));
+        if(username != null && !username.isEmpty()) {
+            if(password == null) {
+                password = "";
+            }
+            
+            this.httpClient.addFilter(new HTTPBasicAuthFilter(username, password));
+        }
         
         LOG.info("RestfulClient for " + this.serviceURL.toString() + " is created");
     }

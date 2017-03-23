@@ -23,6 +23,8 @@ public class SyndicateFSFileStatus {
 
     private static final Log LOG = LogFactory.getLog(SyndicateFSFileStatus.class);
     
+    public static final String DEFAULT_USER_MAPPING = "syndicate";
+    
     private SyndicateFileSystem filesystem;
     private SyndicateFSPath path;
     private StatRaw statRaw;
@@ -54,6 +56,10 @@ public class SyndicateFSFileStatus {
     
     public synchronized SyndicateFSPath getPath() {
         return this.path;
+    }
+    
+    public synchronized StatRaw getStatRaw() {
+        return this.statRaw;
     }
     
     public synchronized boolean isDirectory() {
@@ -136,6 +142,26 @@ public class SyndicateFSFileStatus {
             return 0;
         }
         return this.statRaw.getOthersMode();
+    }
+    
+    public synchronized String getOwner() {
+        if(this.statRaw == null) {
+            return DEFAULT_USER_MAPPING;
+        } else if(this.statRaw.getOwnerName() == null || this.statRaw.getOwnerName().isEmpty()) {
+            return DEFAULT_USER_MAPPING;
+        } else {
+            return this.statRaw.getOwnerName();
+        }
+    }
+    
+    public synchronized String getGroup() {
+        if(this.statRaw == null) {
+            return DEFAULT_USER_MAPPING;
+        } else if(this.statRaw.getVolumeName() == null || this.statRaw.getVolumeName().isEmpty()) {
+            return DEFAULT_USER_MAPPING;
+        } else {
+            return this.statRaw.getVolumeName();
+        }
     }
 
     public synchronized boolean isDirty() {

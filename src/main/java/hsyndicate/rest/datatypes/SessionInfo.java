@@ -24,6 +24,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
 public class SessionInfo {
     private String name;
     private String user;
+    private String volume;
 
     public SessionInfo() {
         
@@ -47,5 +48,15 @@ public class SessionInfo {
     @JsonProperty("user")
     public void setUser(String user) {
         this.user = user;
+    }
+    
+    @JsonProperty("volume")
+    public String getVolume() {
+        return volume;
+    }
+
+    @JsonProperty("volume")
+    public void setVolume(String volume) {
+        this.volume = volume;
     }
 }

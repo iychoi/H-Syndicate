@@ -127,13 +127,15 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
         return rootStat;
     }
     
-    private StatRaw makeSessionStat(String name) {
+    private StatRaw makeSessionStat(String name, String user, String volume) {
         StatRaw sessionStat = new StatRaw();
         sessionStat.setName(name);
+        sessionStat.setOwnerName(user);
+        sessionStat.setVolumeName(volume);
         sessionStat.setType(2); // dir
         sessionStat.setSize(4096); // session dir size
         sessionStat.setMtimeSec(DateTimeUtils.getCurrentTime() / 1000);
-        sessionStat.setMode((6 << 6 | 4 << 3 | 4)); // rw-r--r--
+        sessionStat.setMode((6 << 6 | 0 << 3 | 0)); // rw-------
         return sessionStat; 
     }
     
@@ -160,7 +162,27 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
                 if(absPath.getSessionName() == null || absPath.getSessionName().isEmpty()) {
                     throw new IOException("Cannot get stat from null session name");
                 } else if(absPath.getPathWithoutSession() == null || absPath.getPathWithoutSession().isEmpty()) {
-                    statRaw = makeSessionStat(absPath.getSessionName());
+                    SyndicateUGHttpClient client = getUGRestClient(null);
+                    Future<ClientResponse> listSessionsFuture = client.listSessions();
+                    if(listSessionsFuture != null) {
+                        SessionList processListSessions = client.processListSessions(listSessionsFuture);
+                        for(SessionInfo session : processListSessions.getSessions()) {
+                            StatRaw raw = makeSessionStat(session.getName(), session.getUser(), session.getVolume());
+
+                            if(session.getName().equals(absPath.getSessionName())) {
+                                // requested session
+                                statRaw = raw;
+                            }
+                            
+                            // put to memory cache
+                            SyndicateFSPath entryPath = new SyndicateFSPath(absPath.getParent(), session.getName());
+                            this.fileStatusCache.remove(entryPath);
+                            SyndicateFSFileStatus entryStatus = new SyndicateFSFileStatus(this, entryPath, raw);
+                            this.fileStatusCache.put(entryPath, entryStatus);
+                        }
+                    } else {
+                        throw new IOException("Can not process REST operations");
+                    }
                 } else {
                     SyndicateUGHttpClient client = getUGRestClient(absPath.getSessionName());
                     Future<ClientResponse> statFuture = client.getStat(absPath.getPathWithoutSession());
@@ -445,11 +467,11 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
             LOG.error("exception occurred", ex);
         }
         
-        // TODO: status does not provide owner info yet
         if(status != null) {
-            return "syndicate";
+            return status.getOwner();
         }
-        return "syndicate";
+        
+        return SyndicateFSFileStatus.DEFAULT_USER_MAPPING;
     }
     
     @Override
@@ -467,11 +489,11 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
             LOG.error("exception occurred", ex);
         }
         
-        // TODO: status does not provide permission info yet
         if(status != null) {
-            return "syndicate";
+            return status.getGroup();
         }
-        return "syndicate";
+        
+        return SyndicateFSFileStatus.DEFAULT_USER_MAPPING;
     }
     
     @Override
@@ -841,7 +863,7 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
                         // put to memory cache
                         SyndicateFSPath entryPath = new SyndicateFSPath(absPath, session.getName());
                         this.fileStatusCache.remove(entryPath);
-                        SyndicateFSFileStatus entryStatus = new SyndicateFSFileStatus(this, entryPath, makeSessionStat(session.getName()));
+                        SyndicateFSFileStatus entryStatus = new SyndicateFSFileStatus(this, entryPath, makeSessionStat(session.getName(), session.getUser(), session.getVolume()));
                         this.fileStatusCache.put(entryPath, entryStatus);
                     }
                 } else {

@@ -40,7 +40,7 @@ import org.apache.commons.logging.LogFactory;
 public class SyndicateUGHttpClient implements Closeable {
     
     private static final Log LOG = LogFactory.getLog(SyndicateUGHttpClient.class);
-    
+
     public static enum API_CALL {
         API_SYNC, 
         API_ASYNC

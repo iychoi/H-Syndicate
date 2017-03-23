@@ -39,8 +39,11 @@ public class StatRaw {
     private int maxReadFreshness;
     private int maxWriteFreshness;
     private UnsignedLong owner;
+    private String ownerName;
     private UnsignedLong coordinator;
+    private String coordinatorName;
     private UnsignedLong volume;
+    private String volumeName;
     private int mode;
     private long size;
     private int error;
@@ -225,6 +228,16 @@ public class StatRaw {
     public void setOwner(UnsignedLong owner) {
         this.owner = owner;
     }
+    
+    @JsonProperty("owner_name")
+    public String getOwnerName() {
+        return ownerName;
+    }
+    
+    @JsonProperty("owner_name")
+    public void setOwnerName(String ownerName) {
+        this.ownerName = ownerName;
+    }
 
     @JsonProperty("coordinator")
     public UnsignedLong getCoordinator() {
@@ -235,6 +248,16 @@ public class StatRaw {
     public void setCoordinator(UnsignedLong coordinator) {
         this.coordinator = coordinator;
     }
+    
+    @JsonProperty("coordinator_name")
+    public String getCoordinatorName() {
+        return coordinatorName;
+    }
+
+    @JsonProperty("coordinator_name")
+    public void setCoordinatorName(String coordinatorName) {
+        this.coordinatorName = coordinatorName;
+    }
 
     @JsonProperty("volume")
     public UnsignedLong getVolume() {
@@ -244,6 +267,16 @@ public class StatRaw {
     @JsonProperty("volume")
     public void setVolume(UnsignedLong volume) {
         this.volume = volume;
+    }
+    
+    @JsonProperty("volume_name")
+    public String getVolumeName() {
+        return volumeName;
+    }
+
+    @JsonProperty("volume_name")
+    public void setVolumeName(String volumeName) {
+        this.volumeName = volumeName;
     }
 
     @JsonProperty("mode")

@@ -111,7 +111,7 @@ public class RestfulClient {
         return requestURL;
     }
     
-    public Object post(String path, Object request, GenericType<?> generic) throws IOException, FileNotFoundException, RestfulException {
+    public Object post(String path, Object request, GenericType<?> generic) throws IOException, FileNotFoundException, RestfulException, AuthenticationException {
         Future<ClientResponse> future = postAsync(path, request);
         return processPost(future, generic);
     }
@@ -132,7 +132,7 @@ public class RestfulClient {
         return (Future<ClientResponse>) webResource.accept("application/json").type("application/json").post(ClientResponse.class, request);
     }
     
-    public Object processPost(Future<ClientResponse> future, GenericType<?> generic) throws IOException, FileNotFoundException, RestfulException {
+    public Object processPost(Future<ClientResponse> future, GenericType<?> generic) throws IOException, FileNotFoundException, RestfulException, AuthenticationException {
         if(future == null) {
             throw new IllegalArgumentException("future is null");
         }
@@ -153,6 +153,9 @@ public class RestfulClient {
                     response.close();
                     return entity;
                 }
+            } else if(response.getStatus() == 401) {
+                response.close();
+                throw new AuthenticationException();
             } else if(response.getStatus() == 404) {
                 String message = response.toString();
                 response.close();
@@ -173,7 +176,7 @@ public class RestfulClient {
         }
     }
     
-    public Object get(String path, GenericType<?> generic) throws IOException, FileNotFoundException, RestfulException {
+    public Object get(String path, GenericType<?> generic) throws IOException, FileNotFoundException, RestfulException, AuthenticationException {
         Future<ClientResponse> future = getAsync(path);
         return processGet(future, generic);
     }
@@ -189,7 +192,7 @@ public class RestfulClient {
         return (Future<ClientResponse>) webResource.accept("application/json").type("application/json").get(ClientResponse.class);
     }
     
-    public Object processGet(Future<ClientResponse> future, GenericType<?> generic) throws IOException, FileNotFoundException, RestfulException {
+    public Object processGet(Future<ClientResponse> future, GenericType<?> generic) throws IOException, FileNotFoundException, RestfulException, AuthenticationException {
         if(future == null) {
             throw new IllegalArgumentException("future is null");
         }
@@ -205,6 +208,9 @@ public class RestfulClient {
                 Object entity = response.getEntity(generic);
                 response.close();
                 return entity;
+            } else if(response.getStatus() == 401) {
+                response.close();
+                throw new AuthenticationException();
             } else if(response.getStatus() == 404) {
                 String message = response.toString();
                 response.close();
@@ -225,7 +231,7 @@ public class RestfulClient {
         }
     }
     
-    public Object delete(String path, GenericType<?> generic) throws IOException, FileNotFoundException, RestfulException {
+    public Object delete(String path, GenericType<?> generic) throws IOException, FileNotFoundException, RestfulException, AuthenticationException {
         Future<ClientResponse> future = deleteAsync(path);
         return processDelete(future, generic);
     }
@@ -241,7 +247,7 @@ public class RestfulClient {
         return (Future<ClientResponse>) webResource.accept("application/json").type("application/json").delete(ClientResponse.class);
     }
     
-    public Object processDelete(Future<ClientResponse> future, GenericType<?> generic) throws IOException, FileNotFoundException, RestfulException {
+    public Object processDelete(Future<ClientResponse> future, GenericType<?> generic) throws IOException, FileNotFoundException, RestfulException, AuthenticationException {
         if(future == null) {
             throw new IllegalArgumentException("future is null");
         }
@@ -262,6 +268,9 @@ public class RestfulClient {
                     response.close();
                     return entity;
                 }
+            } else if(response.getStatus() == 401) {
+                response.close();
+                throw new AuthenticationException();
             } else if(response.getStatus() == 404) {
                 String message = response.toString();
                 response.close();
@@ -282,7 +291,7 @@ public class RestfulClient {
         }
     }
     
-    public InputStream download(String path) throws IOException, FileNotFoundException, RestfulException {
+    public InputStream download(String path) throws IOException, FileNotFoundException, RestfulException, AuthenticationException {
         Future<ClientResponse> future = deleteAsync(path);
         return processDownload(future);
     }
@@ -298,7 +307,7 @@ public class RestfulClient {
         return (Future<ClientResponse>) webResource.accept("application/octet-stream").type("application/json").get(ClientResponse.class);
     }
     
-    public InputStream processDownload(Future<ClientResponse> future) throws IOException, FileNotFoundException, RestfulException {
+    public InputStream processDownload(Future<ClientResponse> future) throws IOException, FileNotFoundException, RestfulException, AuthenticationException {
         if(future == null) {
             throw new IllegalArgumentException("future is null");
         }
@@ -310,6 +319,9 @@ public class RestfulClient {
                 InputStream entityInputStream = response.getEntityInputStream();
                 //response.close();
                 return entityInputStream;
+            } else if(response.getStatus() == 401) {
+                response.close();
+                throw new AuthenticationException();
             } else if(response.getStatus() == 404) {
                 String message = response.toString();
                 response.close();

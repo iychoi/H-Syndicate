@@ -19,6 +19,7 @@ import hsyndicate.rest.common.RestfulClient;
 import hsyndicate.rest.common.WebParamBuilder;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.GenericType;
+import hsyndicate.rest.common.AuthenticationException;
 import hsyndicate.rest.common.RestfulException;
 import hsyndicate.rest.datatypes.DirectoryEntries;
 import hsyndicate.rest.datatypes.FileDescriptor;
@@ -183,7 +184,7 @@ public class SyndicateUGHttpClient implements Closeable {
         return this.client.getAsync(builder.build());
     }
     
-    public SessionList processListSessions(Future<ClientResponse> future) throws IOException, RestfulException {
+    public SessionList processListSessions(Future<ClientResponse> future) throws IOException, RestfulException, AuthenticationException {
         return (SessionList)this.client.processGet(future, new GenericType<SessionList>(){});
     }
     
@@ -193,7 +194,7 @@ public class SyndicateUGHttpClient implements Closeable {
         return this.client.getAsync(builder.build());
     }
     
-    public Statvfs processGetStatvfs(Future<ClientResponse> future) throws IOException, RestfulException {
+    public Statvfs processGetStatvfs(Future<ClientResponse> future) throws IOException, RestfulException, FileNotFoundException, AuthenticationException {
         return (Statvfs)this.client.processGet(future, new GenericType<Statvfs>(){});
     }
 
@@ -203,7 +204,7 @@ public class SyndicateUGHttpClient implements Closeable {
         return this.client.getAsync(builder.build());
     }
     
-    public StatRaw processGetStat(Future<ClientResponse> future) throws IOException, FileNotFoundException, RestfulException {
+    public StatRaw processGetStat(Future<ClientResponse> future) throws IOException, FileNotFoundException, RestfulException, AuthenticationException {
         return (StatRaw)this.client.processGet(future, new GenericType<StatRaw>(){});
     }
     
@@ -214,7 +215,7 @@ public class SyndicateUGHttpClient implements Closeable {
         return this.client.getAsync(builder.build());
     }
     
-    public Xattr processGetXattr(Future<ClientResponse> future) throws IOException, FileNotFoundException, RestfulException {
+    public Xattr processGetXattr(Future<ClientResponse> future) throws IOException, FileNotFoundException, RestfulException, AuthenticationException {
         return (Xattr)this.client.processGet(future, new GenericType<Xattr>(){});
     }
     
@@ -224,7 +225,7 @@ public class SyndicateUGHttpClient implements Closeable {
         return this.client.getAsync(builder.build());
     }
     
-    public XattrKeyList processListXattr(Future<ClientResponse> future) throws IOException, FileNotFoundException, RestfulException {
+    public XattrKeyList processListXattr(Future<ClientResponse> future) throws IOException, FileNotFoundException, RestfulException, AuthenticationException {
         return (XattrKeyList)this.client.processGet(future, new GenericType<XattrKeyList>(){});
     }
     
@@ -234,7 +235,7 @@ public class SyndicateUGHttpClient implements Closeable {
         return this.client.getAsync(builder.build());
     }
     
-    public DirectoryEntries processListDir(Future<ClientResponse> future) throws IOException, FileNotFoundException, RestfulException {
+    public DirectoryEntries processListDir(Future<ClientResponse> future) throws IOException, FileNotFoundException, RestfulException, AuthenticationException {
         return (DirectoryEntries)this.client.processGet(future, new GenericType<DirectoryEntries>(){});
     }
     
@@ -245,7 +246,7 @@ public class SyndicateUGHttpClient implements Closeable {
         return this.client.getAsync(builder.build());
     }
     
-    public FileDescriptor processOpen(Future<ClientResponse> future) throws IOException, FileNotFoundException, RestfulException {
+    public FileDescriptor processOpen(Future<ClientResponse> future) throws IOException, FileNotFoundException, RestfulException, AuthenticationException {
         return (FileDescriptor)this.client.processGet(future, new GenericType<FileDescriptor>(){});
     }
     
@@ -258,7 +259,7 @@ public class SyndicateUGHttpClient implements Closeable {
         return this.client.downloadAsync(builder.build());
     }
     
-    public InputStream processRead(Future<ClientResponse> future) throws IOException, FileNotFoundException, RestfulException {
+    public InputStream processRead(Future<ClientResponse> future) throws IOException, FileNotFoundException, RestfulException, AuthenticationException {
         return (InputStream)this.client.processDownload(future);
     }
     
@@ -269,7 +270,7 @@ public class SyndicateUGHttpClient implements Closeable {
         return this.client.postAsync(builder.build(), null);
     }
     
-    public void processMakeDir(Future<ClientResponse> future) throws IOException, FileNotFoundException, RestfulException {
+    public void processMakeDir(Future<ClientResponse> future) throws IOException, FileNotFoundException, RestfulException, AuthenticationException {
         this.client.processPost(future, null);
     }
     
@@ -281,7 +282,7 @@ public class SyndicateUGHttpClient implements Closeable {
         return this.client.postAsync(builder.build(), null);
     }
     
-    public void processSetXattr(Future<ClientResponse> future) throws IOException, FileNotFoundException, RestfulException {
+    public void processSetXattr(Future<ClientResponse> future) throws IOException, FileNotFoundException, RestfulException, AuthenticationException {
         this.client.processPost(future, null);
     }
     
@@ -294,7 +295,7 @@ public class SyndicateUGHttpClient implements Closeable {
         return this.client.postAsync(builder.build(), buffer);
     }
     
-    public void processWrite(Future<ClientResponse> future) throws IOException, FileNotFoundException, RestfulException {
+    public void processWrite(Future<ClientResponse> future) throws IOException, FileNotFoundException, RestfulException, AuthenticationException {
         this.client.processPost(future, null);
     }
     
@@ -305,7 +306,7 @@ public class SyndicateUGHttpClient implements Closeable {
         return this.client.postAsync(builder.build(), null);
     }
     
-    public void processExtendTtl(Future<ClientResponse> future) throws IOException, FileNotFoundException, RestfulException {
+    public void processExtendTtl(Future<ClientResponse> future) throws IOException, FileNotFoundException, RestfulException, AuthenticationException {
         this.client.processPost(future, null);
     }
     
@@ -316,7 +317,7 @@ public class SyndicateUGHttpClient implements Closeable {
         return this.client.postAsync(builder.build(), null);
     }
     
-    public void processUpdateTimes(Future<ClientResponse> future) throws IOException, FileNotFoundException, RestfulException {
+    public void processUpdateTimes(Future<ClientResponse> future) throws IOException, FileNotFoundException, RestfulException, AuthenticationException {
         this.client.processPost(future, null);
     }
     
@@ -327,7 +328,7 @@ public class SyndicateUGHttpClient implements Closeable {
         return this.client.postAsync(builder.build(), null);
     }
     
-    public void processRename(Future<ClientResponse> future) throws IOException, FileNotFoundException, RestfulException {
+    public void processRename(Future<ClientResponse> future) throws IOException, FileNotFoundException, RestfulException, AuthenticationException {
         this.client.processPost(future, null);
     }
     
@@ -337,7 +338,7 @@ public class SyndicateUGHttpClient implements Closeable {
         return this.client.deleteAsync(builder.build());
     }
     
-    public void processRemoveDir(Future<ClientResponse> future) throws IOException, FileNotFoundException, RestfulException {
+    public void processRemoveDir(Future<ClientResponse> future) throws IOException, FileNotFoundException, RestfulException, AuthenticationException {
         this.client.processDelete(future, null);
     }
     
@@ -347,7 +348,7 @@ public class SyndicateUGHttpClient implements Closeable {
         return this.client.deleteAsync(builder.build());
     }
     
-    public void processUnlink(Future<ClientResponse> future) throws IOException, FileNotFoundException, RestfulException {
+    public void processUnlink(Future<ClientResponse> future) throws IOException, FileNotFoundException, RestfulException, AuthenticationException {
         this.client.processDelete(future, null);
     }
     
@@ -358,7 +359,7 @@ public class SyndicateUGHttpClient implements Closeable {
         return this.client.deleteAsync(builder.build());
     }
     
-    public void processRemoveXattr(Future<ClientResponse> future) throws IOException, FileNotFoundException, RestfulException {
+    public void processRemoveXattr(Future<ClientResponse> future) throws IOException, FileNotFoundException, RestfulException, AuthenticationException {
         this.client.processDelete(future, null);
     }
     
@@ -369,7 +370,7 @@ public class SyndicateUGHttpClient implements Closeable {
         return this.client.deleteAsync(builder.build());
     }
     
-    public void processClose(Future<ClientResponse> future) throws IOException, FileNotFoundException, RestfulException {
+    public void processClose(Future<ClientResponse> future) throws IOException, FileNotFoundException, RestfulException, AuthenticationException {
         this.client.processDelete(future, null);
     }
 }

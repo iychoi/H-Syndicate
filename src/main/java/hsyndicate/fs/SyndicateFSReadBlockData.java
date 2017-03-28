@@ -99,7 +99,7 @@ public class SyndicateFSReadBlockData implements Closeable {
     
     public synchronized int getData(int offset, byte[] buffer, int length) throws IOException {
         if(offset + length > this.blockSize) {
-            throw new IOException("cannot read requested size of data");
+            throw new IOException(String.format("cannot read requested size of data : off(%d) len(%d) > blockSize(%d)", offset, length, this.blockSize));
         }
         
         ensureLoadData(offset + length);
@@ -111,7 +111,7 @@ public class SyndicateFSReadBlockData implements Closeable {
     
     public synchronized int getData(int offset, byte[] buffer, int bufferStartOffset, int length) throws IOException {
         if(offset + length > this.blockSize) {
-            throw new IOException("cannot read requested size of data");
+            throw new IOException(String.format("cannot read requested size of data : off(%d) len(%d) > blockSize(%d)", offset, length, this.blockSize));
         }
         
         ensureLoadData(offset + length);

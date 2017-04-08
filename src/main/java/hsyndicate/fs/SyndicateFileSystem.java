@@ -194,11 +194,15 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
                 }
             } catch (FileNotFoundException ex) {
                 // silent
-                return null;
+                statRaw = null;
             } catch (Exception ex) {
                 LOG.error("exception occurred", ex);
                 throw new IOException(ex);
             }
+        }
+        
+        if(statRaw == null) {
+            return null;
         }
         
         SyndicateFSFileStatus status = new SyndicateFSFileStatus(this, absPath, statRaw);
@@ -541,7 +545,7 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
             SyndicateUGHttpClient client = getUGRestClient(absPath.getSessionName());
             Future<ClientResponse> statvfsFuture = client.getSessionStatvfs();
             if(statvfsFuture != null) {
-                statvfs = client.processGetStatvfs(statvfsFuture);
+                statvfs = client.processGetSessionStatvfs(statvfsFuture);
                 this.statVfsCache.put(absPath.getSessionName(), statvfs);
                 long bsize = statvfs.getBsize();
                 if(bsize > 0) {

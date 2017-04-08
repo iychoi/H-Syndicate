@@ -153,7 +153,7 @@ public class RestfulClient {
                     response.close();
                     return entity;
                 }
-            } else if(response.getStatus() == 401) {
+            } else if(response.getStatus() == 401 || response.getStatus() == 403) {
                 response.close();
                 throw new AuthenticationException();
             } else if(response.getStatus() == 404) {
@@ -208,7 +208,7 @@ public class RestfulClient {
                 Object entity = response.getEntity(generic);
                 response.close();
                 return entity;
-            } else if(response.getStatus() == 401) {
+            } else if(response.getStatus() == 401 || response.getStatus() == 403) {
                 response.close();
                 throw new AuthenticationException();
             } else if(response.getStatus() == 404) {
@@ -268,7 +268,7 @@ public class RestfulClient {
                     response.close();
                     return entity;
                 }
-            } else if(response.getStatus() == 401) {
+            } else if(response.getStatus() == 401 || response.getStatus() == 403) {
                 response.close();
                 throw new AuthenticationException();
             } else if(response.getStatus() == 404) {
@@ -319,7 +319,7 @@ public class RestfulClient {
                 InputStream entityInputStream = response.getEntityInputStream();
                 //response.close();
                 return entityInputStream;
-            } else if(response.getStatus() == 401) {
+            } else if(response.getStatus() == 401 || response.getStatus() == 403) {
                 response.close();
                 throw new AuthenticationException();
             } else if(response.getStatus() == 404) {

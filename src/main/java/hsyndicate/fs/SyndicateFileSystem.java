@@ -539,7 +539,7 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
         Statvfs statvfs = null;
         try {
             SyndicateUGHttpClient client = getUGRestClient(absPath.getSessionName());
-            Future<ClientResponse> statvfsFuture = client.getStatvfs();
+            Future<ClientResponse> statvfsFuture = client.getSessionStatvfs();
             if(statvfsFuture != null) {
                 statvfs = client.processGetStatvfs(statvfsFuture);
                 this.statVfsCache.put(absPath.getSessionName(), statvfs);

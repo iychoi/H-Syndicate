@@ -51,6 +51,8 @@ public class SyndicateUGHttpClient implements Closeable {
     private static final String ASYNC_API_SUFFIX = "_async";
     
     private static final String LIST_SESSIONS = "list";
+    private static final String GET_SESSION_STATVFS = "statvfs";
+    private static final String GET_SESSION_STATVFS_SESSION_NAME = "session";
     
     private static final String GET_STATVFS = "statvfs";
     private static final String GET_STAT = "stat";
@@ -186,6 +188,17 @@ public class SyndicateUGHttpClient implements Closeable {
     
     public SessionList processListSessions(Future<ClientResponse> future) throws IOException, RestfulException, AuthenticationException {
         return (SessionList)this.client.processGet(future, new GenericType<SessionList>(){});
+    }
+    
+    public Future<ClientResponse> getSessionStatvfs() throws IOException {
+        WebParamBuilder builder = new WebParamBuilder("/sessions");
+        builder.addParam(getAPI(GET_SESSION_STATVFS));
+        builder.addParam(GET_SESSION_STATVFS_SESSION_NAME, this.sessionName);
+        return this.client.getAsync(builder.build());
+    }
+    
+    public Statvfs processGetSessionStatvfs(Future<ClientResponse> future) throws IOException, RestfulException, FileNotFoundException, AuthenticationException {
+        return (Statvfs)this.client.processGet(future, new GenericType<Statvfs>(){});
     }
     
     public Future<ClientResponse> getStatvfs() throws IOException {

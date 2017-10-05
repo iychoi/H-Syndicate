@@ -5,15 +5,15 @@ H-Syndicate allows accesses to Syndicate Volumes via filesystem-like interfaces.
 - hsyndicate.fs.SyndicateFileSystem: General filesystem interface in Java
 - hsyndicate.hadoop.dfs.HSyndicateDFS: Implementation of Hadoop filesystem interface.
 
-The H-Syndicate requires [Syndicate-UG HTTP/REST services](https://github.com/syndicate-storage/syndicate-ug-http) running. 
+The H-Syndicate requires [Syndicate-UG HTTP/REST services](https://github.com/syndicate-storage/syndicate-ug-http) running.
 
 Building
 --------
 
-Building from the source code is very simple. Source code is written in Java and provides "NetBeans" project file and "Ant" scripts for building. If you are using NetBeans IDE, load the project and build through the IDE. Or, simple type "ant".
+If you are using `NetBeans IDE`, load the project and build through the IDE. For most users, use `maven` to build the package from source.
 
 ```
-$ ant
+$ mvn install
 ```
 
 All dependencies for this project are already in /libs/ directory.

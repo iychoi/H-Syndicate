@@ -116,7 +116,7 @@ public class HSyndicateConfigUtils {
             if(sessionKey != null) {
                 return new String(sessionKey);
             }
-            LOG.error("failed to read a session key of " + sessionName);
+            LOG.info(String.format("could not read a session key of %s", sessionName));
             return null;
         } catch (IOException ex) {
             LOG.error("failed to read a session key of " + sessionName, ex);

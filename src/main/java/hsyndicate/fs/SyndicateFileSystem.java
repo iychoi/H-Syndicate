@@ -106,10 +106,9 @@ public class SyndicateFileSystem extends AHSyndicateFileSystemBase {
                 this.ugRestClients.put("$$_ANONYMOUS_$$", client);
             } else {
                 sessionKey = HSyndicateConfigUtils.getSyndicateUGSessionKey(this.hadoopConf, sessionName);
-                if(sessionKey == null) {
-                    sessionKey = new String("");
+                if(sessionKey == null || sessionKey.isEmpty()) {
+                    sessionKey = "ANONYMOUS";
                 }
-                
                 client = new SyndicateUGHttpClient(this.syndicateFsConf.getHost(), this.syndicateFsConf.getPort(), sessionName, sessionKey);
                 this.ugRestClients.put(sessionName, client);
             }

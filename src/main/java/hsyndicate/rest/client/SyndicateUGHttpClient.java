@@ -42,10 +42,12 @@ public class SyndicateUGHttpClient implements Closeable {
     
     private static final Log LOG = LogFactory.getLog(SyndicateUGHttpClient.class);
 
+    private static final String SESSIONS_PREFIX = "/sessions";
     private static final String LIST_SESSIONS = "list";
     private static final String GET_SESSION_STATVFS = "statvfs";
     private static final String GET_SESSION_STATVFS_SESSION_NAME = "session";
     
+    private static final String FS_PREFIX = "/fs";
     private static final String GET_STATVFS = "statvfs";
     private static final String GET_STAT = "stat";
     private static final String GET_XATTR = "getxattr";
@@ -142,7 +144,7 @@ public class SyndicateUGHttpClient implements Closeable {
     }
     
     public Future<ClientResponse> listSessions() throws IOException {
-        WebParamBuilder builder = new WebParamBuilder("/sessions");
+        WebParamBuilder builder = new WebParamBuilder(SESSIONS_PREFIX);
         builder.addParam(LIST_SESSIONS);
         return this.client.getAsync(builder.build());
     }
@@ -152,7 +154,7 @@ public class SyndicateUGHttpClient implements Closeable {
     }
     
     public Future<ClientResponse> getSessionStatvfs() throws IOException {
-        WebParamBuilder builder = new WebParamBuilder("/sessions");
+        WebParamBuilder builder = new WebParamBuilder(SESSIONS_PREFIX);
         builder.addParam(GET_SESSION_STATVFS);
         builder.addParam(GET_SESSION_STATVFS_SESSION_NAME, this.sessionName);
         return this.client.getAsync(builder.build());
@@ -163,7 +165,7 @@ public class SyndicateUGHttpClient implements Closeable {
     }
     
     public Future<ClientResponse> getStatvfs() throws IOException {
-        WebParamBuilder builder = new WebParamBuilder("/");
+        WebParamBuilder builder = new WebParamBuilder(FS_PREFIX);
         builder.addParam(GET_STATVFS);
         return this.client.getAsync(builder.build());
     }
@@ -173,7 +175,7 @@ public class SyndicateUGHttpClient implements Closeable {
     }
 
     public Future<ClientResponse> getStat(String path) throws IOException {
-        WebParamBuilder builder = new WebParamBuilder(path);
+        WebParamBuilder builder = new WebParamBuilder(FS_PREFIX + path);
         builder.addParam(GET_STAT);
         return this.client.getAsync(builder.build());
     }
@@ -183,7 +185,7 @@ public class SyndicateUGHttpClient implements Closeable {
     }
     
     public Future<ClientResponse> getXattr(String path, String key) throws IOException {
-        WebParamBuilder builder = new WebParamBuilder(path);
+        WebParamBuilder builder = new WebParamBuilder(FS_PREFIX + path);
         builder.addParam(GET_XATTR);
         builder.addParam(GET_XATTR_KEY, key);
         return this.client.getAsync(builder.build());
@@ -194,7 +196,7 @@ public class SyndicateUGHttpClient implements Closeable {
     }
     
     public Future<ClientResponse> listXattr(String path) throws IOException {
-        WebParamBuilder builder = new WebParamBuilder(path);
+        WebParamBuilder builder = new WebParamBuilder(FS_PREFIX + path);
         builder.addParam(LIST_XATTR);
         return this.client.getAsync(builder.build());
     }
@@ -204,7 +206,7 @@ public class SyndicateUGHttpClient implements Closeable {
     }
     
     public Future<ClientResponse> listDir(String path) throws IOException {
-        WebParamBuilder builder = new WebParamBuilder(path);
+        WebParamBuilder builder = new WebParamBuilder(FS_PREFIX + path);
         builder.addParam(LIST_DIR);
         return this.client.getAsync(builder.build());
     }
@@ -214,7 +216,7 @@ public class SyndicateUGHttpClient implements Closeable {
     }
     
     public Future<ClientResponse> open(String path, String flag) throws IOException {
-        WebParamBuilder builder = new WebParamBuilder(path);
+        WebParamBuilder builder = new WebParamBuilder(FS_PREFIX + path);
         builder.addParam(OPEN);
         builder.addParam(OPEN_FLAG, flag);
         return this.client.getAsync(builder.build());
@@ -225,7 +227,7 @@ public class SyndicateUGHttpClient implements Closeable {
     }
     
     public Future<ClientResponse> read(String path, FileDescriptor fi, long offset, int len) throws IOException {
-        WebParamBuilder builder = new WebParamBuilder(path);
+        WebParamBuilder builder = new WebParamBuilder(FS_PREFIX + path);
         builder.addParam(READ);
         builder.addParam(READ_FD, fi.getFd());
         builder.addParam(READ_OFFSET, offset);
@@ -238,7 +240,7 @@ public class SyndicateUGHttpClient implements Closeable {
     }
     
     public Future<ClientResponse> makeDir(String path, int mode) throws IOException {
-        WebParamBuilder builder = new WebParamBuilder(path);
+        WebParamBuilder builder = new WebParamBuilder(FS_PREFIX + path);
         builder.addParam(MAKE_DIR);
         builder.addParam(MAKE_DIR_MODE, mode);
         return this.client.postAsync(builder.build(), null);
@@ -249,7 +251,7 @@ public class SyndicateUGHttpClient implements Closeable {
     }
     
     public Future<ClientResponse> setXattr(String path, String key, String value) throws IOException {
-        WebParamBuilder builder = new WebParamBuilder(path);
+        WebParamBuilder builder = new WebParamBuilder(FS_PREFIX + path);
         builder.addParam(SET_XATTR);
         builder.addParam(SET_XATTR_KEY, key);
         builder.addParam(SET_XATTR_VALUE, value);
@@ -261,7 +263,7 @@ public class SyndicateUGHttpClient implements Closeable {
     }
     
     public Future<ClientResponse> write(String path, FileDescriptor fi, long offset, int len, byte[] buffer) throws IOException {
-        WebParamBuilder builder = new WebParamBuilder(path);
+        WebParamBuilder builder = new WebParamBuilder(FS_PREFIX + path);
         builder.addParam(WRITE);
         builder.addParam(WRITE_FD, fi.getFd());
         builder.addParam(WRITE_OFFSET, offset);
@@ -274,7 +276,7 @@ public class SyndicateUGHttpClient implements Closeable {
     }
     
     public Future<ClientResponse> extendTtl(String path, FileDescriptor fi) throws IOException {
-        WebParamBuilder builder = new WebParamBuilder(path);
+        WebParamBuilder builder = new WebParamBuilder(FS_PREFIX + path);
         builder.addParam(EXTEND_TTL);
         builder.addParam(EXTEND_TTL_FD, fi.getFd());
         return this.client.postAsync(builder.build(), null);
@@ -285,7 +287,7 @@ public class SyndicateUGHttpClient implements Closeable {
     }
     
     public Future<ClientResponse> updateTimes(String path, long time) throws IOException {
-        WebParamBuilder builder = new WebParamBuilder(path);
+        WebParamBuilder builder = new WebParamBuilder(FS_PREFIX + path);
         builder.addParam(UPDATE_TIMES);
         builder.addParam(UPDATE_TIMES_TIME, time);
         return this.client.postAsync(builder.build(), null);
@@ -296,7 +298,7 @@ public class SyndicateUGHttpClient implements Closeable {
     }
     
     public Future<ClientResponse> rename(String path, String toPath) throws IOException {
-        WebParamBuilder builder = new WebParamBuilder(path);
+        WebParamBuilder builder = new WebParamBuilder(FS_PREFIX + path);
         builder.addParam(RENAME);
         builder.addParam(RENAME_TO, toPath);
         return this.client.postAsync(builder.build(), null);
@@ -307,7 +309,7 @@ public class SyndicateUGHttpClient implements Closeable {
     }
     
     public Future<ClientResponse> removeDir(String path) throws IOException {
-        WebParamBuilder builder = new WebParamBuilder(path);
+        WebParamBuilder builder = new WebParamBuilder(FS_PREFIX + path);
         builder.addParam(REMOVE_DIR);
         return this.client.deleteAsync(builder.build());
     }
@@ -317,7 +319,7 @@ public class SyndicateUGHttpClient implements Closeable {
     }
     
     public Future<ClientResponse> unlink(String path) throws IOException {
-        WebParamBuilder builder = new WebParamBuilder(path);
+        WebParamBuilder builder = new WebParamBuilder(FS_PREFIX + path);
         builder.addParam(UNLINK);
         return this.client.deleteAsync(builder.build());
     }
@@ -327,7 +329,7 @@ public class SyndicateUGHttpClient implements Closeable {
     }
     
     public Future<ClientResponse> removeXattr(String path, String key) throws IOException {
-        WebParamBuilder builder = new WebParamBuilder(path);
+        WebParamBuilder builder = new WebParamBuilder(FS_PREFIX + path);
         builder.addParam(REMOVE_XATTR);
         builder.addParam(REMOVE_XATTR_KEY, key);
         return this.client.deleteAsync(builder.build());
@@ -338,7 +340,7 @@ public class SyndicateUGHttpClient implements Closeable {
     }
     
     public Future<ClientResponse> close(String path, FileDescriptor fi) throws IOException {
-        WebParamBuilder builder = new WebParamBuilder(path);
+        WebParamBuilder builder = new WebParamBuilder(FS_PREFIX + path);
         builder.addParam(CLOSE);
         builder.addParam(CLOSE_FD, fi.getFd());
         return this.client.deleteAsync(builder.build());

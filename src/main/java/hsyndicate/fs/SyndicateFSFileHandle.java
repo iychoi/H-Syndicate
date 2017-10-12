@@ -36,6 +36,8 @@ public class SyndicateFSFileHandle implements Closeable {
     
     private static final Log LOG = LogFactory.getLog(SyndicateFSFileHandle.class);
 
+    private static final int LOCAL_READ_FAIL_THRESHOLD = 5;
+    
     private SyndicateFileSystem filesystem;
     private SyndicateFSFileStatus status;
     private FileDescriptor fileDescriptor;
@@ -44,6 +46,7 @@ public class SyndicateFSFileHandle implements Closeable {
     private boolean modified = false;
     private long blockSize;
     private boolean localFileSystem;
+    private int localReadFailCount;
     private Map<UnsignedLong, File> localCachedBlocks;
     private Thread keepaliveThread;
 
@@ -83,6 +86,7 @@ public class SyndicateFSFileHandle implements Closeable {
         this.modified = false;
 
         this.blockSize = status.getBlockSize();
+        this.localReadFailCount = 0;
         
         String host = this.filesystem.getSyndicateFsConfiguration().getHost();
         if(IPUtils.isLocalIPAddress(host)) {
@@ -159,6 +163,16 @@ public class SyndicateFSFileHandle implements Closeable {
                 if(cachedBlockFile.exists()) {
                     LOG.info("read from local cache file");
                     return new FileInputStream(cachedBlockFile);
+                } else {
+                    // cannot access the file
+                    if(this.localReadFailCount < LOCAL_READ_FAIL_THRESHOLD) {
+                        LOG.info("cannot read from local cache file - " + this.localReadFailCount);
+                        this.localReadFailCount++;
+                    } else {
+                        // keep failing...
+                        LOG.info("switch to read via REST");
+                        this.localFileSystem = false;
+                    }
                 }
             }
         }
